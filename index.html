@@ -24,10 +24,10 @@
   --volt:#D4FF3A; --ink:#0B0B0C; --volt-dim:rgba(212,255,58,.13);
   --warn:#FFB35C; --bad:#FF5A5F; --blue:#8AB4FF;
   --f:'Onest',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
-  --pad:20px; --sb:max(env(safe-area-inset-bottom),12px); --st:env(safe-area-inset-top,0px);
+  --pad:20px; --sb:max(calc(env(safe-area-inset-bottom) - 10px),12px); /* buttons sit just above the home indicator */ --st:env(safe-area-inset-top,0px);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;height:100dvh;margin:0;overflow:hidden;background:var(--bg);color:var(--tx);font-family:var(--f);font-size:16px;line-height:1.4;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+html,body{height:100%;height:100dvh;height:var(--app-h,100dvh);margin:0;overflow:hidden;background:var(--bg);color:var(--tx);font-family:var(--f);font-size:16px;line-height:1.4;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
 button:disabled{opacity:.35}
 input,textarea{font:inherit;color:inherit}
@@ -153,6 +153,15 @@ svg{display:block}
 .last .k{font-size:14px;color:var(--mu)}
 .last .v{font-size:18px;font-weight:600;margin-top:3px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .last .s{font-size:15px;color:var(--tx2);margin-top:8px;line-height:1.4}
+.last .tgt{font-size:15px;font-weight:700;color:var(--volt);margin-top:10px;font-variant-numeric:tabular-nums}
+.mode{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding:10px 12px 10px 14px;border-radius:14px;background:var(--volt-dim);font-size:14px;line-height:1.35;color:var(--tx2)}
+.mode b{color:var(--volt)}
+.mode.light{background:rgba(255,179,92,.13)}
+.mode.light b{color:var(--warn)}
+.mode button{flex:none;height:34px;padding:0 12px;border-radius:10px;background:var(--s2);color:var(--tx);font-weight:600;font-size:14px}
+.ci-plan{margin-top:16px;padding:12px 14px;border-radius:14px;background:var(--s2);font-size:15px;line-height:1.4;color:var(--tx2);min-height:22px}
+.ci-plan b{color:var(--volt)}
+.ci-plan.light b{color:var(--warn)}
 .sets{margin-top:18px}
 .sets-h,.set-row{display:grid;grid-template-columns:34px 1fr 1fr 60px;gap:8px;align-items:center}
 .uni .sets-h,.uni .set-row{grid-template-columns:34px 1fr .85fr .85fr 60px}
@@ -355,6 +364,11 @@ body.resting .w-bottom .wnav{visibility:hidden}
 
 /* ================= constants ================= */
 var IMG_BASE='https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
+/* iOS home-screen app: on a cold start WebKit reports the viewport 62pt short (status bar) until the app is
+   backgrounded once, leaving an empty strip at the bottom. Pinning the page to the screen height fixes the viewport. */
+(function(){function fit(){if(!navigator.standalone)return;var land=innerWidth>innerHeight;
+  document.documentElement.style.setProperty('--app-h',(land?Math.min(screen.width,screen.height):Math.max(screen.width,screen.height))+'px')}
+  fit();addEventListener('resize',fit);addEventListener('orientationchange',fit)})();
 var LS={boot:'wf1.boot',session:'wf1.session',queue:'wf1.queue',last:'wf1.lastDone',fin:'wf1.finished'};
 var MARK='Веб-форма';
 var FEELINGS=[
@@ -363,7 +377,7 @@ var FEELINGS=[
   {v:'Тяжело — сильно устал',t:'Тяжело',s:'сильно устал'},
   {v:'Перегрузка — нагрузка чрезмерная',t:'Перегрузка',s:'было слишком'}
 ];
-var ENERGY=['Высокая','Средняя','Низкая'];
+var ENERGY=['Много сил','Бодр','Нормально','Разбит'];
 
 /* exercise library: image, technique cues, history matcher (order matters) */
 var LIB=[
@@ -614,35 +628,80 @@ function historyList(ex,beforeIso,n){
 function bestE1(ex,beforeIso){var b=0;histRows(ex).forEach(function(r){if(r.date<beforeIso)b=Math.max(b,e1rm(r.kg,r.reps))});return b}
 function setsStr(sets){return sets.map(function(s){return (s.kg!=null?fmtN(s.kg):'—')+' × '+(s.reps!=null?fmtN(s.reps):'—')}).join(',  ')}
 
-function suggestion(ex,prev,rec){
-  var t;
-  if(!prev||!prev.sets.length){
-    t='Первый раз — подбери вес так, чтобы в запасе оставалось 2–3 повтора.';
+/* ================= coach («Методика v2.1» + «Правила тренера») =================
+   Double progression: every set at the top of the range with RIR >= 1 -> one weight step, else +1 rep in one set.
+   Light day (bad sleep / feeling / confirmed recovery signals): no progression attempt, one set fewer, RIR 2–3.
+   Weight steps are never guessed: only a numeric step from «Справочник упражнений» is applied. */
+function lastRir(prev){var r=null;prev.sets.forEach(function(s){var v=num(s.rir);if(v!=null)r=v});return r}
+function stepOf(ex){var m=/^\s*(\d+(?:[.,]\d+)?)/.exec(String((ex.cat&&ex.cat.step)||''));return m?Number(m[1].replace(',','.')):null}
+function topKg(sets){var k=sets.map(function(s){return s.kg}).filter(function(v){return v!=null});return k.length?Math.max.apply(null,k):null}
+function stalled(ex,beforeIso){ // the last two sessions did not beat the one before them
+  var h=historyList(ex,beforeIso,3);if(h.length<3)return false;
+  var e=h.map(function(x){return x.sets.reduce(function(m,s){return Math.max(m,e1rm(s.kg,s.reps))},0)});
+  return e[2]>0&&e[0]<=e[2]&&e[1]<=e[2];
+}
+function coachTarget(ex,prev,mode){
+  if(!prev||!prev.sets.length)return {sets:null,text:'Первый раз — подбери вес так, чтобы в запасе оставалось 2–3 повтора.'};
+  var src=[];
+  for(var i=0;i<ex.sets;i++){var p=prev.sets[i]||prev.sets[prev.sets.length-1],lr=ex.unilateral?parseLR(p.note):null;
+    src.push({kg:p.kg,reps:p.reps,left:lr?num(lr[0]):p.reps,right:lr?num(lr[1]):p.reps})}
+  var w=topKg(prev.sets),same=prev.sets.every(function(x){return x.kg===prev.sets[0].kg}),kgTxt=w!=null&&same?fmtN(w)+' кг':'веса как в прошлый раз';
+  if(mode==='light')return {sets:src,goal:kgTxt+', повторы как в прошлый раз',text:'Лёгкий день: без попытки прогресса, запас 2–3 повтора.'};
+  var reps=prev.sets.map(function(s){return ex.unilateral?Math.min.apply(null,[s.reps||0].concat((parseLR(s.note)||[]).map(Number))):(s.reps||0)});
+  var top=ex.repHi&&reps.every(function(r){return r>=ex.repHi}),rir=lastRir(prev),t,goal;
+  if(top&&rir===0){t='Все подходы дошли до '+ex.repHi+', но на пределе (RIR 0). Сначала повтори те же цифры с запасом хотя бы 1 повтор.';goal=kgTxt+', как в прошлый раз'}
+  else if(top){
+    var st=stepOf(ex);
+    if(st&&w!=null){var nw=Math.round((w+st)*100)/100;src.forEach(function(s){s.kg=nw;s.reps=ex.repLo;s.left=ex.repLo;s.right=ex.repLo});
+      goal=fmtN(nw)+' кг × от '+ex.repLo;t='Все подходы дошли до '+ex.repHi+(rir!=null?' с запасом':'')+' — сегодня +'+fmtN(st)+' кг, повторы снова от '+ex.repLo+'.'}
+    else{goal='+ шаг веса, повторы от '+ex.repLo;t='Все подходы дошли до '+ex.repHi+' — добавь минимальный шаг веса на этом тренажёре и начни снова от '+ex.repLo+' повторов. Шаг тренажёра ещё не записан в справочнике, поэтому вес поставь сам.'}
   }else{
-    var reps=prev.sets.map(function(s){return s.reps||0}),kgs=prev.sets.map(function(s){return s.kg}).filter(function(k){return k!=null});
-    var top=ex.repHi&&reps.length>=Math.min(ex.sets,prev.sets.length)&&reps.every(function(r){return r>=ex.repHi});
-    var w=kgs.length?Math.max.apply(null,kgs):null;
-    if(top) t='Все подходы дошли до '+ex.repHi+' — сегодня добавь минимальный шаг веса.';
-    else t=(w!=null?'Оставь '+fmtN(w)+' кг':'Оставь вес')+' и добавь +1 повтор там, где меньше '+(ex.repHi||'верхней границы')+'.';
+    if(mode==='push'){
+      var up=[];src.forEach(function(q,k){if(!ex.repHi||(reps[k]!=null?reps[k]:reps[reps.length-1])<ex.repHi){q.reps=(q.reps||0)+1;if(ex.unilateral){q.left=(q.left||0)+1;q.right=(q.right||0)+1}up.push(k+1)}});
+      return {sets:src,goal:'+1 повтор '+(up.length===src.length?'в каждом подходе':(up.length===1?'в '+up[0]+'-м подходе':'в подходах '+up.join(', ')))+', вес тот же',text:'Много сил: добавь повтор везде, где не дошёл до верха, но без отказа — запас хотя бы 1 повтор.'+(stalled(ex,S.session?S.session.date:todayISO())?' Два занятия без прогресса — сегодня хороший день это исправить.':'')};
+    }
+    var j=reps.findIndex(function(r){return !ex.repHi||r<ex.repHi});if(j<0||j>=src.length)j=0;
+    var s=src[j];s.reps=(s.reps||0)+1;if(ex.unilateral){s.left=(s.left||0)+1;s.right=(s.right||0)+1}
+    goal=(j+1)+'-й подход: '+(s.kg!=null?fmtN(s.kg)+' кг × ':'')+(ex.unilateral?'Л '+s.left+' / П '+s.right:s.reps)+' (+1 повтор), остальные как в прошлый раз';t='Двойная прогрессия: вес тот же, добавь повтор хотя бы в одном подходе.'+(rir===0?' В прошлый раз был предел (RIR 0) — если не идёт, повтори прошлые цифры.':'');
   }
-  if(rec&&rec.level==='warn')t+=' Восстановление ниже обычного — держи запас 2–3 повтора.';
-  return t;
+  if(stalled(ex,S.session?S.session.date:todayISO()))t+=' Два занятия без прогресса — стоит разобрать причины (техника, сон, еда). Это ещё не застой.';
+  return {sets:src,goal:goal,text:t};
 }
 
-/* recovery: latest day vs previous 7 */
+/* recovery per «Методика v2.1»: 3-day trend vs the personal baseline (up to 28 days before it).
+   Thresholds are the person's own spread (±1 SD), not fixed numbers. Until 28 baseline days exist,
+   these signals only inform; the pre-workout check-in decides the mode. */
+function stat(arr,k){var v=arr.map(function(x){return x[k]}).filter(function(x){return x!=null});if(!v.length)return null;
+  var m=v.reduce(function(a,b){return a+b},0)/v.length;return {m:m,sd:Math.sqrt(v.reduce(function(a,b){return a+(b-m)*(b-m)},0)/v.length),n:v.length}}
 function recovery(){
-  var h=(S.boot.health||[]).filter(function(x){return x.hrv||x.rhr||x.sleep});
+  var today=todayISO(),h=(S.boot.health||[]).filter(function(x){return x.date<=today&&(x.hrv!=null||x.rhr!=null||x.sleep!=null)});
   if(!h.length)return null;
-  var cur=h[h.length-1],base=h.slice(-8,-1);
-  function avg(k){var v=base.map(function(x){return x[k]}).filter(function(x){return x!=null});return v.length?v.reduce(function(a,b){return a+b},0)/v.length:null}
-  var aH=avg('hrv'),aR=avg('rhr'),aS=avg('sleep');
-  var ok=0,known=0,issues=[];
-  if(cur.hrv!=null&&aH){known++;if(cur.hrv>=aH*0.9)ok++;else issues.push('HRV ниже обычного')}
-  if(cur.rhr!=null&&aR){known++;if(cur.rhr<=aR+3)ok++;else issues.push('пульс покоя выше обычного')}
-  if(cur.sleep!=null){known++;if(cur.sleep>=6.5)ok++;else issues.push('мало сна')}
-  var level=known===0?'flat':(ok===known?'good':(ok>=known-1?'ok':'warn'));
-  return {cur:cur,aH:aH,aR:aR,aS:aS,level:level,issues:issues};
+  var tr=h.slice(-3),base=h.slice(-31,-3),last=h[h.length-1];
+  // the row for today exists only after a morning sync; its sleep is last night's (sleep inside today's calendar day)
+  var night=last.date===today&&last.sleep!=null?last.sleep:null;
+  var t={hrv:stat(tr,'hrv'),rhr:stat(tr,'rhr'),sleep:stat(tr,'sleep')},b={hrv:stat(base,'hrv'),rhr:stat(base,'rhr'),sleep:stat(base,'sleep')};
+  var issues=[],notes=[];
+  if(t.hrv&&b.hrv&&b.hrv.n>=7&&t.hrv.m<b.hrv.m-b.hrv.sd)issues.push('HRV ниже твоей нормы');
+  if(t.rhr&&b.rhr&&b.rhr.n>=7&&t.rhr.m>b.rhr.m+b.rhr.sd)issues.push('пульс покоя выше нормы');
+  if(t.sleep&&b.sleep&&b.sleep.n>=7&&t.sleep.m<b.sleep.m-b.sleep.sd)issues.push('сна меньше нормы');
+  var nightShort=night!=null&&b.sleep&&b.sleep.n>=7&&night<b.sleep.m-b.sleep.sd;
+  if(nightShort)notes.push('короткая ночь — '+fmtN(Math.round(night*10)/10)+' ч');
+  else if(night==null&&last.sleep!=null&&b.sleep&&b.sleep.n>=7&&last.sleep<b.sleep.m-b.sleep.sd&&issues.indexOf('сна меньше нормы')<0)notes.push('короткая ночь на '+fmtDay(last.date)+' — '+fmtN(Math.round(last.sleep*10)/10)+' ч');
+  return {t:t,b:b,issues:issues,notes:notes,baseDays:base.length,ready:base.length>=28,last:last.date,night:night,nightShort:nightShort,
+    level:!issues.length?'good':(issues.length===1?'ok':'warn')};
 }
+/* mode from the check-in (+ confirmed recovery signals once the 28-day baseline exists) */
+function decideMode(feel,rec){
+  var why=[],up=feel==='good'||feel==='great',signals=rec&&rec.ready&&rec.level==='warn',shortN=rec&&rec.nightShort;
+  if(feel==='bad')why.push('самочувствие — разбит');
+  if(shortN&&!up)why.push('короткая ночь — '+fmtN(Math.round(rec.night*10)/10)+' ч');
+  if(signals&&!up)why.push(rec.issues.join(', '));
+  if(why.length)return {mode:'light',why:why};
+  if(feel==='great'&&!shortN&&!signals)return {mode:'push',why:[]};
+  return {mode:'normal',why:feel==='great'?['много сил, но '+(shortN?'ночь была короткой':'восстановление ниже нормы')+' — без форсирования']:[]};
+}
+var FEEL_ORDER=['great','good','ok','bad'],CI_FEEL={great:'много сил',good:'бодр',ok:'нормально',bad:'разбит'},CI_ENERGY={great:'Много сил',good:'Бодр',ok:'Нормально',bad:'Разбит'};
+function modeText(m){return m==='light'?'<b>Лёгкий день</b> — без попытки прогресса, на подход меньше в упражнениях с 3+ подходами, запас 2–3 повтора.':(m==='push'?'<b>Сильный день</b> — +1 повтор в каждом подходе ниже верха диапазона (или шаг веса), запас хотя бы 1 повтор.':'<b>Обычный день</b> — цель с прогрессией: +1 повтор или шаг веса, запас 1–2 повтора.')}
 
 function nextDay(){
   var last=null;(S.boot.log||[]).forEach(function(r){var m=/Full Body ([ABC])/.exec(r.workout||'');if(m&&(!last||r.date>=last.date))last={date:r.date,d:m[1]}});
@@ -730,20 +789,41 @@ function newSession(day,date,opts){
   opts=opts||{};
   S.session={id:Date.now().toString(36),date:date,day:day,workout:opts.workout||workoutName(day),startedAt:Date.now(),energy:'',
     plan:JSON.parse(JSON.stringify(S.boot.program.days[day]||[])),sets:{},rir:{},notes:{},extra:{},rest:null,page:0,backfill:date!==todayISO(),watchMin:opts.watchMin||null};
+  if(opts.coach&&!S.session.backfill){S.session.coach=opts.coach;S.session.energy=CI_ENERGY[opts.coach.feel]||'';if(opts.coach.mode==='light')cutPlan(true)}
   prefill();
   saveSession();
 }
-/* pre-fill every planned set with what was lifted last time */
+/* light day: one set fewer where the plan has 3+ sets (never below what is already done) */
+function cutPlan(on){
+  var s=S.session,c=s.coach;c.cut=c.cut||{};
+  var done={};exList().forEach(function(ex){done[ex.name]=doneSets(ex).length});
+  s.plan.forEach(function(it){
+    if(on&&!c.cut[it.order]&&it.sets>=3&&(done[it.name]||0)<it.sets){it.sets--;c.cut[it.order]=1}
+    else if(!on&&c.cut[it.order]){it.sets++;delete c.cut[it.order]}
+  });
+  delete dayCache['s:'+s.id];
+}
+/* pre-fill planned sets: the coach's target for today (or, when entering a past workout, last time's numbers).
+   Only fields the user has not typed into are touched (a_* flags). */
 function prefill(){
+  var s=S.session,mode=s.coach&&!s.backfill?s.coach.mode:null;
   exList().forEach(function(ex){
-    var prev=prevSession(ex,S.session.date);if(!prev||!prev.sets.length)return;
+    var prev=prevSession(ex,s.date);if(!prev||!prev.sets.length)return;
+    var tg=mode?coachTarget(ex,prev,mode).sets:null;
     for(var n=1;n<=ex.sets;n++){
-      var p=prev.sets[n-1]||prev.sets[prev.sets.length-1],o=setObj(ex,n);
-      if(p.kg!=null){o.kg=str(p.kg);o.a_kg=1}
-      if(ex.unilateral){var lr=parseLR(p.note);var l=lr?lr[0]:str(p.reps),r=lr?lr[1]:str(p.reps);if(l){o.left=l;o.a_left=1}if(r){o.right=r;o.a_right=1}}
-      else if(p.reps!=null){o.reps=str(p.reps);o.a_reps=1}
+      var o=setObj(ex,n);if(o.done)continue;
+      var p=tg?tg[n-1]:(function(q){var lr=ex.unilateral?parseLR(q.note):null;return {kg:q.kg,reps:q.reps,left:lr?lr[0]:q.reps,right:lr?lr[1]:q.reps}})(prev.sets[n-1]||prev.sets[prev.sets.length-1]);
+      if(!p)continue;
+      putAuto(o,'kg',p.kg);
+      if(ex.unilateral){putAuto(o,'left',p.left);putAuto(o,'right',p.right)}else putAuto(o,'reps',p.reps);
     }
   });
+}
+function putAuto(o,f,v){if(v==null||v==='')return;if(o[f]==null||o[f]===''||o['a_'+f]){o[f]=str(v);o['a_'+f]=1}}
+function setMode(m){
+  var s=S.session;if(!s||!s.coach||s.coach.mode===m)return;
+  s.coach.mode=m;s.coach.manual=1;cutPlan(m==='light');prefill();saveSession();renderWorkout();
+  toast(m==='light'?'Лёгкий день: цели пересчитаны':'Обычный день: цели с прогрессией','volt');
 }
 function exList(){var s=S.session;return s.plan?buildDay(s.day,s.plan,'s:'+s.id):buildDay(s.day)} // a running workout keeps the program it started with
 function setCount(ex){return ex.sets+(S.session.extra[ex.id]||0)}
@@ -796,12 +876,14 @@ function renderHome(){
     h+='<button class="resume alt" data-act="restore"><span class="t"><b>Продолжить Full Body '+esc(draft.day)+'</b><span>В таблице уже '+plural(draft.rows.length,'подход','подхода','подходов')+' за сегодня</span></span>'+I.restore+'</button>';
   }
   if(rec){
-    var c=rec.cur,lvl={good:['good','Готов к нагрузке'],ok:['good','В норме'],warn:['warnc','Осторожно'],flat:['muc','Нет данных']}[rec.level];
+    var lvl={good:['good','В норме'],ok:['warnc','Есть сигнал'],warn:['warnc','Осторожно']}[rec.level];
+    var mv=function(k){return rec.t[k]?rec.t[k].m:null};
     h+='<div class="card"><div class="row-b"><span class="t17">Восстановление</span><span class="status '+lvl[0]+'"><i></i>'+lvl[1]+'</span></div><div class="metrics">';
-    h+=metric('Сон',c.sleep!=null?fmtN(Math.round(c.sleep*10)/10):'—','ч',c.sleep,rec.aS,true,1);
-    h+=metric('HRV',c.hrv!=null?Math.round(c.hrv):'—','мс',c.hrv,rec.aH,true,0);
-    h+=metric('Пульс покоя',c.rhr!=null?Math.round(c.rhr):'—','',c.rhr,rec.aR,false,0);
-    h+='</div><div class="note-s">'+(rec.issues.length?esc(rec.issues.join(', ').replace(/^./,function(x){return x.toUpperCase()}))+'. ':'')+'Данные за '+esc(fmtDay(c.date))+' в сравнении с прошлой неделей. Это ориентир, а не диагноз.</div></div>';
+    h+=metric('Сон',mv('sleep')!=null?fmtN(Math.round(mv('sleep')*10)/10):'—','ч',mv('sleep'),rec.b.sleep&&rec.b.sleep.m,true,1);
+    h+=metric('HRV',mv('hrv')!=null?Math.round(mv('hrv')):'—','мс',mv('hrv'),rec.b.hrv&&rec.b.hrv.m,true,0);
+    h+=metric('Пульс покоя',mv('rhr')!=null?Math.round(mv('rhr')):'—','',mv('rhr'),rec.b.rhr&&rec.b.rhr.m,false,0);
+    var sig=rec.issues.concat(rec.notes);
+    h+='</div><div class="note-s">'+(sig.length?esc(sig.join('; ').replace(/^./,function(x){return x.toUpperCase()}))+'. ':'')+'Среднее за 3 дня по '+esc(fmtDay(rec.last))+' против твоей нормы'+(rec.ready?' за 28 дней':' — она ещё собирается ('+rec.baseDays+' из 28 дней), поэтому нагрузку пока решает твоё самочувствие перед стартом')+'.'+(rec.night!=null?'':' Данных за сегодня с часов пока нет — перед стартом спрошу только самочувствие.')+'</div></div>';
   }
   unloggedWatch().forEach(function(w){
     h+='<div class="notice"><div class="ic">'+I.watch+'</div><div class="tx"><b>'+esc(fmtDay(w.date))+' — подходы не записаны</b><span>Apple Watch: '+Math.round(w.minutes)+' мин'+(w.kcal?' · '+Math.round(w.kcal)+' ккал':'')+'</span></div><button class="btn2" data-act="backfill" data-date="'+w.date+'">Внести</button></div>';
@@ -904,13 +986,15 @@ function goTo(i,smooth){
 function goToEx(id){var i=exList().findIndex(function(x){return x.id===id});if(i>=0)goTo(i)}
 
 function exPage(ex,i,total){
-  var s=S.session,cnt=setCount(ex),prev=prevSession(ex,s.date),rec=recovery(),best=bestE1(ex,s.date),fo=firstOpen(ex);
+  var s=S.session,cnt=setCount(ex),prev=prevSession(ex,s.date),best=bestE1(ex,s.date),fo=firstOpen(ex);
+  var tg=s.backfill?null:coachTarget(ex,prev,s.coach?s.coach.mode:'normal');
   var m=mates(ex),mi=m?m.findIndex(function(x){return x.id===ex.id}):-1;
   var h='<button class="media" data-act="detail" data-ex="'+ex.id+'" aria-label="Как выполнять">'+(ex.img?'<img src="'+imgUrl(ex.img,0)+'" alt=""><img class="b" src="'+imgUrl(ex.img,1)+'" alt="">':'')+'<span class="cnt">'+(i+1)+' из '+total+'</span><span class="how">'+I.info+'Техника</span></button>';
   if(m)h+='<div class="ss-bar">'+I.link+'Суперсет · '+(mi+1)+' из '+m.length+' — '+(mi<m.length-1?'после подхода сразу '+esc(short(m[mi+1].name).toLowerCase()):'после пары отдых '+esc(ex.rest.replace(/ после пары/,'')))+'</div>';
   h+='<h2 class="ex-name">'+esc(short(ex.name))+'</h2>';
   h+='<div class="ex-meta"><span><b>'+ex.sets+' × '+esc(ex.reps)+'</b> повторов</span><span>отдых '+esc(ex.rest.replace(/ после пары/,''))+'</span>'+(ex.dumbbell?'<span class="tg">вес одной гантели</span>':'')+(ex.addedWeight?'<span class="tg">добавочный вес</span>':'')+(ex.counter?'<span class="tg">противовес</span>':'')+(ex.unilateral?'<span class="tg">левая и правая отдельно</span>':'')+'</div>';
-  h+='<div class="last"><div class="k">'+(prev?'Прошлый раз, '+fmtShort(prev.date):'Прошлый раз')+'</div><div class="v">'+(prev?esc(setsStr(prev.sets)):'Нет записей')+'</div><div class="s">'+esc(suggestion(ex,prev,rec))+'</div></div>';
+  h+=modeBar();
+  h+='<div class="last"><div class="k">'+(prev?'Прошлый раз, '+fmtShort(prev.date):'Прошлый раз')+'</div><div class="v">'+(prev?esc(setsStr(prev.sets)):'Нет записей')+'</div>'+(tg&&tg.goal&&s.coach?'<div class="tgt">Сегодня: '+esc(tg.goal)+'</div>':'')+(tg?'<div class="s">'+esc(tg.text)+'</div>':'')+'</div>';
   h+='<div class="sets'+(ex.unilateral?' uni':'')+'"><div class="sets-h"><div>#</div><div>кг</div>'+(ex.unilateral?'<div>Левая</div><div>Правая</div>':'<div>Повторы</div>')+'<div></div></div>';
   for(var n=1;n<=cnt;n++){
     var o=setObj(ex,n),isPr=o.done&&best>0&&e1rm(num(o.kg),repsOf(ex,o))>best,ph=ex.repLo?(ex.repLo===ex.repHi?String(ex.repLo):ex.repLo+'–'+ex.repHi):'';
@@ -930,6 +1014,11 @@ function exPage(ex,i,total){
   return h;
 }
 
+function modeBar(){
+  var c=S.session.coach;if(!c||S.session.backfill)return '';
+  var lbl={light:'<b>Лёгкий день</b> · без прогресса, запас 2–3',push:'<b>Сильный день</b> · +1 повтор везде, где можно',normal:'<b>Обычный день</b> · цель с прогрессией'}[c.mode],to=c.mode==='normal'?'light':'normal';
+  return '<div class="mode '+c.mode+'"><span>'+lbl+'</span><button data-act="mode" data-v="'+to+'">'+(to==='light'?'Лёгкий':'Обычный')+'</button></div>';
+}
 function finishPage(){
   var s=S.session,t=totals(),exs=exList(),mins=minutesNow();
   var h='<h2 class="ex-name" style="margin-top:6px">Итоги</h2><div class="stats" style="margin-top:14px"><div class="stat"><div class="v">'+t.done+'<small> / '+t.planned+'</small></div><div class="l">подходов</div></div><div class="stat"><div class="v">'+Math.round(t.ton).toLocaleString('ru-RU')+'</div><div class="l">тоннаж, кг</div></div></div>';
@@ -937,7 +1026,7 @@ function finishPage(){
   if(t.done<t.planned)h+='<div class="warn-line">Не отмеченные подходы не попадут в таблицу. Если что-то пропустил — нажми на упражнение.</div>';
   h+='<div class="field"><label for="f-min">Длительность, минут</label><input id="f-min" class="txt" data-fin="minutes" inputmode="numeric" autocomplete="off" value="'+esc(mins==null?'':mins)+'" placeholder="например 75"></div>';
   h+='<div class="field"><div class="lbl">Самочувствие после</div><div class="choices c2">'+FEELINGS.map(function(f){return '<button class="choice'+(f.v===s.feeling?' on':'')+'" data-act="feel" data-v="'+esc(f.v)+'">'+f.t+'<small>'+f.s+'</small></button>'}).join('')+'</div></div>';
-  h+='<div class="field"><div class="lbl">Энергия до тренировки</div><div class="choices c3">'+ENERGY.map(function(v){return '<button class="choice'+(v===s.energy?' on':'')+'" data-act="energy" data-v="'+v+'">'+v+'</button>'}).join('')+'</div></div>';
+  h+='<div class="field"><div class="lbl">Самочувствие до тренировки</div><div class="choices c2">'+ENERGY.map(function(v){return '<button class="choice'+(v===s.energy?' on':'')+'" data-act="energy" data-v="'+v+'">'+v+'</button>'}).join('')+'</div></div>';
   h+='<div class="field"><label for="f-notes">Комментарий</label><textarea id="f-notes" class="note-in" data-fin="comment" rows="3" style="margin:0" placeholder="Самочувствие, замены, техника">'+esc(s.comment||'')+'</textarea></div>';
   h+='<button class="linkbtn danger" style="margin-top:18px" data-act="cancel-ask">Отменить тренировку без сохранения</button>';
   return h;
@@ -962,6 +1051,7 @@ document.addEventListener('click',function(e){
   switch(act){
     case 'day':selectDay(a.dataset.day,true);break;
     case 'start':startToday();break;
+    case 'mode':setMode(a.dataset.v);break;
     case 'backfill':openBackfill(a.dataset.date);break;
     case 'restore':restoreDraft();break;
     case 'resume':S.view='workout';render();keepAwake();runRest();break;
@@ -1028,7 +1118,25 @@ window.addEventListener('resize',function(){var pg=$('#pager');if(pg&&S.session)
 
 function startToday(){
   if(S.session){S.view='workout';render();return}
-  newSession(S.day,todayISO());S.view='workout';render();keepAwake();
+  openCheckin();
+}
+/* pre-workout check-in: the watch has no data for last night before ~midnight, and only you know how you feel */
+function openCheckin(){
+  var feel='',rec=recovery(),day=S.day;
+  var sl=rec&&rec.night!=null?'Сон этой ночью по часам: <b>'+fmtN(Math.round(rec.night*10)/10)+' ч</b>'+(rec.nightShort?' — меньше твоей нормы':''):'Сон за эту ночь ещё не пришёл с часов — учитываю самочувствие и тренд за 3 дня.';
+  var h='<h3>Как ты сегодня?</h3><p class="sub">'+sl+'</p>';
+  h+='<div class="field"><div class="choices c2" id="ci-feel">'+FEEL_ORDER.map(function(k){return '<button class="choice" data-v="'+k+'">'+CI_ENERGY[k]+'</button>'}).join('')+'</div></div>';
+  h+='<div class="ci-plan" id="ci-plan"></div><div style="height:18px"></div><button class="cta" id="ci-go">Начать Full Body '+esc(day)+'</button>';
+  openSheet(h);
+  function upd(){var d=decideMode(feel,rec),el=$('#ci-plan');el.className='ci-plan '+d.mode;el.innerHTML=(feel?modeText(d.mode):'Выбери, как себя чувствуешь — подберу нагрузку.')+(feel&&d.why.length?'<br><span style="color:var(--mu)">Почему: '+esc(d.why.join(', '))+'</span>':'')}
+  $('#ci-feel').addEventListener('click',function(e){var b=e.target.closest('.choice');if(!b)return;feel=feel===b.dataset.v?'':b.dataset.v;pickOn(b,!feel);upd()});
+  upd();
+  $('#ci-go').onclick=function(){
+    if(S.session){closeSheet();return}
+    var d=decideMode(feel,rec);
+    newSession(day,todayISO(),{coach:{mode:d.mode,why:d.why,feel:feel,night:rec?rec.night:null}});
+    closeSheet();S.view='workout';render();keepAwake();
+  };
 }
 /* note text the user typed, without the parts payloadFor() generates */
 function userNote(note){
@@ -1216,11 +1324,17 @@ function saveFinish(){
   if(t.done===0){toast('Нет ни одного выполненного подхода','bad');return}
   if(!s.feeling){toast('Выбери самочувствие после');var f=$('#pg-finish .choices');if(f){var pg=$('#pg-finish');pg.scrollTo({top:f.offsetTop-80,behavior:'smooth'})}return}
   var fm=$('#f-min');s.minutes=num(fm?fm.value:minutesNow());var fn=$('#f-notes');s.comment=(fn?fn.value:s.comment||'').trim();
-  enqueue('finishSession',{date:s.date,workout:s.workout,setsDone:t.done,setsPlanned:t.planned,minutes:s.minutes,energy:s.energy||'',feeling:s.feeling,notes:s.comment});
+  enqueue('finishSession',{date:s.date,workout:s.workout,setsDone:t.done,setsPlanned:t.planned,minutes:s.minutes,energy:s.energy||'',feeling:s.feeling,notes:[coachLine(s),s.comment].filter(String).join('; ')});
   flushNow();
   S.fin.push(s.date+'|'+s.workout);S.fin=S.fin.slice(-30);lsSet(LS.fin,S.fin);
   S.lastDone={report:report(),totals:t,minutes:s.minutes,date:s.date,workout:s.workout,prs:prList()};lsSet(LS.last,S.lastDone);
   stopRest();S.session=null;saveSession();S.view='done';render();letSleep();
+}
+/* how the day was planned, for the sheet and the report */
+function coachLine(s){
+  var c=s.coach;if(!c||s.backfill)return '';
+  var p=[];if(c.feel)p.push('самочувствие — '+CI_FEEL[c.feel]);if(c.night!=null)p.push('сон ночью '+fmtN(Math.round(c.night*10)/10)+' ч');
+  return ({light:'лёгкий день',push:'сильный день'}[c.mode]||'обычный день')+(c.manual?' (выбран вручную)':'')+(p.length?' — '+p.join(', '):'');
 }
 function prList(){var out=[];exList().forEach(function(ex){var best=bestE1(ex,S.session.date),top=0,txt='';doneSets(ex).forEach(function(n){var o=setObj(ex,n),r=repsOf(ex,o),v=e1rm(num(o.kg),r);if(v>top){top=v;txt=fmtN(num(o.kg))+' × '+r}});if(best>0&&top>best)out.push(short(ex.name)+' — '+txt)});return out}
 function report(){
@@ -1228,7 +1342,7 @@ function report(){
   exList().forEach(function(ex){var rows=[];for(var n=1;n<=setCount(ex);n++){var o=setObj(ex,n);if(!o.done)continue;rows.push(n+'. '+fmtN(num(o.kg))+' кг × '+(ex.unilateral?'Л '+o.left+', П '+o.right:o.reps)+' повт.')}
     lines.push(ex.name+' ('+ex.group+')\n'+(rows.length?rows.join('\n'):'не выполнялось/не записано')+(s.rir[ex.id]!=null?'\nRIR последнего подхода: '+s.rir[ex.id]:'')+(s.notes[ex.id]?'\nЗаметка: '+s.notes[ex.id]:''))});
   var t=totals();
-  lines.push('Всего: '+t.done+'/'+t.planned+' рабочих подходов','Продолжительность: '+(s.minutes||'не указана')+' мин','Энергия до: '+(s.energy||'не указана'),'После: '+(s.feeling||'не указано'),'Комментарии/замены: '+(s.comment||'нет'));
+  lines.push('Всего: '+t.done+'/'+t.planned+' рабочих подходов','Продолжительность: '+(s.minutes||'не указана')+' мин','Энергия до: '+(s.energy||'не указана'),'План дня: '+(coachLine(s)||'не задан'),'После: '+(s.feeling||'не указано'),'Комментарии/замены: '+(s.comment||'нет'));
   return lines.join('\n\n');
 }
 
