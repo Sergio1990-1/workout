@@ -879,11 +879,12 @@ function renderHome(){
     var lvl={good:['good','В норме'],ok:['warnc','Есть сигнал'],warn:['warnc','Осторожно']}[rec.level];
     var mv=function(k){return rec.t[k]?rec.t[k].m:null};
     h+='<div class="card"><div class="row-b"><span class="t17">Восстановление</span><span class="status '+lvl[0]+'"><i></i>'+lvl[1]+'</span></div><div class="metrics">';
-    h+=metric('Сон',mv('sleep')!=null?fmtN(Math.round(mv('sleep')*10)/10):'—','ч',mv('sleep'),rec.b.sleep&&rec.b.sleep.m,true,1);
+    var slv=rec.night!=null?rec.night:mv('sleep');
+    h+=metric(rec.night!=null?'Сон ночью':'Сон, 3 дня',slv!=null?fmtN(Math.round(slv*10)/10):'—','ч',slv,rec.b.sleep&&rec.b.sleep.m,true,1);
     h+=metric('HRV',mv('hrv')!=null?Math.round(mv('hrv')):'—','мс',mv('hrv'),rec.b.hrv&&rec.b.hrv.m,true,0);
     h+=metric('Пульс покоя',mv('rhr')!=null?Math.round(mv('rhr')):'—','',mv('rhr'),rec.b.rhr&&rec.b.rhr.m,false,0);
     var sig=rec.issues.concat(rec.notes);
-    h+='</div><div class="note-s">'+(sig.length?esc(sig.join('; ').replace(/^./,function(x){return x.toUpperCase()}))+'. ':'')+'Среднее за 3 дня по '+esc(fmtDay(rec.last))+' против твоей нормы'+(rec.ready?' за 28 дней':' — она ещё собирается ('+rec.baseDays+' из 28 дней), поэтому нагрузку пока решает твоё самочувствие перед стартом')+'.'+(rec.night!=null?'':' Данных за сегодня с часов пока нет — перед стартом спрошу только самочувствие.')+'</div></div>';
+    h+='</div><div class="note-s">'+(sig.length?esc(sig.join('; ').replace(/^./,function(x){return x.toUpperCase()}))+'. ':'')+(rec.night!=null?'Сон — прошлая ночь; HRV и пульс — среднее за 3 дня по ':'Среднее за 3 дня по ')+esc(fmtDay(rec.last))+' против твоей нормы'+(rec.ready?' за 28 дней':' — она ещё собирается ('+rec.baseDays+' из 28 дней), поэтому нагрузку пока решает твоё самочувствие перед стартом')+'.'+(rec.night!=null?'':' Данных за сегодня с часов пока нет — перед стартом спрошу только самочувствие.')+'</div></div>';
   }
   unloggedWatch().forEach(function(w){
     h+='<div class="notice"><div class="ic">'+I.watch+'</div><div class="tx"><b>'+esc(fmtDay(w.date))+' — подходы не записаны</b><span>Apple Watch: '+Math.round(w.minutes)+' мин'+(w.kcal?' · '+Math.round(w.kcal)+' ккал':'')+'</span></div><button class="btn2" data-act="backfill" data-date="'+w.date+'">Внести</button></div>';
