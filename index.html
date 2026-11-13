@@ -162,6 +162,17 @@ svg{display:block}
 .ci-plan{margin-top:16px;padding:12px 14px;border-radius:14px;background:var(--s2);font-size:15px;line-height:1.4;color:var(--tx2);min-height:22px}
 .ci-plan b{color:var(--volt)}
 .ci-plan.light b{color:var(--warn)}
+.ai{margin-top:12px}
+.ai .hd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.ai .tag2{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--volt)}
+.ai .tx{font-size:15px;line-height:1.45;color:var(--tx2)}
+.ai ul{margin:8px 0 0;padding:0;list-style:none}
+.ai li{font-size:15px;line-height:1.4;color:var(--tx2);padding:5px 0 5px 16px;position:relative}
+.ai li:before{content:'';position:absolute;left:2px;top:13px;width:5px;height:5px;border-radius:50%;background:var(--volt)}
+.ai .wait{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--mu)}
+.ai .wait i{width:8px;height:8px;border-radius:50%;background:var(--volt);animation:pulse 1.2s infinite;flex:none}
+.ai .more{color:var(--volt);font-size:14px;font-weight:600;margin-top:6px}
+.sheet .ai-sum{color:var(--tx2);margin-top:8px}
 .sets{margin-top:18px}
 .sets-h,.set-row{display:grid;grid-template-columns:34px 1fr 1fr 60px;gap:8px;align-items:center}
 .uni .sets-h,.uni .set-row{grid-template-columns:34px 1fr .85fr .85fr 60px}
@@ -319,7 +330,8 @@ body.resting .w-bottom .wnav{visibility:hidden}
    The access key comes from the link (#k=...) once and is kept in this page's own storage. */
 (function () {
   var API = 'https://script.google.com/macros/s/AKfycbzcbmUZZP3RrPeqQHUzEDnt28Gj98l1pHzzgB9dKVgNqT05DQZvrfOsPBgcLOKQ7TXt5A/exec';
-  var FNS = ['getBootstrap', 'saveSet', 'deleteSet', 'finishSession', 'applyOps'];
+  var FNS = ['getBootstrap', 'saveSet', 'deleteSet', 'finishSession', 'applyOps', 'getCoachPlan', 'reviewSession', 'weeklyReview'];
+  var SLOW = { getCoachPlan: 1, reviewSession: 1, weeklyReview: 1 }; // the coach thinks for up to a couple of minutes
   var key = null;
   try {
     var m = /[#&]k=([A-Za-z0-9_-]{32,128})/.exec(location.hash);
@@ -330,7 +342,7 @@ body.resting .w-bottom .wnav{visibility:hidden}
   function call(fn, args, ok, fail) {
     if (!key) { fail && fail(new Error('нет ключа доступа. Открой ссылку из инструкции целиком, вместе с частью после #')); return; }
     var ctl = window.AbortController ? new AbortController() : null;
-    var timer = setTimeout(function () { ctl && ctl.abort(); }, 30000);
+    var timer = setTimeout(function () { ctl && ctl.abort(); }, SLOW[fn] ? 240000 : 30000);
     var opts = { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow',
       body: JSON.stringify({ key: key, fn: fn, args: args }) };
     if (ctl) opts.signal = ctl.signal;
@@ -572,7 +584,7 @@ function short(n){return String(n).replace(/\s*\(.*\)/,'')}
 function plural(n,a,b,c){var m=n%10,h=n%100;return n+' '+(m===1&&h!==11?a:(m>=2&&m<=4&&(h<10||h>=20)?b:c))}
 
 /* ================= state ================= */
-var S={boot:lsGet(LS.boot,null),view:'home',day:null,session:lsGet(LS.session,null),queue:lsGet(LS.queue,[]),inflight:null,syncErr:null,retryT:null,lastDone:lsGet(LS.last,null),fin:lsGet(LS.fin,[])};
+var S={boot:lsGet(LS.boot,null),view:'home',day:null,session:lsGet(LS.session,null),queue:lsGet(LS.queue,[]),inflight:null,syncErr:null,retryT:null,lastDone:lsGet(LS.last,null),fin:lsGet(LS.fin,[]),aiBusy:{},aiErr:{},ciUpd:null};
 
 function saveSession(){if(S.session){if(!lsSet(LS.session,S.session))toast('Память телефона переполнена — данные могут не сохраниться','bad')}else lsDel(LS.session)}
 function saveQueue(){if(!lsSet(LS.queue,S.queue)&&S.queue.length)toast('Память телефона переполнена — не закрывай форму, пока не сохранится','bad')}
@@ -727,6 +739,98 @@ function sheetDraft(){
   return {day:m[1],workout:w,rows:rows.filter(function(r){return r.workout===w})};
 }
 
+/* ================= AI coach (Claude, on the server) =================
+   The server keeps every answer in the sheet «ИИ-тренер»; the form shows it and re-checks each weight:
+   a number that is not a weight from this exercise's history (or last weight ± step), or more than +10%,
+   makes that exercise fall back to the rules above. */
+function aiOn(){return !!(S.boot&&S.boot.ai&&S.boot.ai.enabled)}
+function aiGet(type,date,workout){var it=(S.boot&&S.boot.ai&&S.boot.ai.items)||[];for(var i=it.length-1;i>=0;i--){var x=it[i];if(x.type===type&&(date==null||x.date===date)&&(workout==null||x.workout===workout))return x}return null}
+function aiPut(x){var b=S.boot.ai||(S.boot.ai={enabled:true,items:[]});b.items=(b.items||[]).filter(function(y){return !(y.type===x.type&&y.date===x.date&&y.workout===x.workout)});b.items.push(x);lsSet(LS.boot,S.boot)}
+function aiPlanFor(day,date){var x=aiGet('plan',date,'Full Body '+day);return x&&x.data&&x.data.exercises&&x.data.by_feel?x.data:null}
+function isoAdd(iso,n){var d=dObj(iso);d.setDate(d.getDate()+n);return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function histWeights(ex){var w={};histRows(ex).forEach(function(r){if(r.kg!=null)w[Math.round(r.kg*100)/100]=1});return Object.keys(w).map(Number).sort(function(a,b){return a-b})}
+function inferStep(ws){var d=null;for(var i=1;i<ws.length;i++){var x=Math.round((ws[i]-ws[i-1])*100)/100;if(x>=0.5&&(d==null||x<d))d=x}return d}
+function goalStr(sets){var same=sets.every(function(q){return q.kg===sets[0].kg});
+  return same?(sets[0].kg!=null?fmtN(sets[0].kg)+' кг × ':'')+sets.map(function(q){return q.reps}).join(' · '):sets.map(function(q){return (q.kg!=null?fmtN(q.kg)+'×':'')+q.reps}).join(', ')}
+/* the coach's numbers for this exercise and mode, or {rej:1} when they fail the check, or null when there are none */
+function aiTarget(ex,prev,mode){
+  var plan=S.session&&!S.session.backfill?S.session.aiPlan:null;if(!plan)return null;
+  var e=null;(plan.exercises||[]).forEach(function(x){if(x.name===ex.name)e=x});
+  var m=e&&e[mode];if(!m)return null;
+  if(!prev||!prev.sets.length)return m.why?{sets:null,text:m.why,ai:1}:null; // first time: the coach's advice, the weight is yours to pick
+  if(!m.sets||!m.sets.length)return null;
+  var W=topKg(prev.sets),ws=histWeights(ex),st=stepOf(ex)||inferStep(ws),ok={},hi=(ex.repHi||30)+2,out=[];
+  ws.forEach(function(v){ok[v]=1});if(W!=null&&st)for(var k=-2;k<=2;k++)ok[Math.round((W+k*st)*100)/100]=1;
+  for(var i=0;i<ex.sets;i++){
+    var q=m.sets[Math.min(i,m.sets.length-1)],kg=q.kg==null?null:Math.round(Number(q.kg)*100)/100,r=Math.round(Number(q.reps));
+    if(!(r>=1&&r<=hi))return {rej:1};
+    if(kg!=null&&!ok[kg])return {rej:1};
+    if(W!=null&&(kg==null||kg<W*0.6||(kg>W*1.1+0.01&&!(st&&kg<=W+st+0.01))))return {rej:1};
+    out.push({kg:kg,reps:r,left:r,right:r});
+  }
+  return {sets:out,goal:goalStr(out),text:m.why||'',ai:1};
+}
+function target(ex,prev,mode){
+  var a=aiTarget(ex,prev,mode);if(a&&!a.rej)return a;
+  var t=coachTarget(ex,prev,mode);
+  if(a&&a.rej)t.text+=' Цифры тренера не прошли проверку по твоей истории весов, поэтому здесь цель по правилам.';
+  return t;
+}
+function aiRequest(slot,fn,p,done,tries){
+  if(S.aiBusy[slot])return;S.aiBusy[slot]=1;S.aiErr[slot]=null;aiRefresh();
+  google.script.run.withSuccessHandler(function(r){
+    S.aiBusy[slot]=0;
+    if(r&&r.pending&&(tries||0)<8){S.aiBusy[slot]=1;setTimeout(function(){S.aiBusy[slot]=0;aiRequest(slot,fn,p,done,(tries||0)+1)},20000);return} // another phone/tab is generating it
+    if(r&&r.type)aiPut(r);
+    if(r&&r.off&&S.boot.ai)S.boot.ai.enabled=false;
+    aiRefresh();done&&done(r);
+  }).withFailureHandler(function(e){S.aiBusy[slot]=0;S.aiErr[slot]=(e&&e.message)||'нет связи';aiRefresh();done&&done(null)})[fn](p);
+}
+/* plan for the next workout once per day (only on days without a finished workout), weekly review on Sun/Mon */
+function aiEnsure(){
+  if(!aiOn()||S.session)return;
+  var today=todayISO(),nd=nextDay(),h=new Date().getHours();
+  var doneToday=(S.boot.sessions||[]).some(function(x){return x.date===today})||S.fin.some(function(k){return k.indexOf(today+'|')===0});
+  if(!doneToday&&h>=7&&h<23&&!aiPlanFor(nd,today)&&!S.aiErr.plan)aiRequest('plan','getCoachPlan',{date:today,day:nd},aiWeekMaybe);
+  else aiWeekMaybe();
+}
+function aiWeekMaybe(){
+  if(!aiOn())return;var today=todayISO(),wd=dObj(today).getDay();if(wd!==0&&wd!==1)return;
+  var last=aiGet('week');if(last&&last.date>isoAdd(today,-6))return;
+  if(!S.aiErr.week)aiRequest('week','weeklyReview',{date:today});
+}
+function aiReviewMaybe(){
+  var d=S.lastDone;if(!d||!S.boot||!aiOn()||d.review||S.queue.length||S.inflight||S.aiBusy.review||S.aiErr.review)return;
+  var have=aiGet('review',d.date,d.workout);if(have){d.review=have;lsSet(LS.last,d);aiRefresh();return}
+  aiRequest('review','reviewSession',{date:d.date,workout:d.workout},function(r){if(r&&r.type==='review'&&S.lastDone&&S.lastDone.date===r.date){S.lastDone.review=r;lsSet(LS.last,S.lastDone)}aiRefresh()});
+}
+function aiPoints(x){var d=x.data||{};return (d.title?'<div class="t17" style="font-size:16px;line-height:1.35">'+esc(d.title)+'</div>':'')+(d.points&&d.points.length?'<ul>'+d.points.map(function(p){return '<li>'+esc(p)+'</li>'}).join('')+'</ul>':(d.title?'':'<div class="tx">'+esc(x.text)+'</div>'))}
+function aiCardHtml(){
+  if(!aiOn())return '';
+  var today=todayISO(),nd=nextDay(),plan=aiGet('plan',today,'Full Body '+nd),h='';
+  if(plan)h+='<div class="card ai"><div class="hd"><span class="t17">Тренер на сегодня</span><span class="tag2">Full Body '+esc(nd)+'</span></div><div class="tx">'+esc(plan.text)+'</div><div class="note-s" style="margin-top:10px">Цифры на каждое упражнение уже ждут в тренировке — режим подберу по самочувствию перед стартом.</div></div>';
+  else if(S.aiBusy.plan)h+='<div class="card ai"><div class="hd"><span class="t17">Тренер на сегодня</span></div><div class="wait"><i></i>Смотрю тренировки, сон и питание — это до минуты</div></div>';
+  else if(S.aiErr.plan)h+='<div class="card ai"><div class="hd"><span class="t17">Тренер на сегодня</span><button class="btn2" data-act="ai-retry">Повторить</button></div><div class="tx muc">Не ответил: '+esc(S.aiErr.plan)+'. Без него цели посчитаю по правилам методики.</div></div>';
+  var rv=aiGet('review');if(rv&&rv.date>=isoAdd(today,-2))h+='<div class="card ai"><div class="hd"><span class="t17">Разбор тренировки</span><span class="tag2">'+esc(fmtDay(rv.date))+'</span></div>'+aiPoints(rv)+'</div>';
+  var wk=aiGet('week');
+  if(wk&&wk.date>isoAdd(today,-7))h+='<div class="card ai"><div class="hd"><span class="t17">Итоги недели</span><span class="tag2">'+esc(fmtDay(wk.date))+'</span></div>'+aiPoints(wk)+'</div>';
+  else if(S.aiBusy.week)h+='<div class="card ai"><div class="hd"><span class="t17">Итоги недели</span></div><div class="wait"><i></i>Собираю обзор недели</div></div>';
+  return h;
+}
+function aiReviewHtml(){
+  var d=S.lastDone;if(!d||!aiOn())return '';
+  var h='<div class="card ai"><div class="hd"><span class="t17">Разбор тренера</span></div>';
+  if(d.review)h+=aiPoints(d.review);
+  else if(S.aiErr.review)h+='<div class="tx muc">Не ответил: '+esc(S.aiErr.review)+'.</div><button class="btn2" style="margin-top:10px" data-act="ai-retry-review">Повторить</button>';
+  else h+='<div class="wait"><i></i>'+(S.queue.length?'Дождусь записи в таблицу и разберу тренировку':'Разбираю тренировку — это до минуты')+'</div>';
+  return h+'</div>';
+}
+function aiRefresh(){
+  if(S.view==='home'){var c=$('#ai-card');if(c)c.innerHTML=aiCardHtml()}
+  if(S.view==='done'){var r=$('#ai-review');if(r)r.innerHTML=aiReviewHtml()}
+  if(S.ciUpd)S.ciUpd();
+}
+
 /* ================= sync queue ================= */
 function qKey(op,p){return op==='finishSession'?'finish|'+p.date+'|'+p.workout:p.date+'|'+p.workout+'|'+p.exercise+'|'+p.setNo}
 function enqueue(op,p){
@@ -738,7 +842,7 @@ function enqueue(op,p){
 }
 function flushNow(){clearTimeout(S.flushT);flush()}
 function flush(){
-  if(S.inflight||!S.queue.length)return renderSync();
+  if(S.inflight||!S.queue.length){if(!S.inflight)aiReviewMaybe();return renderSync()}
   var batch=S.queue.slice(0,40);S.inflight=batch;renderSync();
   google.script.run
     .withSuccessHandler(function(results){
@@ -789,7 +893,7 @@ function newSession(day,date,opts){
   opts=opts||{};
   S.session={id:Date.now().toString(36),date:date,day:day,workout:opts.workout||workoutName(day),startedAt:Date.now(),energy:'',
     plan:JSON.parse(JSON.stringify(S.boot.program.days[day]||[])),sets:{},rir:{},notes:{},extra:{},rest:null,page:0,backfill:date!==todayISO(),watchMin:opts.watchMin||null};
-  if(opts.coach&&!S.session.backfill){S.session.coach=opts.coach;S.session.energy=CI_ENERGY[opts.coach.feel]||'';if(opts.coach.mode==='light')cutPlan(true)}
+  if(opts.coach&&!S.session.backfill){S.session.coach=opts.coach;if(opts.aiPlan)S.session.aiPlan=JSON.parse(JSON.stringify(opts.aiPlan));S.session.energy=CI_ENERGY[opts.coach.feel]||'';if(opts.coach.mode==='light')cutPlan(true)}
   prefill();
   saveSession();
 }
@@ -809,7 +913,7 @@ function prefill(){
   var s=S.session,mode=s.coach&&!s.backfill?s.coach.mode:null;
   exList().forEach(function(ex){
     var prev=prevSession(ex,s.date);if(!prev||!prev.sets.length)return;
-    var tg=mode?coachTarget(ex,prev,mode).sets:null;
+    var tg=mode?target(ex,prev,mode).sets:null;
     for(var n=1;n<=ex.sets;n++){
       var o=setObj(ex,n);if(o.done)continue;
       var p=tg?tg[n-1]:(function(q){var lr=ex.unilateral?parseLR(q.note):null;return {kg:q.kg,reps:q.reps,left:lr?lr[0]:q.reps,right:lr?lr[1]:q.reps}})(prev.sets[n-1]||prev.sets[prev.sets.length-1]);
@@ -886,6 +990,7 @@ function renderHome(){
     var sig=rec.issues.concat(rec.notes);
     h+='</div><div class="note-s">'+(sig.length?esc(sig.join('; ').replace(/^./,function(x){return x.toUpperCase()}))+'. ':'')+(rec.night!=null?'Сон — прошлая ночь; HRV и пульс — среднее за 3 дня по ':'Среднее за 3 дня по ')+esc(fmtDay(rec.last))+' против твоей нормы'+(rec.ready?' за 28 дней':' — она ещё собирается ('+rec.baseDays+' из 28 дней), поэтому нагрузку пока решает твоё самочувствие перед стартом')+'.'+(rec.night!=null?'':' Данных за сегодня с часов пока нет — перед стартом спрошу только самочувствие.')+'</div></div>';
   }
+  if(aiOn())h+='<div id="ai-card">'+aiCardHtml()+'</div>';
   unloggedWatch().forEach(function(w){
     h+='<div class="notice"><div class="ic">'+I.watch+'</div><div class="tx"><b>'+esc(fmtDay(w.date))+' — подходы не записаны</b><span>Apple Watch: '+Math.round(w.minutes)+' мин'+(w.kcal?' · '+Math.round(w.kcal)+' ккал':'')+'</span></div><button class="btn2" data-act="backfill" data-date="'+w.date+'">Внести</button></div>';
   });
@@ -988,14 +1093,14 @@ function goToEx(id){var i=exList().findIndex(function(x){return x.id===id});if(i
 
 function exPage(ex,i,total){
   var s=S.session,cnt=setCount(ex),prev=prevSession(ex,s.date),best=bestE1(ex,s.date),fo=firstOpen(ex);
-  var tg=s.backfill?null:coachTarget(ex,prev,s.coach?s.coach.mode:'normal');
+  var tg=s.backfill?null:target(ex,prev,s.coach?s.coach.mode:'normal');
   var m=mates(ex),mi=m?m.findIndex(function(x){return x.id===ex.id}):-1;
   var h='<button class="media" data-act="detail" data-ex="'+ex.id+'" aria-label="Как выполнять">'+(ex.img?'<img src="'+imgUrl(ex.img,0)+'" alt=""><img class="b" src="'+imgUrl(ex.img,1)+'" alt="">':'')+'<span class="cnt">'+(i+1)+' из '+total+'</span><span class="how">'+I.info+'Техника</span></button>';
   if(m)h+='<div class="ss-bar">'+I.link+'Суперсет · '+(mi+1)+' из '+m.length+' — '+(mi<m.length-1?'после подхода сразу '+esc(short(m[mi+1].name).toLowerCase()):'после пары отдых '+esc(ex.rest.replace(/ после пары/,'')))+'</div>';
   h+='<h2 class="ex-name">'+esc(short(ex.name))+'</h2>';
   h+='<div class="ex-meta"><span><b>'+ex.sets+' × '+esc(ex.reps)+'</b> повторов</span><span>отдых '+esc(ex.rest.replace(/ после пары/,''))+'</span>'+(ex.dumbbell?'<span class="tg">вес одной гантели</span>':'')+(ex.addedWeight?'<span class="tg">добавочный вес</span>':'')+(ex.counter?'<span class="tg">противовес</span>':'')+(ex.unilateral?'<span class="tg">левая и правая отдельно</span>':'')+'</div>';
   h+=modeBar();
-  h+='<div class="last"><div class="k">'+(prev?'Прошлый раз, '+fmtShort(prev.date):'Прошлый раз')+'</div><div class="v">'+(prev?esc(setsStr(prev.sets)):'Нет записей')+'</div>'+(tg&&tg.goal&&s.coach?'<div class="tgt">Сегодня: '+esc(tg.goal)+'</div>':'')+(tg?'<div class="s">'+esc(tg.text)+'</div>':'')+'</div>';
+  h+='<div class="last"><div class="k">'+(prev?'Прошлый раз, '+fmtShort(prev.date):'Прошлый раз')+'</div><div class="v">'+(prev?esc(setsStr(prev.sets)):'Нет записей')+'</div>'+(tg&&tg.goal&&s.coach?'<div class="tgt">Сегодня'+(tg.ai?' · тренер':'')+': '+esc(tg.goal)+'</div>':'')+(tg?'<div class="s">'+esc(tg.text)+'</div>':'')+'</div>';
   h+='<div class="sets'+(ex.unilateral?' uni':'')+'"><div class="sets-h"><div>#</div><div>кг</div>'+(ex.unilateral?'<div>Левая</div><div>Правая</div>':'<div>Повторы</div>')+'<div></div></div>';
   for(var n=1;n<=cnt;n++){
     var o=setObj(ex,n),isPr=o.done&&best>0&&e1rm(num(o.kg),repsOf(ex,o))>best,ph=ex.repLo?(ex.repLo===ex.repHi?String(ex.repLo):ex.repLo+'–'+ex.repHi):'';
@@ -1076,6 +1181,8 @@ document.addEventListener('click',function(e){
     case 'rest-skip':stopRest();break;
     case 'close-sheet':closeSheet();break;
     case 'copy':copyReport();break;
+    case 'ai-retry':S.aiErr.plan=null;aiEnsure();break;
+    case 'ai-retry-review':S.aiErr.review=null;aiReviewMaybe();break;
     case 'to-home':S.view='home';S.lastDone=null;lsDel(LS.last);render();break;
   }
 });
@@ -1123,19 +1230,30 @@ function startToday(){
 }
 /* pre-workout check-in: the watch has no data for last night before ~midnight, and only you know how you feel */
 function openCheckin(){
-  var feel='',rec=recovery(),day=S.day;
+  var feel='',rec=recovery(),day=S.day,today=todayISO(),ai=aiPlanFor(day,today);
   var sl=rec&&rec.night!=null?'Сон этой ночью по часам: <b>'+fmtN(Math.round(rec.night*10)/10)+' ч</b>'+(rec.nightShort?' — меньше твоей нормы':''):'Сон за эту ночь ещё не пришёл с часов — учитываю самочувствие и тренд за 3 дня.';
-  var h='<h3>Как ты сегодня?</h3><p class="sub">'+sl+'</p>';
+  var h='<h3>Как ты сегодня?</h3><p class="sub">'+sl+'</p><p class="sub ai-sum" id="ci-ai"></p>';
   h+='<div class="field"><div class="choices c2" id="ci-feel">'+FEEL_ORDER.map(function(k){return '<button class="choice" data-v="'+k+'">'+CI_ENERGY[k]+'</button>'}).join('')+'</div></div>';
   h+='<div class="ci-plan" id="ci-plan"></div><div style="height:18px"></div><button class="cta" id="ci-go">Начать Full Body '+esc(day)+'</button>';
   openSheet(h);
-  function upd(){var d=decideMode(feel,rec),el=$('#ci-plan');el.className='ci-plan '+d.mode;el.innerHTML=(feel?modeText(d.mode):'Выбери, как себя чувствуешь — подберу нагрузку.')+(feel&&d.why.length?'<br><span style="color:var(--mu)">Почему: '+esc(d.why.join(', '))+'</span>':'')}
+  /* with the coach's plan the mode comes from it (never «strong» when you feel broken); otherwise from the rules */
+  function pick(){
+    if(ai&&feel&&ai.by_feel[feel]){var f=ai.by_feel[feel],m=f.mode;if(feel==='bad'&&m==='push')m='light';if(['normal','push','light'].indexOf(m)<0)m='normal';return {mode:m,why:f.why?[f.why]:[],ai:1}}
+    return decideMode(feel,rec);
+  }
+  function upd(){
+    var a=$('#ci-ai');if(!a)return;
+    a.innerHTML=ai?'<b style="color:var(--volt)">Тренер</b> подготовил цифры на каждое упражнение — режим зависит от того, как ты себя чувствуешь.':(S.aiBusy.plan?'Тренер ещё готовит план — можно подождать или начать: цели посчитаю по правилам.':'');
+    a.style.display=a.innerHTML?'':'none';
+    var d=pick(),el=$('#ci-plan');el.className='ci-plan '+d.mode;el.innerHTML=(feel?modeText(d.mode):'Выбери, как себя чувствуешь — подберу нагрузку.')+(feel&&d.why.length?'<br><span style="color:var(--mu)">Почему: '+esc(d.why.join(', '))+'</span>':'');
+  }
+  S.ciUpd=function(){if(!ai)ai=aiPlanFor(day,today);upd()};
   $('#ci-feel').addEventListener('click',function(e){var b=e.target.closest('.choice');if(!b)return;feel=feel===b.dataset.v?'':b.dataset.v;pickOn(b,!feel);upd()});
   upd();
   $('#ci-go').onclick=function(){
     if(S.session){closeSheet();return}
-    var d=decideMode(feel,rec);
-    newSession(day,todayISO(),{coach:{mode:d.mode,why:d.why,feel:feel,night:rec?rec.night:null}});
+    var d=pick();
+    newSession(day,today,{coach:{mode:d.mode,why:d.why,feel:feel,night:rec?rec.night:null,ai:ai?1:0},aiPlan:ai});
     closeSheet();S.view='workout';render();keepAwake();
   };
 }
@@ -1266,7 +1384,7 @@ function openSheet(html){
   sh.addEventListener('touchmove',function(e){if(y0==null)return;dy=Math.max(0,e.touches[0].clientY-y0);sh.style.transform=dy?'translateY('+dy+'px)':''},{passive:true});
   sh.addEventListener('touchend',function(){if(y0==null)return;sh.style.transition='';sh.style.transform='';if(dy>90)closeSheet();y0=null});
 }
-function closeSheet(){var host=$('#sheet-host'),sc=$('.scrim',host),sh=$('.sheet',host);if(!sh)return;sc.classList.remove('on');sh.classList.remove('on');setTimeout(function(){host.innerHTML=''},280)}
+function closeSheet(){S.ciUpd=null;var host=$('#sheet-host'),sc=$('.scrim',host),sh=$('.sheet',host);if(!sh)return;sc.classList.remove('on');sh.classList.remove('on');setTimeout(function(){host.innerHTML=''},280)}
 
 function openBackfill(date){
   if(S.session){toast('Сначала заверши текущую тренировку');S.view='workout';render();return}
@@ -1335,7 +1453,7 @@ function saveFinish(){
 function coachLine(s){
   var c=s.coach;if(!c||s.backfill)return '';
   var p=[];if(c.feel)p.push('самочувствие — '+CI_FEEL[c.feel]);if(c.night!=null)p.push('сон ночью '+fmtN(Math.round(c.night*10)/10)+' ч');
-  return ({light:'лёгкий день',push:'сильный день'}[c.mode]||'обычный день')+(c.manual?' (выбран вручную)':'')+(p.length?' — '+p.join(', '):'');
+  return ({light:'лёгкий день',push:'сильный день'}[c.mode]||'обычный день')+(c.ai?', план ИИ-тренера':'')+(c.manual?' (выбран вручную)':'')+(p.length?' — '+p.join(', '):'');
 }
 function prList(){var out=[];exList().forEach(function(ex){var best=bestE1(ex,S.session.date),top=0,txt='';doneSets(ex).forEach(function(n){var o=setObj(ex,n),r=repsOf(ex,o),v=e1rm(num(o.kg),r);if(v>top){top=v;txt=fmtN(num(o.kg))+' × '+r}});if(best>0&&top>best)out.push(short(ex.name)+' — '+txt)});return out}
 function report(){
@@ -1359,9 +1477,12 @@ function renderDone(){
   var h='<div class="screen"><div class="scroll"><div class="pad"><div class="done-hero"><div class="done-badge">'+I.check+'</div><h1>Тренировка<br>завершена</h1><div class="muc" style="font-size:15px">'+esc(short(d.workout.replace(/ · .*/,'')))+' · '+esc(fmtDay(d.date))+'</div><div class="save-state" id="done-save">'+doneSaveState()+'</div></div>';
   h+='<div class="stats"><div class="stat"><div class="v">'+d.totals.done+'<small> / '+d.totals.planned+'</small></div><div class="l">подходов</div></div><div class="stat"><div class="v">'+(d.minutes||'—')+'</div><div class="l">минут</div></div><div class="stat"><div class="v">'+Math.round(d.totals.ton).toLocaleString('ru-RU')+'</div><div class="l">тоннаж, кг</div></div><div class="stat"><div class="v">'+d.prs.length+'</div><div class="l">'+(d.prs.length===1?'рекорд':'рекордов')+'</div></div></div>';
   if(d.prs.length)h+='<div class="card" style="margin-top:12px"><div class="t17" style="margin-bottom:6px">Рекорды</div>'+d.prs.map(function(p){return '<div style="font-size:15px;padding:4px 0">'+esc(p)+'</div>'}).join('')+'</div>';
-  h+='<div class="card" style="margin-top:12px;font-size:15px;color:var(--mu);line-height:1.45">Данные уже в таблице — ChatGPT ничего записывать не нужно. Для разбора напиши ему «разбери сегодняшнюю тренировку» или вставь отчёт.</div><div style="height:20px"></div></div></div>';
+  if(aiOn())h+='<div id="ai-review">'+aiReviewHtml()+'</div>';
+  else h+='<div class="card" style="margin-top:12px;font-size:15px;color:var(--mu);line-height:1.45">Данные уже в таблице — ChatGPT ничего записывать не нужно. Для разбора напиши ему «разбери сегодняшнюю тренировку» или вставь отчёт.</div>';
+  h+='<div style="height:20px"></div></div></div>';
   h+='<div class="bottom"><button class="cta ghost" data-act="copy" style="margin-bottom:10px">Скопировать отчёт для ChatGPT</button><button class="cta" data-act="to-home">На главную</button></div></div>';
   $('#app').innerHTML=h;
+  aiReviewMaybe();
 }
 function copyReport(){
   var txt=(S.lastDone&&S.lastDone.report)||'';
@@ -1376,6 +1497,7 @@ var toastT;function toast(msg,kind){var t=$('#toast');t.textContent=msg;t.classN
 function load(){
   google.script.run.withSuccessHandler(function(b){
     S.boot=b;dayCache={};S.queue.forEach(function(it){if(it.op==='saveSet')mergeLog(it.p);else if(it.op==='deleteSet')unmergeLog(it.p)});lsSet(LS.boot,b);
+    setTimeout(function(){aiEnsure();aiReviewMaybe()},0);
     if(S.view==='workout'&&$('#pager'))return; // never redraw under the fingers mid-workout
     if(S.view==='home'&&document.activeElement&&document.activeElement.tagName==='INPUT')return;
     render();
