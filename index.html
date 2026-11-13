@@ -27,7 +27,7 @@
   --pad:20px; --sb:max(env(safe-area-inset-bottom),12px); --st:env(safe-area-inset-top,0px);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--tx);font-family:var(--f);font-size:16px;line-height:1.4;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+html,body{height:100%;height:100dvh;margin:0;overflow:hidden;background:var(--bg);color:var(--tx);font-family:var(--f);font-size:16px;line-height:1.4;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
 button:disabled{opacity:.35}
 input,textarea{font:inherit;color:inherit}
@@ -1057,6 +1057,7 @@ function toggleSet(exId,n){
   if(o.done){
     cancelTimer('set'+exId+n);
     o.done=false;saveSession();
+    if(S.session.rest&&S.session.rest.src===exId+'#'+n)stopRest(); // the rest belonged to the set just unticked
     enqueue('deleteSet',{date:S.session.date,workout:S.session.workout,exercise:ex.name,setNo:n});
     var nl=doneSets(ex).slice(-1)[0];if(nl&&nl<n&&S.session.rir[ex.id]!=null)enqueue('saveSet',payloadFor(ex,nl));
     rerenderEx(exId);return;
@@ -1079,7 +1080,7 @@ function toggleSet(exId,n){
     return;
   }
   var nx=nextTarget(ex);
-  if(!S.session.backfill)startRest(ex.restSec,nx?nx.label:'Последний подход позади');
+  if(!S.session.backfill){startRest(ex.restSec,nx?nx.label:'Последний подход позади');S.session.rest.src=exId+'#'+n;saveSession()}
   if(nx&&nx.ex.id!==ex.id&&remaining)setTimeout(function(){goToEx(nx.ex.id)},380); // back to the first exercise of the superset
   else if(nx&&nx.ex.id===ex.id)revealRow(ex.id,nx.n);
 }
@@ -1205,7 +1206,8 @@ function askCancel(){
 function cancelSession(){
   var s=S.session;if(!s)return;
   pendingEdits().forEach(cancelTimer);
-  exList().forEach(function(ex){doneSets(ex).forEach(function(n){enqueue('deleteSet',{date:s.date,workout:s.workout,exercise:ex.name,setNo:n})})});
+  exList().forEach(function(ex){doneSets(ex).forEach(function(n){var p={date:s.date,workout:s.workout,exercise:ex.name,setNo:n};enqueue('deleteSet',p);unmergeLog(p)})});
+  lsSet(LS.boot,S.boot); // the home screen must not offer to restore what was just cancelled
   flushNow();stopRest();S.session=null;saveSession();S.view='home';letSleep();render();toast('Тренировка отменена');
 }
 function saveFinish(){
@@ -1258,7 +1260,7 @@ var toastT;function toast(msg,kind){var t=$('#toast');t.textContent=msg;t.classN
 /* ================= boot ================= */
 function load(){
   google.script.run.withSuccessHandler(function(b){
-    S.boot=b;dayCache={};S.queue.forEach(function(it){if(it.op==='saveSet')mergeLog(it.p)});lsSet(LS.boot,b);
+    S.boot=b;dayCache={};S.queue.forEach(function(it){if(it.op==='saveSet')mergeLog(it.p);else if(it.op==='deleteSet')unmergeLog(it.p)});lsSet(LS.boot,b);
     if(S.view==='workout'&&$('#pager'))return; // never redraw under the fingers mid-workout
     if(S.view==='home'&&document.activeElement&&document.activeElement.tagName==='INPUT')return;
     render();
