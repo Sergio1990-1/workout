@@ -535,6 +535,7 @@ var I={
 function $(s,r){return (r||document).querySelector(s)}
 function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function todayISO(){try{return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Bishkek',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}catch(e){return S.boot.today}}
 function lsGet(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
 function lsDel(k){try{localStorage.removeItem(k)}catch(e){}}
@@ -560,7 +561,7 @@ function plural(n,a,b,c){var m=n%10,h=n%100;return n+' '+(m===1&&h!==11?a:(m>=2&
 var S={boot:lsGet(LS.boot,null),view:'home',day:null,session:lsGet(LS.session,null),queue:lsGet(LS.queue,[]),inflight:null,syncErr:null,retryT:null,lastDone:lsGet(LS.last,null),fin:lsGet(LS.fin,[])};
 
 function saveSession(){if(S.session){if(!lsSet(LS.session,S.session))toast('Память телефона переполнена — данные могут не сохраниться','bad')}else lsDel(LS.session)}
-function saveQueue(){lsSet(LS.queue,S.queue)}
+function saveQueue(){if(!lsSet(LS.queue,S.queue)&&S.queue.length)toast('Память телефона переполнена — не закрывай форму, пока не сохранится','bad')}
 var saveSoonT;function saveSessionSoon(){clearTimeout(saveSoonT);saveSoonT=setTimeout(saveSession,300)}
 
 /* ================= data model ================= */
@@ -568,9 +569,10 @@ function libFor(name){for(var i=0;i<LIB.length;i++)if(LIB[i].re.test(name))retur
 function catFor(name){var c=(S.boot.catalog||[]);for(var i=0;i<c.length;i++){if(c[i].name===name)return c[i]}var lib=libFor(name);for(var j=0;j<c.length;j++){if(lib.re&&lib.re.test(c[j].name))return c[j]}return null}
 
 var dayCache={};
-function buildDay(day){
-  if(dayCache[day])return dayCache[day];
-  var items=(S.boot.program.days[day]||[]);
+function buildDay(day,items,key){
+  key=key||day;
+  if(dayCache[key])return dayCache[key];
+  items=items||(S.boot.program.days[day]||[]);
   var exs=items.map(function(it){
     var lib=libFor(it.name),cat=catFor(it.name),rr=parseRange(it.reps);
     var wm=(cat&&cat.weightMeaning)||'';
@@ -588,10 +590,10 @@ function buildDay(day){
     if(seen[e.superset])return;seen[e.superset]=1;
     exs.filter(function(x){return x.superset===e.superset}).forEach(function(x){out.push(x)});
   });
-  return (dayCache[day]=out);
+  return (dayCache[key]=out);
 }
 function workoutName(day){return 'Full Body '+day+' · '+(S.boot.program.blockLabel||'блок 1 v2.1')}
-function mates(ex){return ex.superset?buildDay(ex.day).filter(function(x){return x.superset===ex.superset}):null}
+function mates(ex){return ex.superset?((S.session&&S.session.day===ex.day)?exList():buildDay(ex.day)).filter(function(x){return x.superset===ex.superset}):null}
 function ssNext(ex){var m=mates(ex);if(!m)return null;var i=m.findIndex(function(x){return x.id===ex.id});return i<m.length-1?m[i+1]:null}
 
 function histRows(ex){
@@ -649,7 +651,7 @@ function nextDay(){
 }
 function unloggedWatch(){
   var logged={};(S.boot.log||[]).forEach(function(r){logged[r.date]=1});
-  var today=S.boot.today,cut=dObj(today);cut.setDate(cut.getDate()-14);
+  var today=todayISO(),cut=dObj(today);cut.setDate(cut.getDate()-14);
   var cutIso=cut.getFullYear()+'-'+('0'+(cut.getMonth()+1)).slice(-2)+'-'+('0'+cut.getDate()).slice(-2);
   return (S.boot.watch||[]).filter(function(w){return w.date>=cutIso&&w.date<today&&(w.minutes||0)>=20&&!logged[w.date]&&!(S.session&&S.session.date===w.date)});
 }
@@ -657,7 +659,7 @@ function unloggedWatch(){
 /* sets that the form already wrote today, but the session was lost on the phone */
 function sheetDraft(){
   if(S.session||!S.boot)return null;
-  var today=S.boot.today;
+  var today=todayISO();
   var rows=(S.boot.log||[]).filter(function(r){return r.date===today&&r.setNo&&String(r.note||'').indexOf(MARK)===0});
   if(!rows.length)return null;
   var w=rows[rows.length-1].workout,m=/Full Body ([ABC])/.exec(w||'');if(!m)return null;
@@ -686,6 +688,7 @@ function flush(){
       for(var i=0;i<batch.length;i++){
         var r=results[i];if(!r)break;
         if(r.ok===false&&r.error){S.syncErr=r.error;break}
+        if(r.ok===false)toast(r.reason||'Таблица отклонила операцию','bad'); // permanent refusal (e.g. row not written by the form): do not retry forever
         doneItems.push(batch[i]);
         if(batch[i].op==='saveSet')mergeLog(batch[i].p);
         if(batch[i].op==='deleteSet')unmergeLog(batch[i].p);
@@ -726,13 +729,13 @@ function syncPill(){
 function newSession(day,date,opts){
   opts=opts||{};
   S.session={id:Date.now().toString(36),date:date,day:day,workout:opts.workout||workoutName(day),startedAt:Date.now(),energy:'',
-    sets:{},rir:{},notes:{},extra:{},rest:null,page:0,backfill:date!==S.boot.today,watchMin:opts.watchMin||null};
+    plan:JSON.parse(JSON.stringify(S.boot.program.days[day]||[])),sets:{},rir:{},notes:{},extra:{},rest:null,page:0,backfill:date!==todayISO(),watchMin:opts.watchMin||null};
   prefill();
   saveSession();
 }
 /* pre-fill every planned set with what was lifted last time */
 function prefill(){
-  buildDay(S.session.day).forEach(function(ex){
+  exList().forEach(function(ex){
     var prev=prevSession(ex,S.session.date);if(!prev||!prev.sets.length)return;
     for(var n=1;n<=ex.sets;n++){
       var p=prev.sets[n-1]||prev.sets[prev.sets.length-1],o=setObj(ex,n);
@@ -742,7 +745,7 @@ function prefill(){
     }
   });
 }
-function exList(){return buildDay(S.session.day)}
+function exList(){var s=S.session;return s.plan?buildDay(s.day,s.plan,'s:'+s.id):buildDay(s.day)} // a running workout keeps the program it started with
 function setCount(ex){return ex.sets+(S.session.extra[ex.id]||0)}
 function setObj(ex,n){var k=ex.id+'#'+n;return S.session.sets[k]||(S.session.sets[k]={})}
 function doneSets(ex){var a=[];for(var n=1;n<=setCount(ex);n++){var s=S.session.sets[ex.id+'#'+n];if(s&&s.done)a.push(n)}return a}
@@ -778,7 +781,7 @@ function render(){
 
 /* ================= render: home ================= */
 function renderHome(){
-  var b=S.boot,today=b.today,rec=recovery(),nd=nextDay(),draft=sheetDraft();
+  var b=S.boot,today=todayISO(),rec=recovery(),nd=nextDay(),draft=sheetDraft();
   if(!S.day)S.day=nd;
   var keepTop=($('#home-scroll')||{}).scrollTop||0;
   var greet=['Доброй ночи','Доброе утро','Добрый день','Добрый вечер'][Math.floor(new Date().getHours()/6)];
@@ -894,7 +897,9 @@ function onPagerScroll(){
 function goTo(i,smooth){
   var pg=$('#pager');if(!pg)return;i=Math.max(0,Math.min(exList().length,i));
   var far=Math.abs(i-curPage())>1; // long jumps are instant, neighbours glide
-  pg.scrollTo({left:i*pg.clientWidth,behavior:(smooth===false||far)?'auto':'smooth'});
+  var instant=smooth===false||far;
+  pg.scrollTo({left:i*pg.clientWidth,behavior:instant?'auto':'smooth'});
+  if(instant)onPagerScroll(); // do not depend on the scroll event for jumps (it can be skipped)
 }
 function goToEx(id){var i=exList().findIndex(function(x){return x.id===id});if(i>=0)goTo(i)}
 
@@ -909,7 +914,7 @@ function exPage(ex,i,total){
   h+='<div class="sets'+(ex.unilateral?' uni':'')+'"><div class="sets-h"><div>#</div><div>кг</div>'+(ex.unilateral?'<div>Левая</div><div>Правая</div>':'<div>Повторы</div>')+'<div></div></div>';
   for(var n=1;n<=cnt;n++){
     var o=setObj(ex,n),isPr=o.done&&best>0&&e1rm(num(o.kg),repsOf(ex,o))>best,ph=ex.repLo?(ex.repLo===ex.repHi?String(ex.repLo):ex.repLo+'–'+ex.repHi):'';
-    h+='<div class="set-row'+(o.done?' done':'')+(n===fo?' next':'')+'" data-ex="'+ex.id+'" data-n="'+n+'"><div class="set-n">'+(n>ex.sets&&!o.done?'<button class="rm" data-act="rmset" aria-label="Убрать подход">'+I.x+'</button>':n+(isPr?'<i class="prb">PR</i>':''))+'</div>';
+    h+='<div class="set-row'+(o.done?' done':'')+(n===fo?' next':'')+'" data-ex="'+ex.id+'" data-n="'+n+'"><div class="set-n">'+(n>ex.sets&&!o.done&&n===setCount(ex)?'<button class="rm" data-act="rmset" aria-label="Убрать подход">'+I.x+'</button>':n+(isPr?'<i class="prb">PR</i>':''))+'</div>';
     h+='<input class="num" data-f="kg" inputmode="decimal" enterkeyhint="next" autocomplete="off" placeholder="кг" value="'+esc(o.kg||'')+'" aria-label="Вес, подход '+n+'">';
     if(ex.unilateral){
       h+='<input class="num" data-f="left" inputmode="numeric" enterkeyhint="next" autocomplete="off" placeholder="'+esc(ph)+'" value="'+esc(o.left||'')+'" aria-label="Повторы левой, подход '+n+'">';
@@ -994,7 +999,7 @@ document.addEventListener('input',function(e){
   }
   if(!el.dataset.f)return;
   var page=el.closest('.page'),exId=page&&page.id.slice(3);
-  if(el.dataset.f==='exnote'){S.session.notes[exId]=el.value;saveSessionSoon();debounce('note'+exId,function(){resaveExercise(exById(exId))},900);return}
+  if(el.dataset.f==='exnote'){S.session.notes[exId]=el.value;saveSessionSoon();var nsid=S.session.id;debounce('note'+exId,function(){if(S.session&&S.session.id===nsid)resaveExercise(exById(exId))},900);return}
   var row=el.closest('.set-row');if(!row)return;
   var ex=exById(row.dataset.ex),n=+row.dataset.n,o=setObj(ex,n),f=el.dataset.f,val=el.value.replace(',','.').replace(/[^\d.]/g,'');
   if(val!==el.value.replace(',','.'))el.value=val;
@@ -1002,7 +1007,8 @@ document.addEventListener('input',function(e){
   // carry a new weight / rep count down to the following sets that still hold last time's value
   if(!o.done)for(var m=n+1;m<=setCount(ex);m++){var q=setObj(ex,m);if(!q.done&&q['a_'+f]){q[f]=val;var inp=$('.set-row[data-ex="'+ex.id+'"][data-n="'+m+'"] input[data-f="'+f+'"]');if(inp)inp.value=val}}
   saveSession();
-  if(o.done)debounce('set'+ex.id+n,function(){enqueue('saveSet',payloadFor(ex,n))},700);
+  var sid=S.session.id;
+  if(o.done)debounce('set'+ex.id+n,function(){if(S.session&&S.session.id===sid&&setObj(ex,n).done)enqueue('saveSet',payloadFor(ex,n))},700);
 });
 document.addEventListener('focusin',function(e){
   var el=e.target;
@@ -1013,16 +1019,25 @@ document.addEventListener('keydown',function(e){
   e.preventDefault();var row=el.closest('.set-row'),ins=$$('.num',row),i=ins.indexOf(el);
   if(i<ins.length-1)ins[i+1].focus();else{el.blur();toggleSet(row.dataset.ex,+row.dataset.n)}
 });
-var timers={};function debounce(k,f,ms){clearTimeout(timers[k]);timers[k]=setTimeout(f,ms)}
+var timers={},timerFns={};
+function debounce(k,f,ms){clearTimeout(timers[k]);timerFns[k]=f;timers[k]=setTimeout(function(){delete timers[k];delete timerFns[k];f()},ms)}
+function cancelTimer(k){clearTimeout(timers[k]);delete timers[k];delete timerFns[k]}
+function pendingEdits(){return Object.keys(timerFns).filter(function(k){return /^(set|note)/.test(k)})}
+function drainEdits(){pendingEdits().forEach(function(k){var f=timerFns[k];cancelTimer(k);f()})} // send edits still waiting for their debounce
 window.addEventListener('resize',function(){var pg=$('#pager');if(pg&&S.session)pg.scrollLeft=curPage()*pg.clientWidth;snapCar(false)});
 
 function startToday(){
   if(S.session){S.view='workout';render();return}
-  newSession(S.day,S.boot.today);S.view='workout';render();keepAwake();
+  newSession(S.day,todayISO());S.view='workout';render();keepAwake();
+}
+/* note text the user typed, without the parts payloadFor() generates */
+function userNote(note){
+  var parts=String(note||'').split('; ');if(parts[0]===MARK)parts.shift();
+  return parts.filter(function(x){return x&&!/^(вес одной гантели|добавочный вес|в гравитроне — противовес|дополнительный подход|левая .*, правая .*)$/.test(x)}).join('; ');
 }
 function restoreDraft(){
   var d=sheetDraft();if(!d)return render();
-  newSession(d.day,S.boot.today,{workout:d.workout});
+  newSession(d.day,todayISO(),{workout:d.workout});
   var exs=exList();
   d.rows.forEach(function(r){
     var ex=exs.filter(function(x){return x.name===r.exercise})[0];if(!ex)return;
@@ -1031,6 +1046,7 @@ function restoreDraft(){
     if(ex.unilateral){var lr=parseLR(r.note);o.left=lr?lr[0]:str(r.reps);o.right=lr?lr[1]:str(r.reps);o.a_left=o.a_right=0}else{o.reps=str(r.reps);o.a_reps=0}
     o.done=true;
     if(r.rir!=null)S.session.rir[ex.id]=r.rir;
+    var free=userNote(r.note);if(free)S.session.notes[ex.id]=free;
   });
   var fi=exs.findIndex(function(x){return doneSets(x).length<x.sets});S.session.page=fi<0?exs.length:fi;
   saveSession();S.view='workout';render();keepAwake();toast('Восстановлено из таблицы: '+plural(d.rows.length,'подход','подхода','подходов'),'volt');
@@ -1039,6 +1055,7 @@ function restoreDraft(){
 function toggleSet(exId,n){
   var ex=exById(exId),o=setObj(ex,n),row=$('.set-row[data-ex="'+exId+'"][data-n="'+n+'"]');
   if(o.done){
+    cancelTimer('set'+exId+n);
     o.done=false;saveSession();
     enqueue('deleteSet',{date:S.session.date,workout:S.session.workout,exercise:ex.name,setNo:n});
     var nl=doneSets(ex).slice(-1)[0];if(nl&&nl<n&&S.session.rir[ex.id]!=null)enqueue('saveSet',payloadFor(ex,nl));
@@ -1072,7 +1089,7 @@ function addSet(exId){
   var o=setObj(ex,n);['kg','reps','left','right'].forEach(function(f){if(p[f]){o[f]=p[f];o['a_'+f]=1}});
   saveSession();rerenderEx(exId);revealRow(exId,n);
 }
-function rmSet(exId){var ex=exById(exId),n=setCount(ex);if(n<=ex.sets)return;delete S.session.sets[exId+'#'+n];S.session.extra[exId]=Math.max(0,(S.session.extra[exId]||0)-1);saveSession();rerenderEx(exId)}
+function rmSet(exId){var ex=exById(exId),n=setCount(ex),last=S.session.sets[exId+'#'+n];if(n<=ex.sets||(last&&last.done))return;delete S.session.sets[exId+'#'+n];S.session.extra[exId]=Math.max(0,(S.session.extra[exId]||0)-1);saveSession();rerenderEx(exId)}
 function nextTarget(ex){
   var exs=exList();
   var m=mates(ex);
@@ -1157,8 +1174,8 @@ function nextDayBefore(date){
 }
 
 function openDetail(exId,dayHint){
-  var day=dayHint||(S.session&&S.view==='workout'?S.session.day:S.day),ex=buildDay(day).filter(function(x){return x.id===exId})[0];if(!ex)return;
-  var before=S.session&&S.view==='workout'?S.session.date:S.boot.today,c=ex.cat||{};
+  var day=dayHint||(S.session&&S.view==='workout'?S.session.day:S.day),ex=((S.session&&S.view==='workout'&&!dayHint)?exList():buildDay(day)).filter(function(x){return x.id===exId})[0];if(!ex)return;
+  var before=S.session&&S.view==='workout'?S.session.date:todayISO(),c=ex.cat||{};
   var h='<div class="big-media">'+(ex.img?'<img src="'+imgUrl(ex.img,0)+'" alt=""><img class="b" src="'+imgUrl(ex.img,1)+'" alt="">':'')+'</div>';
   h+='<h3 style="margin-top:18px">'+esc(ex.name)+'</h3>';
   h+=techHtml(ex);
@@ -1187,10 +1204,12 @@ function askCancel(){
 }
 function cancelSession(){
   var s=S.session;if(!s)return;
+  pendingEdits().forEach(cancelTimer);
   exList().forEach(function(ex){doneSets(ex).forEach(function(n){enqueue('deleteSet',{date:s.date,workout:s.workout,exercise:ex.name,setNo:n})})});
   flushNow();stopRest();S.session=null;saveSession();S.view='home';letSleep();render();toast('Тренировка отменена');
 }
 function saveFinish(){
+  drainEdits();
   var s=S.session,t=totals();
   if(t.done===0){toast('Нет ни одного выполненного подхода','bad');return}
   if(!s.feeling){toast('Выбери самочувствие после');var f=$('#pg-finish .choices');if(f){var pg=$('#pg-finish');pg.scrollTo({top:f.offsetTop-80,behavior:'smooth'})}return}
