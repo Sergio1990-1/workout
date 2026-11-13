@@ -291,7 +291,7 @@ svg{display:block}
 /* gauges */
 .gauges{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .gauge{text-align:center}
-.gauge svg{display:block;width:100%;height:auto}
+.gauge svg{display:block;width:100%;height:auto;overflow:visible}
 .gauge b{display:block;font-family:var(--d);font-size:20px;font-weight:700;letter-spacing:-.04em;margin-top:-28px}
 .gauge b small{font-family:var(--f);font-size:12px;color:var(--mu);font-weight:600;letter-spacing:0;margin-left:2px}
 .gauge span{display:block;font-size:12px;color:var(--mu);margin-top:6px}
@@ -1008,16 +1008,18 @@ var COL={up:'#D4FF3A',same:'#8A8A93',down:'#FF7A33','new':'#7AA7FF'},ST_LBL={up:
 var BARG={up:'linear-gradient(180deg,#D4FF3A 0%,#FF9A3C 100%)',same:'linear-gradient(180deg,#8A8A93,rgba(138,138,147,.25))',down:'linear-gradient(180deg,#FF7A33,rgba(255,122,51,.3))','new':'linear-gradient(180deg,#7AA7FF,rgba(122,167,255,.3))'};
 var svgN=0;
 function heatDef(id){return '<defs><linearGradient id="'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF5E2B"/><stop offset=".45" stop-color="#FF9A3C"/><stop offset="1" stop-color="#D4FF3A"/></linearGradient></defs>'}
+/* soft glow as a blurred copy under the mark: an SVG filter, because Safari ignores CSS drop-shadow on SVG shapes */
+function glow(el,W,H){var id='gl'+(++svgN);return '<filter id="'+id+'" filterUnits="userSpaceOnUse" x="-30" y="-30" width="'+(W+60)+'" height="'+(H+60)+'"><feGaussianBlur stdDeviation="5"/></filter>'+el.replace(/\/>$/,' opacity=".65" filter="url(#'+id+')"/>')+el}
 function pt(cx,cy,r,a){return (cx+r*Math.sin(a)).toFixed(2)+' '+(cy-r*Math.cos(a)).toFixed(2)}
 function arc(cx,cy,r,a0,a1){return 'M'+pt(cx,cy,r,a0)+'A'+r+' '+r+' 0 '+(a1-a0>Math.PI?1:0)+' 1 '+pt(cx,cy,r,a1)}
 /* segmented donut: segs [{v,c}], rounded ends with a gap between them */
 function donut(segs,size,sw,center){
   var r=(size-sw)/2,c=size/2,tot=0,live=segs.filter(function(s){return s.v>0});live.forEach(function(s){tot+=s.v});
   var h='<circle cx="'+c+'" cy="'+c+'" r="'+r+'" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="'+sw+'"/>';
-  if(live.length===1)h+='<circle cx="'+c+'" cy="'+c+'" r="'+r+'" fill="none" stroke="'+live[0].c+'" stroke-width="'+sw+'" style="filter:drop-shadow(0 0 8px '+live[0].c+'66)"/>';
+  if(live.length===1)h+=glow('<circle cx="'+c+'" cy="'+c+'" r="'+r+'" fill="none" stroke="'+live[0].c+'" stroke-width="'+sw+'"/>',size,size);
   else if(live.length>1){var gap=sw/r+0.08,a=0;
     live.forEach(function(s){var span=s.v/tot*2*Math.PI,a0=a+gap/2,a1=a+span-gap/2;if(a1<a0+0.001){var m=a+span/2;a0=m-0.0005;a1=m+0.0005}
-      h+='<path d="'+arc(c,c,r,a0,a1)+'" fill="none" stroke="'+s.c+'" stroke-width="'+sw+'" stroke-linecap="round" style="filter:drop-shadow(0 0 8px '+s.c+'55)"/>';a+=span})}
+      h+=glow('<path d="'+arc(c,c,r,a0,a1)+'" fill="none" stroke="'+s.c+'" stroke-width="'+sw+'" stroke-linecap="round"/>',size,size);a+=span})}
   return '<div class="donut" style="width:'+size+'px;height:'+size+'px"><svg viewBox="0 0 '+size+' '+size+'">'+h+'</svg><div class="dc">'+(center||'')+'</div></div>';
 }
 /* concentric progress rings, outer first: items [{p:0..1, c:'#hex'|'heat'}] */
@@ -1026,9 +1028,8 @@ function rings(items,size,center){
   items.forEach(function(it,i){
     var r=c-sw/2-i*(sw+4),p=Math.max(0,Math.min(it.p||0,1)),L=2*Math.PI*r,col=it.c;
     if(col==='heat'){var id='hg'+(++svgN);defs+=heatDef(id);col='url(#'+id+')'}
-    var glow=it.c==='heat'?'#FF7A33':it.c;
     h+='<circle cx="'+c+'" cy="'+c+'" r="'+r+'" fill="none" stroke="'+(it.c==='heat'?'#FF7A33':it.c)+'" stroke-opacity=".13" stroke-width="'+sw+'"/>';
-    if(p>0)h+='<circle cx="'+c+'" cy="'+c+'" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="'+sw+'" stroke-linecap="round" stroke-dasharray="'+(L*p).toFixed(1)+' '+(L+1).toFixed(1)+'" transform="rotate(-90 '+c+' '+c+')" style="filter:drop-shadow(0 0 7px '+glow+'66)"/>';
+    if(p>0)h+=glow('<circle cx="'+c+'" cy="'+c+'" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="'+sw+'" stroke-linecap="round" stroke-dasharray="'+(L*p).toFixed(1)+' '+(L+1).toFixed(1)+'" transform="rotate(-90 '+c+' '+c+')"/>',size,size);
   });
   return '<div class="donut" style="width:'+size+'px;height:'+size+'px"><svg viewBox="0 0 '+size+' '+size+'">'+defs+h+'</svg><div class="dc">'+(center||'')+'</div></div>';
 }
@@ -1039,7 +1040,7 @@ function gauge(label,v,unit,dec,b,hi){
     cls=pct<.04?'flat':((diff>0)===hi?'up':'down');d=pct<.04?'как обычно':(diff>0?'+':'−')+fmtN(Math.round(Math.abs(diff)*k)/k)+' к норме'}
   var col={up:'#D4FF3A',down:'#FF7A33',flat:'#8A8A93'}[cls];
   var s='<svg viewBox="0 0 110 64" aria-hidden="true"><path d="'+arc(cx,cy,r,-A,A)+'" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="'+sw+'" stroke-linecap="round"/>';
-  if(v!=null)s+='<path d="'+arc(cx,cy,r,-A,Math.max(-A+0.03,t*A))+'" fill="none" stroke="'+col+'" stroke-width="'+sw+'" stroke-linecap="round" style="filter:drop-shadow(0 0 6px '+col+'77)"/>';
+  if(v!=null)s+=glow('<path d="'+arc(cx,cy,r,-A,Math.max(-A+0.03,t*A))+'" fill="none" stroke="'+col+'" stroke-width="'+sw+'" stroke-linecap="round"/>',110,64);
   if(b)s+='<line x1="'+cx+'" y1="'+(cy-r-8)+'" x2="'+cx+'" y2="'+(cy-r+7)+'" stroke="rgba(255,255,255,.75)" stroke-width="2" stroke-linecap="round"/>';
   return '<div class="gauge">'+s+'</svg><b>'+(v!=null?fmtN(Math.round(v*k)/k):'—')+(unit?'<small>'+unit+'</small>':'')+'</b><span>'+label+'</span>'+(d?'<em class="dl '+cls+'">'+d+'</em>':'')+'</div>';
 }
