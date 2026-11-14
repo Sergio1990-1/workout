@@ -60,6 +60,7 @@ svg{display:block}
 /* ---------- home ---------- */
 .h-top{display:flex;justify-content:space-between;align-items:center;padding:18px 0 0}
 .h-date{font-size:15px;color:var(--mu);font-weight:500}
+.wb-gear{width:34px;height:34px;border-radius:50%;background:var(--s2);color:var(--mu);display:grid;place-items:center;flex:none;margin-left:10px}.h-top .sync-host{margin-left:auto}
 .h1{font-size:34px;line-height:1.08;font-weight:800;letter-spacing:-.04em;margin:8px 0 22px}
 .resume{width:100%;display:flex;align-items:center;gap:14px;background:var(--volt);color:var(--ink);border-radius:22px;padding:16px 18px;margin-bottom:12px;text-align:left}
 .resume .t{flex:1;min-width:0}
@@ -710,7 +711,8 @@ var I={
   flag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>',
   x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   watch:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="3.5"/><path d="M9 6l.6-3h4.8l.6 3M9 18l.6 3h4.8l.6-3M12 9.5V12l1.5 1.5"/></svg>',
-  restore:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 108-8 8 8 0 00-6 2.7L4 9"/><path d="M4 4v5h5"/></svg>'
+  restore:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 108-8 8 8 0 00-6 2.7L4 9"/><path d="M4 4v5h5"/></svg>',
+  gear:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>'
 };
 
 /* ================= utils ================= */
@@ -1387,7 +1389,7 @@ function renderHome(){
   var keepTop=($('#home-scroll')||{}).scrollTop||0;
   var greet=['Доброй ночи','Доброе утро','Добрый день','Добрый вечер'][Math.floor(new Date().getHours()/6)];
   var h='<div class="screen"><div class="scroll" id="home-scroll"><div class="pad">';
-  h+='<div class="h-top"><span class="h-date">'+esc(fmtWd(today))+', '+esc(fmtDay(today))+'</span><span class="sync-host">'+syncPill()+'</span></div>';
+  h+='<div class="h-top"><span class="h-date">'+esc(fmtWd(today))+', '+esc(fmtDay(today))+'</span><span class="sync-host">'+syncPill()+'</span>'+(NB?'<button class="wb-gear" data-act="app-settings" aria-label="Настройки приложения">'+I.gear+'</button>':'')+'</div>';
   h+='<h1 class="h1">'+greet+',<br>Сергей</h1>';
   if(S.session){
     var tt=totals();
@@ -1607,6 +1609,7 @@ document.addEventListener('click',function(e){
     case 'week':openWeek(a.dataset.ws);break;
     case 'week-nav':if(S.week){S.week.ws=isoAdd(S.week.ws,+a.dataset.d);render();var wsc=$('#week-scroll');if(wsc)wsc.scrollTop=0}break;
     case 'week-back':S.view='home';render();break;
+    case 'app-settings':nbPost({type:'settings'});break;
     case 'hist-all':S.histAll=!S.histAll;render();break;
   }
 });
@@ -1931,6 +1934,114 @@ function load(){
     else toast('Нет связи — работаю с сохранёнными данными');
   }).getBootstrap();
 }
+/* ================= Workout Bridge app (iOS) =================
+   Active only inside the native app (WKWebView with a "wb" message handler); in a browser NB is null and
+   nothing here runs. Reports the running workout so the app can drive the lock-screen Live Activity and the
+   rest-end alarm, and applies taps made there (mark a set, skip rest, +15 s) through the form's own functions. */
+function nbPost(m){if(!NB)return;try{NB.postMessage(m)}catch(e){}}
+function nbSet(ex,n){return S.session.sets[ex.id+'#'+n]||{}} // read-only: never creates set objects
+function nbFilled(ex,o){return num(o.kg)!=null&&(ex.unilateral?num(o.left)!=null&&num(o.right)!=null:num(o.reps)!=null)}
+function nbTarget(ex,o){
+  var reps=ex.unilateral?(o.left&&o.right?o.left+'/'+o.right:''):(o.reps||''),kg=num(o.kg);
+  if(kg==null&&!reps)return '';
+  var w=kg==null?'':kg===0?'без веса':String(o.kg).replace('.',',')+' кг';
+  return w&&reps?w+' × '+reps:w||'× '+reps;
+}
+/* the order the form walks through sets: the same rules as toggleSet()/nextTarget() */
+function nbQueue(){
+  var s=S.session,exs=exList(),vd={},out=[];
+  function isDone(ex,n){return vd[ex.id+'#'+n]||nbSet(ex,n).done}
+  function firstUndone(ex,lim){for(var n=1;n<=lim;n++)if(!isDone(ex,n))return n;return 0}
+  function anyUndone(){for(var i=0;i<exs.length;i++){var q=firstUndone(exs[i],exs[i].sets);if(q)return {ex:exs[i],n:q}}return null}
+  function nextAfter(ex){
+    var p=ssNext(ex);if(p){var pn=firstUndone(p,setCount(p));if(pn)return {ex:p,n:pn}}
+    var m=mates(ex);if(m){var k=firstUndone(m[0],m[0].sets);if(k)return {ex:m[0],n:k}}
+    var j=firstUndone(ex,setCount(ex));if(j)return {ex:ex,n:j};
+    return anyUndone();
+  }
+  var cur=null,pg=exs[s.page];
+  if(pg){var n0=firstUndone(pg,setCount(pg));if(n0)cur={ex:pg,n:n0}}
+  if(!cur)cur=anyUndone();
+  while(cur&&out.length<30){
+    var o=nbSet(cur.ex,cur.n);
+    out.push({exId:cur.ex.id,n:cur.n,name:short(cur.ex.name),target:nbTarget(cur.ex,o),canMark:nbFilled(cur.ex,o),
+      setsTotal:setCount(cur.ex),rest:ssNext(cur.ex)?0:(cur.ex.restSec||0)});
+    vd[cur.ex.id+'#'+cur.n]=1;cur=nextAfter(cur.ex);
+  }
+  return out;
+}
+function nbSnap(){
+  var s=S.session;if(!s||s.backfill)return {active:false};
+  var t=totals();
+  return {active:true,workout:s.workout||'',startedAt:s.startedAt,done:t.done,total:t.planned,
+    rest:s.rest?{endAt:s.rest.endAt,total:s.rest.total}:null,queue:nbQueue()};
+}
+var nbLast='',nbDone=-1,nbBuzz=0;
+function nbTick(force){
+  var st;try{st=nbSnap()}catch(e){return}
+  var msg=JSON.stringify({s:st,v:S.view});
+  if(force||msg!==nbLast){nbLast=msg;nbPost({type:'state',state:st,view:S.view})}
+  if(st.active){ // haptics while the app is open: a set ticked, a rest finished
+    if(nbDone>=0&&st.done>nbDone)nbPost({type:'haptic',kind:'set'});
+    nbDone=st.done;
+    var r=S.session.rest;
+    if(r&&Date.now()>=r.endAt&&Date.now()-r.endAt<3000&&nbBuzz!==r.endAt&&S.view==='workout'){nbBuzz=r.endAt;nbPost({type:'haptic',kind:'rest'})}
+  }else nbDone=-1;
+}
+function nbApplied(){return lsGet('wf1.nbApplied',[])}
+function nbRun(a){
+  var s=S.session;if(!s)throw new Error('тренировка уже закрыта');
+  if(a.sid!==s.startedAt)throw new Error('отметка из другой тренировки — пропущена');
+  if(a.type==='done'){
+    var ex=exById(a.exId);if(!ex)throw new Error('упражнение не найдено');
+    var key=a.exId+'#'+a.n,o=s.sets[key];
+    if(o&&o.done)return;
+    if(S.view!=='workout'){S.view='workout';render()}
+    toggleSet(a.exId,a.n);
+    o=s.sets[key];
+    if(!o||!o.done)throw new Error(short(ex.name)+', подход '+a.n+': не отмечен — нет веса или повторов');
+    o.doneAt=a.at;
+    if(s.rest&&s.rest.src===key)s.rest.endAt=a.at+s.rest.total*1000; // the rest began at the tap, not when the app opened
+    saveSession();
+    // toggleSet moves on to the next exercise after an animation; do it now so the next snapshot names the right set
+    var partner=ssNext(ex),remaining=doneSets(ex).length<ex.sets,nx=partner?null:nextTarget(ex);
+    if(remaining&&(partner||(nx&&nx.ex.id!==ex.id))){
+      var to=partner?partner.id:nx.ex.id,i=exList().findIndex(function(x){return x.id===to});
+      if(i>=0){goTo(i,false);s.page=i} // instant jump, and the page is set even if the pager is not laid out yet
+    }
+  }else if(a.type==='skip'){if(s.rest)stopRest()}
+  else if(a.type==='add'){var r=s.rest;if(r){r.endAt+=(a.sec||15)*1000;r.total=Math.max(15,r.total+(a.sec||15))}} // timer redrawn after the batch
+}
+var nbMem=[]; // applied in this page's life, even if storing the list failed
+var nbBoot=nbApplied(); // read from storage when the page loaded: these taps are known to be on disk
+var NB=window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.wb||null;
+if(NB){
+  window.wbNative={
+    apply:function(actions){
+      var done=nbApplied(),ids=[],known=[],errors=[];
+      (actions||[]).forEach(function(a){
+        if(!a||!a.id)return;
+        // Already on disk when this page loaded: the app may forget it. Anything newer is only "applied":
+        // WebKit writes storage a moment later, so the app keeps it and offers it again to the next page.
+        if(nbBoot.indexOf(a.id)>=0){known.push(a.id);return}
+        if(done.indexOf(a.id)<0&&nbMem.indexOf(a.id)<0){try{nbRun(a)}catch(e){errors.push(String(e&&e.message||e))}nbMem.push(a.id)}
+        if(done.indexOf(a.id)<0)done.push(a.id);
+        ids.push(a.id);
+      });
+      runRest(); // once, after the whole batch: a +15 later in the batch may still extend a rest that looks over
+      // Ack only what is safely stored; otherwise the app keeps the taps and offers them again.
+      var stored=(!S.session||lsSet(LS.session,S.session))&&lsSet(LS.queue,S.queue)&&lsSet('wf1.nbApplied',done.slice(-300));
+      if(!stored){nbPost({type:'ack',ids:[],known:known,errors:['Память телефона переполнена — отметки с экрана блокировки пока не сохранены']});return}
+      nbPost({type:'ack',ids:ids,known:known,errors:errors});nbTick(true);
+    },
+    post:function(force){nbTick(!!force)}
+  };
+  nbPost({type:'ready'});
+  setInterval(nbTick,700);
+  document.addEventListener('visibilitychange',function(){nbTick(true)}); // also on hide: the app must know before WebKit pauses the page
+  window.addEventListener('pagehide',function(){nbTick(true)});
+}
+
 if(S.lastDone&&S.queue.length)S.view='done';
 else if(S.session)S.view='workout';
 if(S.boot){render();if(S.session&&S.session.rest)runRest()}
