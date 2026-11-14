@@ -185,6 +185,15 @@ svg{display:block}
 .nb-n{font-size:12px;color:var(--mu2);margin-top:5px}
 .nb-bad{color:var(--bad)}
 .rest-cap{font-size:13px;color:var(--mu);text-align:center;margin-bottom:10px}
+.wt{margin-top:12px}
+.wt-main{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:12px}
+.wt-v{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+.wt-v small{font-size:15px;font-weight:500;color:var(--mu);margin-left:4px;letter-spacing:0}
+.wt-d{display:flex;gap:16px;text-align:right}
+.wt-d div{font-size:12px;color:var(--mu2)}
+.wt-d b{display:block;font-size:15px;font-weight:600;color:var(--tx);font-variant-numeric:tabular-nums;margin-bottom:2px}
+.wt-sp{display:block;width:100%;height:56px;margin-top:14px;overflow:visible}
+.wt-ax{display:flex;justify-content:space-between;font-size:11px;color:var(--mu2);margin-top:4px}
 .ai .pl-row{display:flex;gap:12px;align-items:flex-start}
 .ai .pl-ic{width:30px;height:30px;border-radius:50%;background:var(--s2);color:var(--mu);display:grid;place-items:center;flex:none}
 .ai .pl-ic svg{width:16px;height:16px}
@@ -511,7 +520,7 @@ body.resting .w-bottom .wnav{visibility:hidden}
    The access key comes from the link (#k=...) once and is kept in this page's own storage. */
 (function () {
   var API = 'https://script.google.com/macros/s/AKfycbzcbmUZZP3RrPeqQHUzEDnt28Gj98l1pHzzgB9dKVgNqT05DQZvrfOsPBgcLOKQ7TXt5A/exec';
-  var FNS = ['getBootstrap', 'saveSet', 'deleteSet', 'finishSession', 'applyOps', 'getCoachPlan', 'getCoachDay', 'reviewSession', 'weeklyReview'];
+  var FNS = ['getBootstrap', 'saveSet', 'deleteSet', 'finishSession', 'applyOps', 'getCoachPlan', 'getCoachDay', 'reviewSession', 'weeklyReview', 'saveWeights'];
   var SLOW = { getCoachPlan: 1, getCoachDay: 1, reviewSession: 1, weeklyReview: 1 }; // the coach thinks for up to a couple of minutes
   var key = null;
   try {
@@ -766,7 +775,7 @@ function short(n){return String(n).replace(/\s*\(.*\)/,'')}
 function plural(n,a,b,c){var m=n%10,h=n%100;return n+' '+(m===1&&h!==11?a:(m>=2&&m<=4&&(h<10||h>=20)?b:c))}
 
 /* ================= state ================= */
-var S={boot:lsGet(LS.boot,null),view:'home',day:null,session:lsGet(LS.session,null),queue:lsGet(LS.queue,[]),inflight:null,syncErr:null,retryT:null,lastDone:lsGet(LS.last,null),fin:lsGet(LS.fin,[]),aiBusy:{},aiErr:{},ciUpd:null};
+var S={boot:lsGet(LS.boot,null),view:'home',day:null,session:lsGet(LS.session,null),queue:lsGet(LS.queue,[]),inflight:null,syncErr:null,retryT:null,lastDone:lsGet(LS.last,null),fin:lsGet(LS.fin,[]),aiBusy:{},aiErr:{},ciUpd:null,hw:lsGet('wf1.hw',null)};
 
 function saveSession(){if(S.session){if(!lsSet(LS.session,S.session))toast('Память телефона переполнена — данные могут не сохраниться','bad')}else lsDel(LS.session)}
 function saveQueue(){if(!lsSet(LS.queue,S.queue)&&S.queue.length)toast('Память телефона переполнена — не закрывай форму, пока не сохранится','bad')}
@@ -1492,6 +1501,7 @@ function renderHome(){
   }
   if(aiOn())h+='<div id="ai-card">'+aiCardHtml()+'</div>';
   h+=nutriCardHtml();
+  h+='<div id="wt-card">'+weightCardHtml()+'</div>';
   h+='<div id="wk-card">'+weekCardHtml()+'</div>';
   unloggedWatch().forEach(function(w){
     h+='<div class="notice"><div class="ic">'+I.watch+'</div><div class="tx"><b>'+esc(fmtDay(w.date))+' — подходы не записаны</b><span>Apple Watch: '+Math.round(w.minutes)+' мин'+(w.kcal?' · '+Math.round(w.kcal)+' ккал':'')+'</span></div><button class="btn2" data-act="backfill" data-date="'+w.date+'">Внести</button></div>';
@@ -1543,6 +1553,52 @@ function nutriCardHtml(){
       '<span class="nb-goal" style="left:'+gp.toFixed(1)+'%"></span></div><div class="nb-n">'+note+'</div></div>';
   }).join('');
   return '<div class="glass nutri"><div class="row-b"><span class="eyebrow">Питание · '+label+'</span><span class="nb-cap">цель — черта</span></div><div class="nb-list">'+bars+'</div></div>';
+}
+/* Weight: the app passes one weighing per day from Apple Health (S.hw); the sheet «Тело» also has weights
+   typed by hand, which win. Changes are measured from the latest weighing back to the weighing on or before
+   7 and 30 days earlier, shown without good/bad colours: one day's weight swings with water and food. */
+function weights(){
+  var m={};(S.hw||[]).forEach(function(x){m[x.date]=x.kg});
+  ((S.boot&&S.boot.body)||[]).forEach(function(x){if(x.kg!=null&&(!x.hk||m[x.date]==null))m[x.date]=x.kg});
+  return Object.keys(m).sort().map(function(d){return {date:d,kg:m[d]}});
+}
+function weightCardHtml(){
+  var W=weights(),t=todayISO();
+  if(!W.length){
+    if(!NB||S.hw==null)return '';
+    return '<div class="glass wt"><span class="eyebrow">Вес</span><div class="note-s" style="margin-top:10px">В Здоровье пока нет записей веса. Взвесься на умных весах или внеси вес в приложении «Здоровье» — он появится здесь и в листе «Тело». Если записи есть, а здесь пусто: Настройки → Здоровье → Доступ к данным → Workout Bridge → Вес.</div></div>';
+  }
+  var last=W[W.length-1],f1=function(v){return fmtN(Math.round(v*10)/10)};
+  var back=function(days){var lim=isoAdd(last.date,-days),r=null;W.forEach(function(x){if(x.date<=lim)r=x});return r};
+  var dl=function(days,lb){var b=back(days);if(!b)return '';var d=Math.round((last.kg-b.kg)*10)/10;
+    return '<div><b>'+(d>0?'+':d<0?'−':'±')+f1(Math.abs(d))+'</b>'+lb+'</div>'};
+  var age=Math.round((dObj(t)-dObj(last.date))/864e5);
+  var when=age===0?'сегодня':age===1?'вчера':fmtDay(last.date)+(age>=14?' · '+plural(age,'день','дня','дней')+' назад':'');
+  var h='<div class="glass wt"><div class="row-b"><span class="eyebrow">Вес · '+esc(when)+'</span><span class="nb-cap">'+(NB?'из Здоровья':'лист «Тело»')+'</span></div>';
+  h+='<div class="wt-main"><div class="wt-v">'+f1(last.kg)+'<small>кг</small></div><div class="wt-d">'+dl(7,'кг за неделю')+dl(30,'кг за 30 дней')+'</div></div>';
+  var from=isoAdd(last.date,-30),P=W.filter(function(x){return x.date>=from});
+  if(P.length>=2){
+    var x0=dObj(from)-0,span=dObj(last.date)-x0||1,lo=Math.min.apply(null,P.map(function(p){return p.kg})),hi=Math.max.apply(null,P.map(function(p){return p.kg}));
+    var pad=Math.max(0.3,(hi-lo)*0.15);lo-=pad;hi+=pad;
+    var pt=function(p){return [((dObj(p.date)-x0)/span*300).toFixed(1),(4+(hi-p.kg)/(hi-lo)*48).toFixed(1)]};
+    var pts=P.map(pt),e=pts[pts.length-1];
+    h+='<svg class="wt-sp" viewBox="0 0 300 56" preserveAspectRatio="none" aria-label="Вес за 30 дней"><polyline points="'+pts.map(function(q){return q.join(',')}).join(' ')+'" fill="none" stroke="var(--volt)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>';
+    h+='<div class="wt-ax"><span>'+esc(fmtDay(from))+'</span><span>'+f1(Math.min.apply(null,P.map(function(p){return p.kg})))+'–'+f1(Math.max.apply(null,P.map(function(p){return p.kg})))+' кг</span><span>'+esc(fmtDay(last.date))+'</span></div>';
+  }else h+='<div class="note-s" style="margin-top:12px">Динамика появится после следующих взвешиваний.</div>';
+  return h+'</div>';
+}
+/* New or changed Health weighings go to «Тело» once per page; weights typed into the sheet are never replaced. */
+var hwSent='';
+function weightsSync(){
+  if(!S.hw||!S.boot)return;
+  var have={};(S.boot.body||[]).forEach(function(x){have[x.date]=x});
+  var todo=S.hw.filter(function(x){var b=have[x.date];return !b||(b.hk&&b.kg!==x.kg)||(b.kg==null)}).slice(-400);
+  var sig=JSON.stringify(todo);if(!todo.length||sig===hwSent)return;hwSent=sig;
+  google.script.run.withSuccessHandler(function(){
+    var body=S.boot.body=(S.boot.body||[]).slice();
+    todo.forEach(function(x){var b=have[x.date];if(!b)body.push({date:x.date,kg:x.kg,waist:null,hk:true});else if(b.hk||b.kg==null){b.kg=x.kg;b.hk=true}});
+    body.sort(function(a,c){return a.date<c.date?-1:1});lsSet(LS.boot,S.boot);
+  }).withFailureHandler(function(){hwSent=''}).saveWeights(todo);
 }
 function homeCta(){
   if(!S.session&&restDay())return '<div class="rest-cap">Сегодня отдых · следующая — Full Body '+esc(nextDay())+', '+whenText(nextTrainDate(todayISO()))+'</div><button class="cta ghost" data-act="start">Всё равно начать Full Body '+S.day+'</button>';
@@ -2034,7 +2090,7 @@ var toastT;function toast(msg,kind){var t=$('#toast');t.textContent=msg;t.classN
 function load(){
   google.script.run.withSuccessHandler(function(b){
     S.boot=b;dayCache={};S._wl=null;S.queue.forEach(function(it){if(it.op==='saveSet')mergeLog(it.p);else if(it.op==='deleteSet')unmergeLog(it.p)});lsSet(LS.boot,b);
-    setTimeout(function(){aiEnsure();aiReviewMaybe()},0);
+    setTimeout(function(){aiEnsure();aiReviewMaybe();weightsSync()},0);
     if(S.view==='workout'&&$('#pager'))return; // never redraw under the fingers mid-workout
     if(S.view==='home'&&document.activeElement&&document.activeElement.tagName==='INPUT')return;
     render();
@@ -2143,7 +2199,13 @@ if(NB){
       if(!stored){nbPost({type:'ack',ids:[],known:known,errors:['Память телефона переполнена — отметки с экрана блокировки пока не сохранены']});return}
       nbPost({type:'ack',ids:ids,known:known,errors:errors});nbTick(true);
     },
-    post:function(force){nbTick(!!force)}
+    post:function(force){nbTick(!!force)},
+    weights:function(list){
+      if(!Array.isArray(list))return;
+      S.hw=list.filter(function(x){return x&&/^\d{4}-\d{2}-\d{2}$/.test(x.date)&&x.kg>0}).slice(-400);lsSet('wf1.hw',S.hw);
+      var wc=S.view==='home'&&$('#wt-card');if(wc)wc.innerHTML=weightCardHtml();
+      weightsSync();
+    }
   };
   nbPost({type:'ready'});
   setInterval(nbTick,700);
