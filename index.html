@@ -171,6 +171,17 @@ svg{display:block}
 .ai li{font-size:15px;line-height:1.4;color:var(--tx2);padding:5px 0 5px 16px;position:relative}
 .ai li:before{content:'';position:absolute;left:2px;top:13px;width:5px;height:5px;border-radius:50%;background:var(--volt)}
 .ai .wait{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--mu)}
+.ai .pl{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+.ai .pl-row{display:flex;gap:12px;align-items:flex-start}
+.ai .pl-ic{width:30px;height:30px;border-radius:50%;background:var(--s2);color:var(--mu);display:grid;place-items:center;flex:none}
+.ai .pl-ic svg{width:16px;height:16px}
+.ai .pl-lb{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mu2);margin:1px 0 3px}
+.ai .pl-tx{font-size:15px;line-height:1.45;color:var(--tx2)}
+.ai .pl-tx b{font-weight:600;color:var(--tx)}
+.ai .pl-row.focus{background:var(--volt-dim);border-radius:16px;padding:12px}
+.ai .pl-row.focus .pl-ic{background:var(--volt);color:var(--ink)}
+.ai .pl-row.focus .pl-lb{color:var(--volt)}
+.ai .pl-row.focus .pl-tx{color:var(--tx)}
 .ai .wait i{width:8px;height:8px;border-radius:50%;background:var(--volt);animation:pulse 1.2s infinite;flex:none}
 .ai .more{color:var(--volt);font-size:14px;font-weight:600;margin-top:6px}
 .sheet .ai-sum{color:var(--tx2);margin-top:8px}
@@ -962,11 +973,49 @@ function aiReviewMaybe(){
   var have=aiGet('review',d.date,d.workout);if(have){d.review=have;lsSet(LS.last,d);aiRefresh();return}
   aiRequest('review','reviewSession',{date:d.date,workout:d.workout},function(r){if(r&&r.type==='review'&&S.lastDone&&S.lastDone.date===r.date){S.lastDone.review=r;lsSet(LS.last,S.lastDone)}aiRefresh()});
 }
+/* The coach writes recovery, food and today's focus as a few sentences; show each as its own row. */
+var PL_IC={
+  rec:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/></svg>',
+  food:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v8M4.5 3v5a2.5 2.5 0 005 0V3M7 11v10M17 21V3c-2 1-3.5 3.5-3.5 7 0 2 1 3 3.5 3"/></svg>',
+  focus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/></svg>',
+  note:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 8h12M6 12h12M6 16h8"/></svg>'
+};
+var PL_LB={rec:'Восстановление',food:'Питание',focus:'Сегодня',note:''};
+function plKind(t){
+  if(/^сегодня/i.test(t))return 'focus';
+  if(/ккал|калори|белк|белок|питани|углевод/i.test(t))return 'food';
+  if(/\bсон\b|сна\b|пульс|HRV|восстанов|ночь|ночи/i.test(t))return 'rec';
+  if(/RIR|отказ|добавля|держи|фокус|работай|снизь|прибавь/i.test(t))return 'focus';
+  return '';
+}
+function aiPlanHtml(text){
+  var parts=String(text||'').trim().replace(/([.!?…])\s+(?=[А-ЯЁA-Z«])/g,'$1\u0001').split('\u0001'),rows=[];
+  parts.forEach(function(p){
+    p=p.trim();if(!p)return;
+    var k=plKind(p),last=rows[rows.length-1];
+    var same=rows.filter(function(r){return k&&r.k===k})[0];
+    if(same)same.t.push(p);
+    else if(!k&&last)last.t.push(p); // a sentence that only continues the previous thought
+    else rows.push({k:k||'note',t:[p]});
+  });
+  if(rows.length<2)return '<div class="tx" style="margin-top:10px;font-size:16px;color:var(--tx)">'+esc(text)+'</div>';
+  return '<div class="pl">'+rows.map(function(r){
+    var lb=PL_LB[r.k];
+    var body=r.t.map(function(p,i){
+      // "Восстановление ровное: …" under the label "Восстановление" reads as "Ровное: …"
+      if(i===0&&lb&&p.toLowerCase().indexOf(lb.toLowerCase()+' ')===0){var rest=p.slice(lb.length+1);p=rest.charAt(0).toUpperCase()+rest.slice(1)}
+      var c=p.indexOf(':');
+      return i===0&&c>0&&c<48?'<b>'+esc(p.slice(0,c+1))+'</b>'+esc(p.slice(c+1)):esc(p);
+    }).join(' ');
+    return '<div class="pl-row'+(r.k==='focus'?' focus':'')+'"><span class="pl-ic">'+PL_IC[r.k]+'</span><div>'+
+      (lb?'<div class="pl-lb">'+lb+'</div>':'')+'<div class="pl-tx">'+body+'</div></div></div>';
+  }).join('')+'</div>';
+}
 function aiCardHtml(){
   if(!aiOn())return '';
   var today=todayISO(),nd=nextDay(),plan=aiGet('plan',today,'Full Body '+nd),h='';
   var hd='<div class="eyebrow hot">Тренер на сегодня · Full Body '+esc(nd)+'</div>';
-  if(plan)h+='<div class="glass ai">'+hd+'<div class="tx" style="margin-top:10px;font-size:16px;color:var(--tx)">'+esc(plan.text)+'</div><div class="note-s" style="margin-top:12px">Цифры на каждое упражнение уже ждут в тренировке — режим подберу по самочувствию перед стартом.</div></div>';
+  if(plan)h+='<div class="glass ai">'+hd+aiPlanHtml(plan.text)+'<div class="note-s" style="margin-top:14px">Цифры на каждое упражнение уже ждут в тренировке — режим подберу по самочувствию перед стартом.</div></div>';
   else if(S.aiBusy.plan)h+='<div class="glass ai">'+hd+'<div class="wait" style="margin-top:12px"><i></i>Смотрю тренировки, сон и питание — это до минуты</div></div>';
   else if(S.aiErr.plan)h+='<div class="glass ai"><div class="hd">'+hd+'<button class="btn2" data-act="ai-retry">Повторить</button></div><div class="tx muc">Не ответил: '+esc(S.aiErr.plan)+'. Без него цели посчитаю по правилам методики.</div></div>';
   var rv=aiGet('review');
