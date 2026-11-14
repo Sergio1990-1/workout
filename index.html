@@ -547,6 +547,62 @@ body.resting .w-bottom .wnav{visibility:hidden}
 .co-v{font-family:var(--d);font-weight:600;font-size:19px;letter-spacing:-.03em;line-height:1.22;margin-top:14px;text-wrap:balance}
 .co-v span{color:var(--volt);text-shadow:0 0 18px rgba(212,255,58,.35)}
 .co-v span.lt{color:var(--org);text-shadow:0 0 18px rgba(255,122,51,.35)}
+
+/* phase 2: weekly goal, meals, meal advice, evening marks */
+.goal{margin-top:12px;overflow:hidden}
+.goal::before{content:'';position:absolute;right:-60px;top:-70px;width:200px;height:200px;border-radius:50%;background:radial-gradient(closest-side,rgba(212,255,58,.16),transparent);pointer-events:none}
+.goal-row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:12px 0 4px}
+.goal-v{font-family:var(--d);font-size:30px;font-weight:600;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums;margin-top:12px}
+.goal-row .goal-v{margin-top:0}
+.goal-v small{font-family:var(--f);font-size:13px;font-weight:500;color:var(--mu);letter-spacing:0;margin-left:6px}
+.goal-was{text-align:right;font-size:13px;color:var(--mu2);font-variant-numeric:tabular-nums}
+.goal-was s{display:block;margin-bottom:3px}
+.goal-was span{font-weight:700;font-size:15px}
+.goal-was .dn{color:var(--volt)}.goal-was .up{color:var(--org)}
+.goal-act{display:flex;align-items:center;gap:14px;margin-top:14px}
+.btn2.volt{background:var(--volt);box-shadow:0 0 22px rgba(212,255,58,.25)}
+.btn2.ghost{background:rgba(255,255,255,.08);color:var(--tx)}
+.btn2:disabled{opacity:.55}
+.goal-skip{font-size:15px;font-weight:500;color:var(--mu);padding:10px 4px}
+.meals{margin-top:12px}
+.ml-g{margin-top:14px}
+.ml-gh{display:flex;justify-content:space-between;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mu2);padding-bottom:6px;border-bottom:1px solid var(--line)}
+.ml-gh span:first-child{color:var(--org)}
+.ml-r{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.ml-g .ml-r:last-child{border-bottom:0}
+.ml-n{font-size:15px;line-height:1.3;color:var(--tx2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ml-n i,.ma-d i{font-style:normal;color:var(--mu2)}
+.ml-k,.ma-k{flex:none;text-align:right;font-variant-numeric:tabular-nums}
+.ml-k b,.ma-k b{display:block;font-size:15px;font-weight:600;color:var(--tx)}
+.ml-k small,.ma-k small{font-size:12px;color:var(--volt)}
+.meal-ai{margin-top:12px}
+.co-v.ma-t{font-size:17px}
+.ma-list{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.ma-o{display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:16px;background:rgba(255,255,255,.04)}
+.ma-i{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--volt-dim);color:var(--volt)}
+.ma-b{flex:1;min-width:0}
+.ma-d{font-size:15px;font-weight:600;line-height:1.3}
+.ma-w{font-size:13px;color:var(--mu);margin-top:3px;line-height:1.35}
+.meal-btn{display:flex;align-items:center;gap:14px;width:100%;text-align:left;margin-top:12px;border:1px solid rgba(212,255,58,.18)}
+.meal-btn .mb-ic{flex:none;width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:var(--volt-dim);color:var(--volt)}
+.meal-btn .mb-ic svg{width:22px;height:22px}
+.meal-btn .mb-t{flex:1;min-width:0}
+.meal-btn .mb-t b{display:block;font-size:17px;font-weight:700}
+.meal-btn .mb-t span{display:block;font-size:13px;color:var(--mu);margin-top:3px;line-height:1.35}
+.meal-btn>svg{width:18px;height:18px;color:var(--mu2);flex:none}
+.wt-lg{display:inline-flex;align-items:center;gap:5px}
+.wt-lg i{display:inline-block}
+.wt-lg i.d{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.45)}
+.wt-lg i.l{width:12px;height:2px;border-radius:2px;background:var(--volt);box-shadow:0 0 6px var(--volt);margin-left:6px}
+.hab{margin-top:12px}
+.hab-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.hab-c{height:38px;padding:0 14px;border-radius:999px;font-size:14px;font-weight:600;background:rgba(255,255,255,.06);color:var(--tx2);border:1px solid transparent;transition:background .15s,color .15s}
+.hab-c.on{background:rgba(255,122,51,.16);color:var(--org);border-color:rgba(255,122,51,.4)}
+.hab-act{display:flex;align-items:center;gap:12px;margin-top:14px}
+.hab-act .nb-n{margin-top:0;flex:1}
+.hab-done{display:flex;align-items:center;gap:12px;font-size:15px;color:var(--tx2);padding:14px 18px}
+.hab-ok{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--volt-dim);color:var(--volt)}
+.hab-ok svg{width:16px;height:16px}
 </style>
 </head>
 <body>
@@ -561,7 +617,7 @@ body.resting .w-bottom .wnav{visibility:hidden}
    The access key comes from the link (#k=...) once and is kept in this page's own storage. */
 (function () {
   var API = 'https://script.google.com/macros/s/AKfycbzcbmUZZP3RrPeqQHUzEDnt28Gj98l1pHzzgB9dKVgNqT05DQZvrfOsPBgcLOKQ7TXt5A/exec';
-  var FNS = ['getBootstrap', 'saveSet', 'deleteSet', 'finishSession', 'applyOps', 'getCoachPlan', 'getCoachDay', 'reviewSession', 'weeklyReview', 'saveWeights'];
+  var FNS = ['getBootstrap', 'saveSet', 'deleteSet', 'finishSession', 'applyOps', 'getCoachPlan', 'getCoachDay', 'reviewSession', 'weeklyReview', 'saveWeights', 'saveHabits', 'setKcalGoal', 'suggestMeal'];
   var SLOW = { getCoachPlan: 1, getCoachDay: 1, reviewSession: 1, weeklyReview: 1 }; // the coach thinks for up to a couple of minutes
   var key = null;
   try {
@@ -612,7 +668,7 @@ var IMG_BASE='https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/ex
 (function(){function fit(){if(!navigator.standalone)return;var land=innerWidth>innerHeight;
   document.documentElement.style.setProperty('--app-h',(land?Math.min(screen.width,screen.height):Math.max(screen.width,screen.height))+'px')}
   fit();addEventListener('resize',fit);addEventListener('orientationchange',fit)})();
-var LS={boot:'wf1.boot',session:'wf1.session',queue:'wf1.queue',last:'wf1.lastDone',fin:'wf1.finished'};
+var LS={boot:'wf1.boot',session:'wf1.session',queue:'wf1.queue',last:'wf1.lastDone',fin:'wf1.finished',goalAt:'wf1.goalAt',goalSkip:'wf1.goalSkip'};
 var MARK='Веб-форма';
 var FEELINGS=[
   {v:'Отлично — осталось много энергии',t:'Отлично',s:'осталось много сил'},
@@ -1143,6 +1199,7 @@ function aiReviewHtml(){
 function aiRefresh(){
   if(S.view==='home'){var c=$('#ai-card');if(c)c.innerHTML=aiCardHtml()}
   if(S.view==='home'){var rvc=$('#ai-rv');if(rvc)rvc.innerHTML=aiReviewCardHtml()}
+  if(S.view==='home'){var mc=$('#meal-ai');if(mc)mc.innerHTML=mealAiHtml()}
   if(S.view==='done'){var r=$('#ai-review');if(r)r.innerHTML=aiReviewHtml()}
   if(S.view==='home'){var wc=$('#wk-card');if(wc)wc.innerHTML=weekCardHtml()}
   if(S.view==='hist'){var sc=$('#hist-scroll'),t=sc?sc.scrollTop:0;renderHist();sc=$('#hist-scroll');if(sc)sc.scrollTop=t}
@@ -1586,6 +1643,7 @@ function homeToday(){
     h+='<button class="resume alt" data-act="restore"><span class="t"><b>Продолжить Full Body '+esc(draft.day)+'</b><span>В таблице уже '+plural(draft.rows.length,'подход','подхода','подходов')+' за сегодня</span></span>'+I.play+'</button>';
   }
   if(aiOn())h+='<div id="ai-card">'+aiCardHtml()+'</div>';
+  h+='<div id="hab-card">'+habitsCardHtml()+'</div>';
   if(rec)h+='<button class="tap-card" data-act="tab" data-tab="sleep">'+recoveryCardHtml(rec,false)+'</button>';
   h+='<button class="tap-card" data-act="tab" data-tab="train">'+heroCard(S.day,nd).replace('class="hero"','class="hero solo"')+'</button>';
   h+='<div id="tiles">'+todayTilesHtml()+'</div>';
@@ -1607,9 +1665,9 @@ function homeTrain(){
   return h;
 }
 function homeFood(){
-  var n=nutriCardHtml(),w=weightCardHtml(),h=tabTitle('Питание и вес');
-  if(!n&&!w)return h+emptyNote('Здесь будут еда за день из листа «Питание», вес из Здоровья и реальный расход калорий.');
-  return h+n+'<div id="wt-card">'+w+'</div>';
+  var n=nutriCardHtml(),m=mealsCardHtml(),w=weightCardHtml(),h=tabTitle('Питание и вес');
+  if(!n&&!m&&!w)return h+emptyNote('Здесь будут еда за день из листа «Питание», вес из Здоровья и реальный расход калорий.');
+  return h+'<div id="goal-card">'+goalCardHtml()+'</div>'+n+'<div id="meal-ai">'+mealAiHtml()+'</div>'+m+'<div id="wt-card">'+w+'</div>';
 }
 function homeSleep(){
   var rec=recovery(),h=tabTitle('Сон и восстановление');
@@ -1662,8 +1720,8 @@ function todayTilesHtml(){
     var ring='<svg viewBox="0 0 52 52" class="tile-ring" aria-hidden="true"><defs><linearGradient id="'+id+'" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#FF9A3C"/><stop offset="1" stop-color="#D4FF3A"/></linearGradient></defs><circle cx="'+c+'" cy="'+c+'" r="'+rr+'" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="6"/>'+
       (f>0?glow('<circle cx="'+c+'" cy="'+c+'" r="'+rr+'" fill="none" stroke="url(#'+id+')" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+(L*f).toFixed(1)+' '+L.toFixed(1)+'" transform="rotate(-90 26 26)"/>',52,52):'')+'</svg>';
     h+='<button class="glass tile" data-act="tab" data-tab="food"><span class="eyebrow">Калории</span><div class="tile-row">'+ring+'<div><b class="tile-v">'+fmt(r.kcal)+'</b><span class="tile-s">'+(g?'из '+fmt(g):'ккал')+(r.date===t?'':' · вчера')+'</span></div></div></button>'}
-  if(w){var f1=function(v){return fmtN(Math.round(v*10)/10)},lim=isoAdd(w.date,-7),b=null;W.forEach(function(x){if(x.date<=lim)b=x});
-    var d=b?Math.round((w.kg-b.kg)*10)/10:null,P=W.filter(function(x){return x.date>=isoAdd(w.date,-30)}),sp='';
+  if(w){var f1=function(v){return fmtN(Math.round(v*10)/10)},lim=isoAdd(w.date,-7),b=null,T=weightTrend(W),te=T[T.length-1];T.forEach(function(x){if(x.date<=lim)b=x});
+    var d=b?Math.round((te.kg-b.kg)*10)/10:null,P=W.filter(function(x){return x.date>=isoAdd(w.date,-30)}),sp='';
     if(P.length>=2){var lo=Math.min.apply(null,P.map(function(p){return p.kg})),hi=Math.max.apply(null,P.map(function(p){return p.kg})),x0=dObj(P[0].date)-0,span=dObj(w.date)-x0||1;
       var pts=P.map(function(p){return ((dObj(p.date)-x0)/span*116+2).toFixed(1)+','+(26-(p.kg-lo)/((hi-lo)||1)*22).toFixed(1)}).join(' ');
       sp='<svg viewBox="0 0 120 30" preserveAspectRatio="none" class="tile-sp" aria-hidden="true">'+glow('<polyline points="'+pts+'" fill="none" stroke="#D4FF3A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>',120,30)+'</svg>'}
@@ -1718,22 +1776,24 @@ function weightCardHtml(){
     if(!NB||S.hw==null)return '';
     return '<div class="glass wt"><span class="eyebrow">Вес</span><div class="note-s" style="margin-top:10px">В Здоровье пока нет записей веса. Взвесься на умных весах или внеси вес в приложении «Здоровье» — он появится здесь и в листе «Тело». Если записи есть, а здесь пусто: Настройки → Здоровье → Доступ к данным → Workout Bridge → Вес.</div></div>';
   }
-  var last=W[W.length-1],f1=function(v){return fmtN(Math.round(v*10)/10)};
-  var back=function(days){var lim=isoAdd(last.date,-days),r=null;W.forEach(function(x){if(x.date<=lim)r=x});return r};
-  var dl=function(days,lb){var b=back(days);if(!b)return '';var d=Math.round((last.kg-b.kg)*10)/10;
+  var last=W[W.length-1],f1=function(v){return fmtN(Math.round(v*10)/10)},T=weightTrend(W),te=T[T.length-1];
+  var back=function(days){var lim=isoAdd(last.date,-days),r=null;T.forEach(function(x){if(x.date<=lim)r=x});return r};
+  var dl=function(days,lb){var b=back(days);if(!b)return '';var d=Math.round((te.kg-b.kg)*10)/10;
     return '<div><b>'+(d>0?'+':d<0?'−':'±')+f1(Math.abs(d))+'</b>'+lb+'</div>'};
   var age=Math.round((dObj(t)-dObj(last.date))/864e5);
   var when=age===0?'сегодня':age===1?'вчера':fmtDay(last.date)+(age>=14?' · '+plural(age,'день','дня','дней')+' назад':'');
   var h='<div class="glass wt"><div class="row-b"><span class="eyebrow">Вес · '+esc(when)+'</span><span class="nb-cap">'+(NB?'из Здоровья':'лист «Тело»')+'</span></div>';
-  h+='<div class="wt-main"><div class="wt-v">'+f1(last.kg)+'<small>кг</small></div><div class="wt-d">'+dl(7,'кг за неделю')+dl(30,'кг за 30 дней')+'</div></div>';
-  var from=isoAdd(last.date,-30),P=W.filter(function(x){return x.date>=from});
+  h+='<div class="wt-main"><div class="wt-v">'+f1(last.kg)+'<small>кг</small></div><div class="wt-d">'+(W.length>=3?'<div><b>'+f1(te.kg)+'</b>тренд</div>':'')+dl(7,'за неделю')+dl(30,'за 30 дней')+'</div></div>';
+  var from=isoAdd(last.date,-30),P=W.filter(function(x){return x.date>=from}),TP=T.filter(function(x){return x.date>=from});
   if(P.length>=2){
-    var x0=dObj(from)-0,span=dObj(last.date)-x0||1,lo=Math.min.apply(null,P.map(function(p){return p.kg})),hi=Math.max.apply(null,P.map(function(p){return p.kg}));
+    var all=P.concat(TP).map(function(p){return p.kg}),x0=dObj(from)-0,span=dObj(last.date)-x0||1,lo=Math.min.apply(null,all),hi=Math.max.apply(null,all);
     var pad=Math.max(0.3,(hi-lo)*0.15);lo-=pad;hi+=pad;
     var pt=function(p){return [((dObj(p.date)-x0)/span*300).toFixed(1),(4+(hi-p.kg)/(hi-lo)*48).toFixed(1)]};
-    var pts=P.map(pt),e=pts[pts.length-1];
-    h+='<svg class="wt-sp" viewBox="0 0 300 56" preserveAspectRatio="none" aria-label="Вес за 30 дней"><polyline points="'+pts.map(function(q){return q.join(',')}).join(' ')+'" fill="none" stroke="var(--volt)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>';
-    h+='<div class="wt-ax"><span>'+esc(fmtDay(from))+'</span><span>'+f1(Math.min.apply(null,P.map(function(p){return p.kg})))+'–'+f1(Math.max.apply(null,P.map(function(p){return p.kg})))+' кг</span><span>'+esc(fmtDay(last.date))+'</span></div>';
+    // dots: zero-length round-capped strokes stay round in a stretched (preserveAspectRatio=none) chart
+    var dots=P.map(function(p){var q=pt(p);return '<path d="M'+q[0]+' '+q[1]+'h0" stroke="rgba(255,255,255,.4)" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>'}).join('');
+    var line=TP.length>=2?glow('<polyline points="'+TP.map(function(p){return pt(p).join(',')}).join(' ')+'" fill="none" stroke="#D4FF3A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>',300,56):'';
+    h+='<svg class="wt-sp" viewBox="0 0 300 56" preserveAspectRatio="none" aria-label="Вес и тренд за 30 дней">'+dots+line+'</svg>';
+    h+='<div class="wt-ax"><span>'+esc(fmtDay(from))+'</span><span class="wt-lg"><i class="d"></i>взвешивания<i class="l"></i>тренд</span><span>'+esc(fmtDay(last.date))+'</span></div>';
   }else h+='<div class="note-s" style="margin-top:12px">Динамика появится после следующих взвешиваний.</div>';
   return h+tdeeHtml(W)+'</div>';
 }
@@ -1764,12 +1824,121 @@ function tdeeHtml(W){
     if(!need.length)return '';
     return '<div class="tdee"><div class="tdee-h"><span>Реальный расход</span></div><div class="tdee-t">Посчитаю по твоим данным, когда будут '+need.join(' и ')+'.</div></div>';
   }
-  var goal=null;(S.boot.nutrition||[]).forEach(function(x){if(x.kcalGoal)goal=x.kcalGoal});
+  var goal=curGoal();
   var wk=Math.round(r.week*10)/10,trend=wk===0?'вес стоит на месте':'вес '+(wk<0?'снижается':'растёт')+' на '+f1(Math.abs(wk))+' кг в неделю';
   var h='<div class="tdee"><div class="tdee-h"><span>Реальный расход</span><span><b>~'+r50(r.tdee)+'</b> ккал/день</span></div>';
   h+='<div class="tdee-t">За последние '+r.days+' дней в дни с записями ты ел в среднем '+r50(r.intake)+' ккал, а '+trend+'. Чтобы худеть на '+f1(r.pace)+' кг в неделю без потери мышц, ешь <b>~'+r50(r.eat)+' ккал</b>'+(goal?' — цель в таблице '+Math.round(goal).toLocaleString('ru-RU'):'')+'.</div>';
   h+='<div class="nb-n" style="margin-top:8px">По '+plural(r.food,'дню','дням','дням')+' с записями еды и '+plural(r.weighs,'взвешиванию','взвешиваниям','взвешиваниям')+'. Если часть еды не записываешь, реальный расход выше.</div></div>';
   return h;
+}
+/* Smoothed weight: each weighing moves the trend 10% of the way (more after a gap of several days), so one
+   salty dinner or a glass of water barely shifts it. Seeded with the mean of the first three weighings. */
+function weightTrend(W){
+  var out=[],e=null,pd=null,seed=W.slice(0,3);
+  W.forEach(function(x){
+    if(e==null)e=seed.reduce(function(a,y){return a+y.kg},0)/seed.length;
+    else{var g=Math.max(1,Math.round((dObj(x.date)-dObj(pd))/864e5));e+=(1-Math.pow(0.9,g))*(x.kg-e)}
+    pd=x.date;out.push({date:x.date,kg:e});
+  });
+  return out;
+}
+function fmtK(v){return Math.round(v).toLocaleString("ru-RU")}
+/* the calorie goal now in force: the latest «Прогресс» goal, or the one accepted here if that is newer */
+function curGoal(){
+  var g=null,d='';(S.boot.nutrition||[]).forEach(function(x){if(x.kcalGoal){g=x.kcalGoal;d=x.date}});
+  var a=lsGet(LS.goalAt,null);if(a&&a.kcal&&a.date>=d)g=a.kcal;
+  return g;
+}
+/* A new daily goal from the real burn (tdeeCalc): at most 200 kcal away from the current one, offered only when it
+   differs by 100+ and nothing was accepted or put off in the last 6 days. */
+function goalProposal(){
+  var r=tdeeCalc(weights()),cur=curGoal();if(!r.ok||!cur)return null;
+  var want=Math.round(r.eat/50)*50,kcal=Math.max(1200,Math.min(5000,Math.max(cur-200,Math.min(cur+200,want))));
+  if(Math.abs(kcal-cur)<100)return null;
+  var t=todayISO(),lim=isoAdd(t,-6),a=lsGet(LS.goalAt,null),s=lsGet(LS.goalSkip,null);
+  if((a&&a.date>lim)||(s&&s>lim))return null;
+  return {r:r,cur:cur,kcal:kcal,want:want};
+}
+function goalCardHtml(){
+  if(S.goalJust)return '<div class="glass goal"><div class="row-b"><span class="eyebrow">Цель на неделю</span><span class="status good" style="font-size:13px"><i></i>Принято</span></div>'+
+    '<div class="goal-v">'+fmtK(S.goalJust)+'<small>ккал в день</small></div><div class="tdee-t">Записал в «Прогресс» с сегодняшнего дня и в заметку с целями — новые дни чат запишет уже с ней. Пересчитаю через неделю.</div></div>';
+  var g=goalProposal();if(!g)return '';
+  var r=g.r,f1=function(v){return fmtN(Math.round(v*10)/10)},wk=Math.round(r.week*10)/10,d=g.kcal-g.cur;
+  var trend=wk===0?'стоит на месте':(wk<0?'снижается':'растёт')+' на '+f1(Math.abs(wk))+' кг в неделю';
+  var why=d<0?'Вес '+trend+' при реальном расходе ~'+fmtK(Math.round(r.tdee/50)*50)+' ккал. Чтобы худеть на '+f1(r.pace)+' кг в неделю, ешь чуть меньше.'
+    :'Вес '+trend+' — быстрее, чем '+f1(r.pace)+' кг. Немного больше еды сбережёт мышцы и силу.';
+  if(g.kcal!==g.want)why+=' Сдвигаю не больше чем на 200 ккал за раз — через неделю посмотрю снова.';
+  return '<div class="glass goal"><div class="row-b"><span class="eyebrow">Цель на неделю</span><span class="nb-cap">по весу и еде за '+r.days+' дней</span></div>'+
+    '<div class="goal-row"><div class="goal-v">'+fmtK(g.kcal)+'<small>ккал в день</small></div><div class="goal-was"><s>'+fmtK(g.cur)+'</s><span class="'+(d<0?'dn':'up')+'">'+(d<0?'−':'+')+fmtK(Math.abs(d))+'</span></div></div>'+
+    '<div class="tdee-t">'+why+'</div>'+
+    '<div class="goal-act"><button class="btn2 volt" data-act="goal-ok" data-kcal="'+g.kcal+'">Принять</button><button class="goal-skip" data-act="goal-skip">Не сейчас</button></div></div>';
+}
+function goalRefresh(){
+  var g=$('#goal-card');if(g)g.innerHTML=goalCardHtml();
+  var w=$('#wt-card');if(w)w.innerHTML=weightCardHtml();
+}
+function goalAccept(kcal,btn){
+  if(!(kcal>0))return;btn.disabled=true;btn.textContent='Записываю…';
+  var t=todayISO();
+  google.script.run.withSuccessHandler(function(){
+    lsSet(LS.goalAt,{date:t,kcal:kcal});
+    (S.boot.nutrition||[]).forEach(function(x){if(x.date>=t)x.kcalGoal=kcal});lsSet(LS.boot,S.boot);
+    S.goalJust=kcal;goalRefresh();toast('Цель '+fmtK(kcal)+' ккал записана в таблицу','volt');
+  }).withFailureHandler(function(e){btn.disabled=false;btn.textContent='Принять';toast('Не записалось: '+((e&&e.message)||'нет связи'),'bad')}).setKcalGoal({kcal:kcal,date:t});
+}
+/* «Питание»: the dishes of today (or the last day with records this week), grouped by meal. */
+function mealsCardHtml(){
+  var M=S.boot.meals||[],t=todayISO(),d=null;
+  M.forEach(function(m){if(m.date<=t&&m.date>=isoAdd(t,-7)&&(!d||m.date>d))d=m.date});
+  if(!d)return '';
+  var rows=M.filter(function(m){return m.date===d}),groups=[],by={},tot=0;
+  rows.forEach(function(m){var k=m.meal||'Другое';if(!by[k]){by[k]={name:k,items:[],kcal:0};groups.push(by[k])}by[k].items.push(m);by[k].kcal+=m.kcal||0;tot+=m.kcal||0});
+  var label=d===t?'сегодня':d===isoAdd(t,-1)?'вчера':fmtDay(d);
+  var h='<div class="glass meals"><div class="row-b"><span class="eyebrow">Еда · '+esc(label)+'</span><span class="nb-cap">'+plural(rows.length,'блюдо','блюда','блюд')+' · '+fmtK(tot)+' ккал</span></div>';
+  groups.forEach(function(g){
+    h+='<div class="ml-g"><div class="ml-gh"><span>'+esc(g.name)+'</span><span>'+fmtK(g.kcal)+' ккал</span></div>';
+    g.items.forEach(function(m){h+='<div class="ml-r"><span class="ml-n">'+esc(m.dish)+(m.n!=null&&m.n!==1?' <i>×'+fmtN(m.n)+'</i>':'')+'</span><span class="ml-k"><b>'+fmtK(m.kcal||0)+'</b><small>Б '+fmtK(m.p||0)+'</small></span></div>'});
+    h+='</div>';
+  });
+  return h+'</div>';
+}
+/* «Что съесть дальше»: asked on a tap; the answer is kept for the food logged so far, so it shows again until
+   more food is logged (the server uses the same "kcal/protein" signature). */
+function mealSig(){var t=todayISO(),k=0,p=0;(S.boot.meals||[]).forEach(function(m){if(m.date===t){k+=m.kcal||0;p+=m.p||0}});return Math.round(k)+'/'+Math.round(p)}
+function mealAiHtml(){
+  if(!aiOn())return '';
+  var x=aiGet('meal',todayISO(),mealSig());
+  if(x&&x.data&&x.data.options){
+    return '<div class="glass ai coach meal-ai">'+coachHead('подобрал из того, что ты обычно ешь')+'<div class="co-v ma-t">'+esc(String(x.data.title||x.text).replace(/~\s*/g,'≈ '))+'</div><div class="ma-list">'+
+      x.data.options.map(function(q,i){return '<div class="ma-o"><span class="ma-i">'+(i+1)+'</span><div class="ma-b"><div class="ma-d">'+esc(q.dish)+(q.portions&&q.portions!==1?' <i>×'+fmtN(q.portions)+'</i>':'')+'</div><div class="ma-w">'+esc(q.why)+'</div></div><div class="ma-k"><b>'+fmtK(q.kcal)+'</b><small>Б '+fmtK(q.p)+'</small></div></div>'}).join('')+
+      '</div></div>';
+  }
+  if(S.aiBusy.meal)return '<div class="glass ai coach meal-ai">'+coachHead('смотрю, что ты уже съел сегодня')+'<div class="wait" style="margin-top:12px"><i></i>Подбираю из твоих блюд — до минуты</div></div>';
+  return '<button class="glass meal-btn" data-act="meal-ai"><span class="mb-ic">'+PL_IC.food+'</span><span class="mb-t"><b>Что съесть дальше?</b><span>'+(S.aiErr.meal?'Не ответил: '+esc(S.aiErr.meal)+'. Нажми, чтобы повторить':'Подберу из блюд, которые ты обычно ешь, под остаток на сегодня')+'</span></span>'+I.fwd+'</button>';
+}
+/* Evening marks (19:00–04:00; after midnight they belong to the evening before). One tap a day; in a few weeks
+   they let the coach compare sleep and resting pulse on evenings with and without each habit. */
+var HABITS=[['alcohol','Алкоголь'],['late','Поздний ужин'],['coffee','Кофе после 16:00'],['stress','Стресс']];
+function habitDate(){var h=new Date().getHours();return h>=19?todayISO():h<4?isoAdd(todayISO(),-1):null}
+function habitsCardHtml(){
+  var d=habitDate();if(!d||!S.boot)return '';
+  if(S.habJust===d)return '<div class="glass hab hab-done"><span class="hab-ok">'+I.check+'</span><span>Вечер отмечен — спасибо</span></div>';
+  if((S.boot.habits||[]).some(function(x){return x.date===d}))return '';
+  var sel=S.habSel||[],n=(S.boot.habits||[]).length;
+  return '<div class="glass hab"><div class="row-b"><span class="eyebrow">Как прошёл вечер?</span><span class="nb-cap">'+(n?plural(n,'вечер','вечера','вечеров')+' отмечено':'отметь, что было')+'</span></div>'+
+    '<div class="hab-chips">'+HABITS.map(function(x){return '<button class="hab-c'+(sel.indexOf(x[0])>=0?' on':'')+'" data-act="hab-t" data-k="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>'+
+    '<div class="hab-act">'+(sel.length?'<button class="btn2 volt" data-act="hab-save">Записать</button>':'<button class="btn2 ghost" data-act="hab-none">Ничего из этого</button>')+
+    '<span class="nb-n">Через пару недель покажу, как это влияет на сон и пульс.</span></div></div>';
+}
+function habRefresh(){var c=$('#hab-card');if(c)c.innerHTML=habitsCardHtml()}
+function habToggle(k){var s=S.habSel=(S.habSel||[]).slice(),i=s.indexOf(k);if(i>=0)s.splice(i,1);else s.push(k);habRefresh()}
+function habSave(tags){
+  var d=habitDate();if(!d)return;
+  $$('#hab-card button').forEach(function(b){b.disabled=true});
+  google.script.run.withSuccessHandler(function(){
+    var H=S.boot.habits=(S.boot.habits||[]).filter(function(x){return x.date!==d});H.push({date:d,tags:tags.slice()});lsSet(LS.boot,S.boot);
+    S.habJust=d;S.habSel=[];habRefresh();
+  }).withFailureHandler(function(e){toast('Не записалось: '+((e&&e.message)||'нет связи'),'bad');habRefresh()}).saveHabits({date:d,tags:tags});
 }
 /* New or changed Health weighings go to «Тело» once per page; weights typed into the sheet are never replaced. */
 var hwSent='';
@@ -1962,6 +2131,12 @@ document.addEventListener('click',function(e){
     case 'app-settings':nbPost({type:'settings'});break;
     case 'hist-all':S.histAll=!S.histAll;render();break;
     case 'tab':openTab(a.dataset.tab);break;
+    case 'goal-ok':goalAccept(+a.dataset.kcal,a);break;
+    case 'goal-skip':lsSet(LS.goalSkip,todayISO());goalRefresh();break;
+    case 'meal-ai':S.aiErr.meal=null;aiRequest('meal','suggestMeal',{date:todayISO()});break;
+    case 'hab-t':habToggle(a.dataset.k);break;
+    case 'hab-save':habSave(S.habSel||[]);break;
+    case 'hab-none':habSave([]);break;
   }
 });
 function pickOn(btn,off){$$('.choice',btn.parentNode).forEach(function(x){x.classList.toggle('on',!off&&x===btn)})}
