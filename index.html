@@ -872,7 +872,7 @@ function short(n){return String(n).replace(/\s*\(.*\)/,'')}
 function plural(n,a,b,c){var m=n%10,h=n%100;return n+' '+(m===1&&h!==11?a:(m>=2&&m<=4&&(h<10||h>=20)?b:c))}
 
 /* ================= state ================= */
-var S={boot:lsGet(LS.boot,null),view:'home',day:null,session:lsGet(LS.session,null),queue:lsGet(LS.queue,[]),inflight:null,syncErr:null,retryT:null,lastDone:lsGet(LS.last,null),fin:lsGet(LS.fin,[]),aiBusy:{},aiErr:{},ciUpd:null,hw:lsGet('wf1.hw',null)};
+var S={boot:lsGet(LS.boot,null),view:'home',day:null,session:lsGet(LS.session,null),queue:lsGet(LS.queue,[]),inflight:null,syncErr:null,retryT:null,lastDone:lsGet(LS.last,null),fin:lsGet(LS.fin,[]),aiBusy:{},aiErr:{},ciUpd:null,hw:lsGet('wf1.hw',null),hn:lsGet('wf1.hn',null)};
 
 function saveSession(){if(S.session){if(!lsSet(LS.session,S.session))toast('Память телефона переполнена — данные могут не сохраниться','bad')}else lsDel(LS.session)}
 function saveQueue(){if(!lsSet(LS.queue,S.queue)&&S.queue.length)toast('Память телефона переполнена — не закрывай форму, пока не сохранится','bad')}
@@ -973,8 +973,18 @@ function coachTarget(ex,prev,mode){
    these signals only inform; the pre-workout check-in decides the mode. */
 function stat(arr,k){var v=arr.map(function(x){return x[k]}).filter(function(x){return x!=null});if(!v.length)return null;
   var m=v.reduce(function(a,b){return a+b},0)/v.length;return {m:m,sd:Math.sqrt(v.reduce(function(a,b){return a+(b-m)*(b-m)},0)/v.length),n:v.length}}
+/* «Apple Health» rows; the app's own reading for today (S.hn) fills today's row until the nightly sync writes it */
+function healthRows(){
+  var today=todayISO(),H=(S.boot.health||[]).slice(),n=S.hn;
+  if(n&&n.date===today){
+    var row=null;H.forEach(function(x){if(x.date===today)row=x});
+    if(!row){row={date:today,steps:null,kcal:null,rhr:null,hrv:null,sleep:null};H.push(row)}else{row=Object.assign({},row);H=H.map(function(x){return x.date===today?row:x})}
+    ['sleep','hrv','rhr'].forEach(function(k){if(row[k]==null&&n[k]!=null){row[k]=n[k];row.app=1}});
+  }
+  return H;
+}
 function recovery(){
-  var today=todayISO(),h=(S.boot.health||[]).filter(function(x){return x.date<=today&&(x.hrv!=null||x.rhr!=null||x.sleep!=null)});
+  var today=todayISO(),h=healthRows().filter(function(x){return x.date<=today&&(x.hrv!=null||x.rhr!=null||x.sleep!=null)});
   if(!h.length)return null;
   var tr=h.slice(-3),base=h.slice(-31,-3),last=h[h.length-1];
   // the row for today exists only after a morning sync; its sleep is last night's (sleep inside today's calendar day)
@@ -987,7 +997,7 @@ function recovery(){
   var nightShort=night!=null&&b.sleep&&b.sleep.n>=7&&night<b.sleep.m-b.sleep.sd;
   if(nightShort)notes.push('короткая ночь — '+fmtN(Math.round(night*10)/10)+' ч');
   else if(night==null&&last.sleep!=null&&b.sleep&&b.sleep.n>=7&&last.sleep<b.sleep.m-b.sleep.sd&&issues.indexOf('сна меньше нормы')<0)notes.push('короткая ночь на '+fmtDay(last.date)+' — '+fmtN(Math.round(last.sleep*10)/10)+' ч');
-  return {t:t,b:b,issues:issues,notes:notes,baseDays:base.length,ready:base.length>=28,last:last.date,night:night,nightShort:nightShort,
+  return {t:t,b:b,issues:issues,notes:notes,baseDays:base.length,ready:base.length>=28,last:last.date,night:night,nightShort:nightShort,app:!!last.app,
     level:!issues.length?'good':(issues.length===1?'ok':'warn')};
 }
 /* mode from the check-in (+ confirmed recovery signals once the 28-day baseline exists) */
@@ -1688,12 +1698,12 @@ function recoveryCardHtml(rec,full){
   var slv=rec.night!=null?rec.night:mv('sleep');
   h+=gauge(rec.night!=null?'Сон ночью':'Сон, 3 дня',slv,'ч',1,rec.b.sleep,true)+gauge('HRV',mv('hrv'),'мс',0,rec.b.hrv,true)+gauge('Пульс покоя',mv('rhr'),'',0,rec.b.rhr,false)+'</div>';
   if(full){var sig=rec.issues.concat(rec.notes);
-    h+='<div class="note-s" style="margin-top:14px">'+(sig.length?esc(sig.join('; ').replace(/^./,function(x){return x.toUpperCase()}))+'. ':'')+(rec.night!=null?'Сон — прошлая ночь; HRV и пульс — среднее за 3 дня по ':'Среднее за 3 дня по ')+esc(fmtDay(rec.last))+' против твоей нормы'+(rec.ready?' за 28 дней':' — она ещё собирается ('+rec.baseDays+' из 28 дней), поэтому нагрузку пока решает твоё самочувствие перед стартом')+'.'+(rec.night!=null?'':' Данных за сегодня с часов пока нет — перед стартом спрошу только самочувствие.')+'</div>'}
+    h+='<div class="note-s" style="margin-top:14px">'+(sig.length?esc(sig.join('; ').replace(/^./,function(x){return x.toUpperCase()}))+'. ':'')+(rec.night!=null?'Сон — прошлая ночь'+(rec.app?' прямо из Здоровья':'')+'; HRV и пульс — среднее за 3 дня по ':'Среднее за 3 дня по ')+esc(fmtDay(rec.last))+' против твоей нормы'+(rec.ready?' за 28 дней':' — она ещё собирается ('+rec.baseDays+' из 28 дней), поэтому нагрузку пока решает твоё самочувствие перед стартом')+'.'+(rec.night!=null?'':' Данных за сегодня с часов пока нет — перед стартом спрошу только самочувствие.')+'</div>'}
   return h+'</div>';
 }
 /* The last 14 nights against the personal sleep norm; nights that reached it glow. */
 function sleepNightsHtml(rec){
-  var t=todayISO(),from=isoAdd(t,-13),H=(S.boot.health||[]).filter(function(x){return x.date>=from&&x.date<=t&&x.sleep!=null});
+  var t=todayISO(),from=isoAdd(t,-13),H=healthRows().filter(function(x){return x.date>=from&&x.date<=t&&x.sleep!=null});
   if(H.length<3)return '';
   var norm=rec.b.sleep?rec.b.sleep.m:null,mx=Math.max(9,Math.max.apply(null,H.map(function(x){return x.sleep}))),W=300,Hh=110,bw=14,days=14,gp=(W-days*bw)/(days-1);
   var y=function(v){return Hh-16-v/mx*(Hh-24)},id='sn'+(++svgN),s='';
@@ -2561,6 +2571,12 @@ if(NB){
       nbPost({type:'ack',ids:ids,known:known,errors:errors});nbTick(true);
     },
     post:function(force){nbTick(!!force)},
+    recovery:function(x){
+      if(!x||x.date!==todayISO())return;
+      var num=function(v,lo,hi){return typeof v==='number'&&v>=lo&&v<=hi?v:null};
+      S.hn={date:x.date,sleep:num(x.sleep,0,16),hrv:num(x.hrv,1,300),rhr:num(x.rhr,25,150)};lsSet('wf1.hn',S.hn);
+      if(S.view==='home')render();
+    },
     weights:function(list){
       if(!Array.isArray(list))return;
       S.hw=list.filter(function(x){return x&&/^\d{4}-\d{2}-\d{2}$/.test(x.date)&&x.kg>0}).slice(-400);lsSet('wf1.hw',S.hw);
