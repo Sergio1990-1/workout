@@ -172,6 +172,19 @@ svg{display:block}
 .ai li:before{content:'';position:absolute;left:2px;top:13px;width:5px;height:5px;border-radius:50%;background:var(--volt)}
 .ai .wait{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--mu)}
 .ai .pl{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+.nutri{margin-top:12px}
+.nb-cap{font-size:12px;color:var(--mu2)}
+.nb-list{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+.nb-h{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:var(--mu)}
+.nb-h b{font-weight:600;color:var(--tx);font-variant-numeric:tabular-nums}
+.nb-tr{position:relative;height:8px;border-radius:4px;background:var(--s3);margin-top:7px}
+.nb-in{position:absolute;left:0;top:0;bottom:0;border-radius:4px}
+.nb-ov{position:absolute;top:0;bottom:0;border-radius:0 4px 4px 0;background:repeating-linear-gradient(135deg,#FF5A5F 0 4px,rgba(255,90,95,.55) 4px 8px)}
+.nb-ov.ok{background:repeating-linear-gradient(135deg,#D4FF3A 0 4px,rgba(212,255,58,.5) 4px 8px)}
+.nb-goal{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;border-radius:1px;background:var(--tx)}
+.nb-n{font-size:12px;color:var(--mu2);margin-top:5px}
+.nb-bad{color:var(--bad)}
+.rest-cap{font-size:13px;color:var(--mu);text-align:center;margin-bottom:10px}
 .ai .pl-row{display:flex;gap:12px;align-items:flex-start}
 .ai .pl-ic{width:30px;height:30px;border-radius:50%;background:var(--s2);color:var(--mu);display:grid;place-items:center;flex:none}
 .ai .pl-ic svg{width:16px;height:16px}
@@ -498,8 +511,8 @@ body.resting .w-bottom .wnav{visibility:hidden}
    The access key comes from the link (#k=...) once and is kept in this page's own storage. */
 (function () {
   var API = 'https://script.google.com/macros/s/AKfycbzcbmUZZP3RrPeqQHUzEDnt28Gj98l1pHzzgB9dKVgNqT05DQZvrfOsPBgcLOKQ7TXt5A/exec';
-  var FNS = ['getBootstrap', 'saveSet', 'deleteSet', 'finishSession', 'applyOps', 'getCoachPlan', 'reviewSession', 'weeklyReview'];
-  var SLOW = { getCoachPlan: 1, reviewSession: 1, weeklyReview: 1 }; // the coach thinks for up to a couple of minutes
+  var FNS = ['getBootstrap', 'saveSet', 'deleteSet', 'finishSession', 'applyOps', 'getCoachPlan', 'getCoachDay', 'reviewSession', 'weeklyReview'];
+  var SLOW = { getCoachPlan: 1, getCoachDay: 1, reviewSession: 1, weeklyReview: 1 }; // the coach thinks for up to a couple of minutes
   var key = null;
   try {
     var m = /[#&]k=([A-Za-z0-9_-]{32,128})/.exec(location.hash);
@@ -955,12 +968,22 @@ function aiRequest(slot,fn,p,done,tries){
     aiRefresh();done&&done(r);
   }).withFailureHandler(function(e){S.aiBusy[slot]=0;S.aiErr[slot]=(e&&e.message)||'нет связи';aiRefresh();done&&done(null)})[fn](p);
 }
-/* plan for the next workout once per day (only on days without a finished workout), weekly review on Sun/Mon */
+/* Training days: Monday, Wednesday, Friday (Date.getDay numbers). Any other day is a rest day. */
+var TRAIN_DAYS=[1,3,5];
+var WD_ACC=['в воскресенье','в понедельник','во вторник','в среду','в четверг','в пятницу','в субботу'];
+function isTrainDay(iso){return TRAIN_DAYS.indexOf(dObj(iso).getDay())>=0}
+function nextTrainDate(iso){for(var i=1;i<=7;i++){var d=isoAdd(iso,i);if(isTrainDay(d))return d}return isoAdd(iso,1)}
+function whenText(iso){var t=todayISO();return iso===isoAdd(t,1)?'завтра':WD_ACC[dObj(iso).getDay()]}
+function doneToday(){var t=todayISO();return (S.boot.sessions||[]).some(function(x){return x.date===t})||S.fin.some(function(k){return k.indexOf(t+'|')===0})}
+/* a rest day by the schedule, with no workout started or finished today */
+function restDay(){return !S.session&&!isTrainDay(todayISO())&&!doneToday()}
+/* once per day: the workout plan on a training day, recovery and food advice on a rest day; weekly review on Sun/Mon */
 function aiEnsure(){
   if(!aiOn()||S.session)return;
   var today=todayISO(),nd=nextDay(),h=new Date().getHours();
-  var doneToday=(S.boot.sessions||[]).some(function(x){return x.date===today})||S.fin.some(function(k){return k.indexOf(today+'|')===0});
-  if(!doneToday&&h>=7&&h<23&&!aiPlanFor(nd,today)&&!S.aiErr.plan)aiRequest('plan','getCoachPlan',{date:today,day:nd},aiWeekMaybe);
+  if(doneToday()||h<7||h>=23){aiWeekMaybe();return}
+  if(restDay()){if(!aiGet('day',today)&&!S.aiErr.day)aiRequest('day','getCoachDay',{date:today,next:nd,nextDate:nextTrainDate(today)},aiWeekMaybe);else aiWeekMaybe();return}
+  if(!aiPlanFor(nd,today)&&!S.aiErr.plan)aiRequest('plan','getCoachPlan',{date:today,day:nd},aiWeekMaybe);
   else aiWeekMaybe();
 }
 function aiWeekMaybe(){
@@ -999,6 +1022,9 @@ function aiPlanHtml(text){
     else rows.push({k:k||'note',t:[p]});
   });
   if(rows.length<2)return '<div class="tx" style="margin-top:10px;font-size:16px;color:var(--tx)">'+esc(text)+'</div>';
+  return plRowsHtml(rows);
+}
+function plRowsHtml(rows){
   return '<div class="pl">'+rows.map(function(r){
     var lb=PL_LB[r.k];
     var body=r.t.map(function(p,i){
@@ -1015,7 +1041,15 @@ function aiCardHtml(){
   if(!aiOn())return '';
   var today=todayISO(),nd=nextDay(),plan=aiGet('plan',today,'Full Body '+nd),h='';
   var hd='<div class="eyebrow hot">Тренер на сегодня · Full Body '+esc(nd)+'</div>';
-  if(plan)h+='<div class="glass ai">'+hd+aiPlanHtml(plan.text)+'<div class="note-s" style="margin-top:14px">Цифры на каждое упражнение уже ждут в тренировке — режим подберу по самочувствию перед стартом.</div></div>';
+  if(restDay()){
+    var dy=aiGet('day',today),dh='<div class="eyebrow hot">Тренер на сегодня · день отдыха</div>';
+    var foot='';
+    if(dy){var d=dy.data||{};
+      h+='<div class="glass ai">'+dh+(d.recovery&&d.food&&d.focus?plRowsHtml([{k:'rec',t:[d.recovery]},{k:'food',t:[d.food]},{k:'focus',t:[d.focus]}]):aiPlanHtml(dy.text))+foot+'</div>'}
+    else if(S.aiBusy.day)h+='<div class="glass ai">'+dh+'<div class="wait" style="margin-top:12px"><i></i>Смотрю сон и питание — это до минуты</div></div>';
+    else if(S.aiErr.day)h+='<div class="glass ai"><div class="hd">'+dh+'<button class="btn2" data-act="ai-retry">Повторить</button></div><div class="tx muc">Не ответил: '+esc(S.aiErr.day)+'.</div></div>';
+  }
+  else if(plan)h+='<div class="glass ai">'+hd+aiPlanHtml(plan.text)+'<div class="note-s" style="margin-top:14px">Цифры на каждое упражнение уже ждут в тренировке — режим подберу по самочувствию перед стартом.</div></div>';
   else if(S.aiBusy.plan)h+='<div class="glass ai">'+hd+'<div class="wait" style="margin-top:12px"><i></i>Смотрю тренировки, сон и питание — это до минуты</div></div>';
   else if(S.aiErr.plan)h+='<div class="glass ai"><div class="hd">'+hd+'<button class="btn2" data-act="ai-retry">Повторить</button></div><div class="tx muc">Не ответил: '+esc(S.aiErr.plan)+'. Без него цели посчитаю по правилам методики.</div></div>';
   var rv=aiGet('review');
@@ -1457,6 +1491,7 @@ function renderHome(){
     h+='</div><div class="note-s" style="margin-top:14px">'+(sig.length?esc(sig.join('; ').replace(/^./,function(x){return x.toUpperCase()}))+'. ':'')+(rec.night!=null?'Сон — прошлая ночь; HRV и пульс — среднее за 3 дня по ':'Среднее за 3 дня по ')+esc(fmtDay(rec.last))+' против твоей нормы'+(rec.ready?' за 28 дней':' — она ещё собирается ('+rec.baseDays+' из 28 дней), поэтому нагрузку пока решает твоё самочувствие перед стартом')+'.'+(rec.night!=null?'':' Данных за сегодня с часов пока нет — перед стартом спрошу только самочувствие.')+'</div></div>';
   }
   if(aiOn())h+='<div id="ai-card">'+aiCardHtml()+'</div>';
+  h+=nutriCardHtml();
   h+='<div id="wk-card">'+weekCardHtml()+'</div>';
   unloggedWatch().forEach(function(w){
     h+='<div class="notice"><div class="ic">'+I.watch+'</div><div class="tx"><b>'+esc(fmtDay(w.date))+' — подходы не записаны</b><span>Apple Watch: '+Math.round(w.minutes)+' мин'+(w.kcal?' · '+Math.round(w.kcal)+' ккал':'')+'</span></div><button class="btn2" data-act="backfill" data-date="'+w.date+'">Внести</button></div>';
@@ -1486,7 +1521,32 @@ function planList(day){
     return '<button class="pitem" data-act="detail" data-ex="'+e.id+'" data-day="'+day+'"><div class="thumb">'+(e.img?'<img src="'+imgUrl(e.img,0)+'" alt="" loading="lazy">':'')+'</div><div style="flex:1;min-width:0"><div class="nm">'+esc(short(e.name))+(e.superset?'<span class="badge">суперсет</span>':'')+'</div><div class="sx">'+e.sets+' × '+esc(e.reps)+' · '+esc(e.group)+'</div></div></button>';
   }).join('');
 }
-function homeCta(){return S.session?'<button class="cta" data-act="resume">Продолжить тренировку '+I.play+'</button>':'<button class="cta" data-act="start">Начать Full Body '+S.day+'</button>'}
+/* Today's food against the targets from «Прогресс». Each bar puts the goal at the same mark, so anything
+   past the goal runs on beyond the mark in a striped colour. Food is logged during the day: before the
+   first record of the day the card shows yesterday, or the last day with records in the past week. */
+function nutriCardHtml(){
+  var N=S.boot.nutrition||[],t=todayISO();if(!N.length)return '';
+  var has=function(x){return x.kcal!=null&&x.kcal>0&&x.date<=t&&x.date>=isoAdd(t,-7)};
+  var r=null;for(var i=N.length-1;i>=0;i--)if(has(N[i])){r=N[i];break}
+  if(!r)return '';
+  var label=r.date===t?'сегодня':r.date===isoAdd(t,-1)?'вчера':fmtDay(r.date);
+  var goal=function(k){if(r[k]!=null)return r[k];for(var i=N.length-1;i>=0;i--)if(N[i][k]!=null)return N[i][k];return null};
+  var fmt=function(v){return Math.round(v).toLocaleString('ru-RU')};
+  var bars=[['Калории','kcal','kcalGoal','ккал','#F4F4F5',false],['Белки','p','pGoal','г','#D4FF3A',true],['Жиры','f','fGoal','г','#FF7A33',false],['Углеводы','c','cGoal','г','#7AA7FF',false]].map(function(m){
+    var v=r[m[1]],g=goal(m[2]);if(v==null)return '';
+    if(!g)return '<div class="nb"><div class="nb-h"><span>'+m[0]+'</span><span><b>'+fmt(v)+'</b> '+m[3]+'</span></div></div>';
+    var sc=Math.max(g*1.3,v),gp=g/sc*100,vp=Math.min(v,g)/sc*100,op=v>g?(v-g)/sc*100:0,over=v>g*1.05;
+    var note=over?(m[5]?'+'+fmt(v-g)+' '+m[3]+' сверх цели':'<span class="nb-bad">+'+fmt(v-g)+' '+m[3]+' сверх цели</span>'):v<g?(r.date===t?'осталось ':'не хватило ')+fmt(g-v)+' '+m[3]:'в цели';
+    return '<div class="nb"><div class="nb-h"><span>'+m[0]+'</span><span><b>'+fmt(v)+'</b> / '+fmt(g)+' '+m[3]+'</span></div>'+
+      '<div class="nb-tr"><i class="nb-in" style="width:'+vp.toFixed(1)+'%;background:'+m[4]+'"></i>'+
+      (op>0?'<i class="nb-ov'+(m[5]?' ok':'')+'" style="left:'+gp.toFixed(1)+'%;width:'+op.toFixed(1)+'%"></i>':'')+
+      '<span class="nb-goal" style="left:'+gp.toFixed(1)+'%"></span></div><div class="nb-n">'+note+'</div></div>';
+  }).join('');
+  return '<div class="glass nutri"><div class="row-b"><span class="eyebrow">Питание · '+label+'</span><span class="nb-cap">цель — черта</span></div><div class="nb-list">'+bars+'</div></div>';
+}
+function homeCta(){
+  if(!S.session&&restDay())return '<div class="rest-cap">Сегодня отдых · следующая — Full Body '+esc(nextDay())+', '+whenText(nextTrainDate(todayISO()))+'</div><button class="cta ghost" data-act="start">Всё равно начать Full Body '+S.day+'</button>';
+  return S.session?'<button class="cta" data-act="resume">Продолжить тренировку '+I.play+'</button>':'<button class="cta" data-act="start">Начать Full Body '+S.day+'</button>'}
 function snapCar(smooth){
   var car=$('#car');if(!car)return;var card=$('.hero[data-day="'+S.day+'"]',car);if(!card)return;
   var left=card.offsetLeft-car.offsetLeft-parseFloat(getComputedStyle(car).paddingLeft);
@@ -1649,7 +1709,7 @@ document.addEventListener('click',function(e){
     case 'rest-skip':stopRest();break;
     case 'close-sheet':closeSheet();break;
     case 'copy':copyReport();break;
-    case 'ai-retry':S.aiErr.plan=null;aiEnsure();break;
+    case 'ai-retry':S.aiErr.plan=null;S.aiErr.day=null;aiEnsure();break;
     case 'ai-retry-review':S.aiErr.review=null;aiReviewMaybe();break;
     case 'to-home':S.view='home';S.lastDone=null;lsDel(LS.last);render();break;
     case 'hist':openHist(a.dataset.key);break;
