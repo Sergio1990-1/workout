@@ -627,6 +627,10 @@ body.resting .w-bottom .wnav{visibility:hidden}
 .ill-m div{font-size:12px;color:var(--mu2)}
 .ill-m b{display:block;font-family:var(--d);font-size:24px;font-weight:600;color:var(--tx);letter-spacing:-.03em;margin-bottom:2px}
 .ill-m b small{font-family:var(--f);font-size:12px;color:var(--mu);margin-left:3px}
+
+.sd-goal{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:14px;color:var(--mu)}
+.sd-goal b{font-family:var(--d);font-size:24px;font-weight:600;letter-spacing:-.03em;color:var(--volt);text-shadow:0 0 18px rgba(212,255,58,.3)}
+.sd-goal b small{font-family:var(--f);font-size:13px;color:var(--mu);margin:0 4px 0 2px;text-shadow:none}
 </style>
 </head>
 <body>
@@ -1286,10 +1290,10 @@ function rings(items,size,center){
   return '<div class="donut" style="width:'+size+'px;height:'+size+'px"><svg viewBox="0 0 '+size+' '+size+'">'+defs+h+'</svg><div class="dc">'+(center||'')+'</div></div>';
 }
 /* half-circle gauge: the tick on top is the personal norm, the arc fills to today's value */
-function gauge(label,v,unit,dec,b,hi){
+function gauge(label,v,unit,dec,b,hi,vs){
   var cx=55,cy=56,r=44,sw=9,A=Math.PI/2,t=0,cls='flat',d='',k=Math.pow(10,dec);
   if(v!=null&&b){var span=Math.max(b.sd*2.5,b.m*.2)||1,diff=v-b.m,pct=Math.abs(diff)/b.m;t=Math.max(-1,Math.min(1,diff/span));
-    cls=pct<.04?'flat':((diff>0)===hi?'up':'down');d=pct<.04?'как обычно':(diff>0?'+':'−')+fmtN(Math.round(Math.abs(diff)*k)/k)+' к норме'}
+    cls=pct<.04?'flat':((diff>0)===hi?'up':'down');d=pct<.04?'как обычно':(diff>0?'+':'−')+fmtN(Math.round(Math.abs(diff)*k)/k)+' '+(vs||'к норме')}
   var col={up:'#D4FF3A',down:'#FF7A33',flat:'#8A8A93'}[cls];
   var s='<svg viewBox="0 0 110 64" aria-hidden="true"><path d="'+arc(cx,cy,r,-A,A)+'" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="'+sw+'" stroke-linecap="round"/>';
   if(v!=null)s+=glow('<path d="'+arc(cx,cy,r,-A,Math.max(-A+0.03,t*A))+'" fill="none" stroke="'+col+'" stroke-width="'+sw+'" stroke-linecap="round"/>',110,64);
@@ -1750,7 +1754,8 @@ function recoveryCardHtml(rec,full){
   var mv=function(k){return rec.t[k]?rec.t[k].m:null};
   var h='<div class="glass rec-card"><div class="row-b"><span class="eyebrow">Восстановление</span><span class="status '+lvl[0]+'" style="font-size:13px"><i></i>'+lvl[1]+'</span></div><div class="gauges" style="margin-top:14px">';
   var slv=rec.night!=null?rec.night:mv('sleep');
-  h+=gauge(rec.night!=null?'Сон ночью':'Сон, 3 дня',slv,'ч',1,rec.b.sleep,true)+gauge('HRV',mv('hrv'),'мс',0,rec.b.hrv,true)+gauge('Пульс покоя',mv('rhr'),'',0,rec.b.rhr,false)+'</div>';
+  var sg={m:sleepNeed(rec),sd:rec.b.sleep?rec.b.sleep.sd:0.6};
+  h+=gauge(rec.night!=null?'Сон ночью':'Сон, 3 дня',slv,'ч',1,sg,true,'к цели')+gauge('HRV',mv('hrv'),'мс',0,rec.b.hrv,true)+gauge('Пульс покоя',mv('rhr'),'',0,rec.b.rhr,false)+'</div>';
   if(!full){var sd=sleepDebt(rec);if(sd&&sd.debt>=3)h+='<div class="rc-debt"><span>Долг сна за неделю</span><b>'+fmtHM(sd.debt)+'</b></div>'}
   if(full){var sig=rec.issues.concat(rec.notes);
     h+='<div class="note-s" style="margin-top:14px">'+(sig.length?esc(sig.join('; ').replace(/^./,function(x){return x.toUpperCase()}))+'. ':'')+(rec.night!=null?'Сон — прошлая ночь'+(rec.app?' прямо из Здоровья':'')+'; HRV и пульс — среднее за 3 дня по ':'Среднее за 3 дня по ')+esc(fmtDay(rec.last))+' против твоей нормы'+(rec.ready?' за 28 дней':' — она ещё собирается ('+rec.baseDays+' из 28 дней), поэтому нагрузку пока решает твоё самочувствие перед стартом')+'.'+(rec.night!=null?'':' Данных за сегодня с часов пока нет — перед стартом спрошу только самочувствие.')+'</div>'}
@@ -1785,9 +1790,11 @@ function illnessHtml(x){
    shortfalls of the same week; the debt never goes below zero. Nights without data are skipped. */
 var SLEEP_NEED_MIN=7.5,WD2=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
 function fmtHM(h){var m=Math.round(h*60);return m>=60?Math.floor(m/60)+' ч'+(m%60?' '+(m%60)+' мин':''):m+' мин'}
+/* One sleep goal for every sleep card: 7.5 h asleep (adults need 7+ regularly, people who train hard more),
+   or the personal average when that is higher. Hours asleep by the watch, not time in bed. */
+function sleepNeed(rec){var need=SLEEP_NEED_MIN;if(rec&&rec.b.sleep&&rec.b.sleep.n>=14)need=Math.max(need,Math.round(rec.b.sleep.m*4)/4);return need}
 function sleepDebt(rec){
-  var t=todayISO(),need=SLEEP_NEED_MIN;
-  if(rec&&rec.b.sleep&&rec.b.sleep.n>=14)need=Math.max(need,Math.round(rec.b.sleep.m*4)/4);
+  var t=todayISO(),need=sleepNeed(rec);
   var by={},n=0;healthRows().forEach(function(x){if(x.sleep!=null&&x.date>isoAdd(t,-7)&&x.date<=t){by[x.date]=x.sleep;n++}});
   if(n<4)return null;
   var nights=[],sum=0;for(var i=6;i>=0;i--){var d=isoAdd(t,-i),v=by[d];nights.push({date:d,sleep:v==null?null:v});if(v!=null)sum+=need-v}
@@ -1806,21 +1813,24 @@ function sleepDebtHtml(rec){
     s+=(i===6?glow(r,W,Hh):r);
   });
   var lv=x.debt<1?['good','Высыпаешься']:x.debt<3?['warnc','Небольшой']:x.debt<6?['warnc','Заметный']:['badc','Большой'];
-  var add=Math.min(90,Math.max(20,Math.round(x.debt*60/4/5)*5));
-  var tip=x.debt<1?'За неделю сна хватает — так держать.':x.debt<3?'Добавь ~'+Math.min(45,add)+' мин сна в ближайшие пару ночей — и долг закроется.'
-    :'Чтобы вернуть, спи на ~'+add+' мин дольше следующие 4 ночи. Отоспаться за одну ночь не выйдет — лучше ровно и понемногу. Пока долг не закрыт, силовые даются тяжелее, а аппетит выше.';
+  // pay back at most an hour a night: one long catch-up night does not undo a short week
+  var extra=x.debt<1?0:Math.min(1,Math.max(0.25,Math.round(x.debt/4*4)/4)),goal=x.need+extra,nights=extra?Math.ceil(x.debt/extra-0.01):0;
+  var goalRow='<div class="sd-goal"><span>Цель на эту ночь</span><b>'+fmtHM(goal).replace(/ (ч|мин)/g,'<small>$1</small>')+'</b></div>';
+  var tip=!extra?'За неделю сна хватает — держи '+fmtHM(x.need)+' сна.'
+    :fmtHM(x.need)+' цели + '+fmtHM(extra)+' в счёт долга. При таком сне долг закроется примерно за '+plural(nights,'ночь','ночи','ночей')+'. Отоспаться за одну ночь не выйдет — лучше понемногу каждую ночь.'+(x.debt>=3?' Пока долг не закрыт, силовые даются тяжелее, а аппетит выше.':'');
+  tip+=' Это время сна по часам — в кровати нужно быть дольше, с запасом на засыпание и пробуждения.';
   return '<div class="glass debt"><div class="row-b"><span class="eyebrow">Долг сна · 7 ночей</span><span class="status '+lv[0]+'" style="font-size:13px"><i></i>'+lv[1]+'</span></div>'+
-    '<div class="wt-main"><div class="wt-v">'+(x.debt<0.1?'0':fmtHM(x.debt).replace(/ (ч|мин)/g,'<small>$1</small>'))+(x.debt<0.1?'<small>долга нет</small>':'')+'</div><div class="nb-cap" style="text-align:right">нужно '+fmtN(x.need)+' ч<br>в ночь</div></div>'+
+    '<div class="wt-main"><div class="wt-v">'+(x.debt<0.1?'0':fmtHM(x.debt).replace(/ (ч|мин)/g,'<small>$1</small>'))+(x.debt<0.1?'<small>долга нет</small>':'')+'</div><div class="nb-cap" style="text-align:right">цель '+fmtN(x.need)+' ч<br>в ночь</div></div>'+
     '<svg class="sd-ch" viewBox="0 0 '+W+' '+Hh+'" aria-label="Недосып и пересып по ночам">'+s+'</svg>'+
     '<div class="sd-ax">'+x.nights.map(function(q,i){return '<span'+(i===6?' class="on"':'')+'>'+(i===6?'Эта':WD2[dObj(q.date).getDay()])+'</span>'}).join('')+'</div>'+
-    '<div class="sd-lg"><span><i class="o"></i>недосып</span><span><i class="g"></i>сверх нормы</span></div>'+
-    '<div class="tdee-t" style="margin-top:12px">'+tip+'</div></div>';
+    '<div class="sd-lg"><span><i class="o"></i>недосып</span><span><i class="g"></i>сверх цели</span></div>'+
+    goalRow+'<div class="tdee-t" style="margin-top:8px">'+tip+'</div></div>';
 }
 /* The last 14 nights against the personal sleep norm; nights that reached it glow. */
 function sleepNightsHtml(rec){
   var t=todayISO(),from=isoAdd(t,-13),H=healthRows().filter(function(x){return x.date>=from&&x.date<=t&&x.sleep!=null});
   if(H.length<3)return '';
-  var norm=rec.b.sleep?rec.b.sleep.m:null,mx=Math.max(9,Math.max.apply(null,H.map(function(x){return x.sleep}))),W=300,Hh=110,bw=14,days=14,gp=(W-days*bw)/(days-1);
+  var norm=sleepNeed(rec),mx=Math.max(9,Math.max.apply(null,H.map(function(x){return x.sleep}))),W=300,Hh=110,bw=14,days=14,gp=(W-days*bw)/(days-1);
   var y=function(v){return Hh-16-v/mx*(Hh-24)},id='sn'+(++svgN),s='';
   s+='<defs><linearGradient id="'+id+'b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9DC2FF"/><stop offset="1" stop-color="#3D5A8C"/></linearGradient><linearGradient id="'+id+'v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EFFFAE"/><stop offset="1" stop-color="#7E9A1E"/></linearGradient></defs>';
   var by={};H.forEach(function(x){by[x.date]=x.sleep});
@@ -1829,7 +1839,7 @@ function sleepNightsHtml(rec){
     s+=ok?glow(r,W,Hh):r}
   if(norm!=null)s+='<line x1="0" x2="'+W+'" y1="'+y(norm).toFixed(1)+'" y2="'+y(norm).toFixed(1)+'" stroke="rgba(255,255,255,.55)" stroke-dasharray="3 4"/>';
   var avg=H.reduce(function(a,x){return a+x.sleep},0)/H.length;
-  return '<div class="glass sn"><div class="row-b"><span class="eyebrow">Сон · 14 ночей</span><span class="nb-cap">'+(norm!=null?'норма '+fmtN(Math.round(norm*10)/10)+' ч':'')+'</span></div>'+
+  return '<div class="glass sn"><div class="row-b"><span class="eyebrow">Сон · 14 ночей</span><span class="nb-cap">'+(norm!=null?'цель '+fmtN(norm)+' ч':'')+'</span></div>'+
     '<div class="wt-main"><div class="wt-v">'+fmtN(Math.round(avg*10)/10)+'<small>ч в среднем</small></div></div>'+
     '<svg class="sn-ch" viewBox="0 0 '+W+' '+Hh+'" aria-hidden="true">'+s+'</svg><div class="wt-ax"><span>'+esc(fmtDay(from))+'</span><span>эта ночь</span></div></div>';
 }
