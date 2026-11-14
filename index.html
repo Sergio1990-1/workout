@@ -511,6 +511,42 @@ body.resting .w-bottom .wnav{visibility:hidden}
 .bar-load:after{content:"";display:block;width:40%;height:100%;background:var(--volt);animation:ld 1s infinite ease-in-out}
 @keyframes ld{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
 #nosleep{position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none}
+
+/* ===== tabs: «Сегодня», Тренировки, Питание, Сон, Тренер ===== */
+.tabbar{flex:none;display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px var(--sb);background:rgba(14,14,16,.96);border-top:1px solid var(--line);position:relative;z-index:2}
+.tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0 0;font-size:11px;font-weight:600;color:var(--mu2);letter-spacing:-.01em;white-space:nowrap}
+.tabbar svg{width:24px;height:24px}
+.tabbar button.on{color:var(--volt)}
+.tabbar button.on svg{filter:drop-shadow(0 0 6px rgba(212,255,58,.55))}
+.bottom.tabbed{padding-bottom:12px}
+.h1.tab-h{margin:20px 0 18px}
+.tap-card{display:block;width:100%;text-align:left;color:inherit;margin-top:12px}
+.tap-card:active{transform:scale(.99)}
+.hero.solo{height:220px}
+.empty-tab{padding:18px}
+.sn{margin-top:12px}
+.sn-ch{display:block;width:100%;height:auto;margin-top:12px;overflow:visible}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.tiles>:only-child{grid-column:1/-1}
+.tile{display:flex;flex-direction:column;gap:10px;text-align:left;color:inherit;padding:16px;min-width:0}
+.tile-row{display:flex;align-items:center;gap:10px}
+.tile-ring{width:52px;height:52px;flex:none;overflow:visible}
+.tile-v{display:block;font-family:var(--d);font-size:20px;font-weight:700;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.tile-v small{font-family:var(--f);font-size:12px;color:var(--mu);font-weight:600;letter-spacing:0;margin-left:3px}
+.tile-s{display:block;font-size:12px;color:var(--mu2);margin-top:5px}
+.tile-sp{width:100%;height:30px;overflow:visible}
+/* coach card: ring mark, verdict line, rows */
+.coach{overflow:hidden}
+.coach:after{content:'';position:absolute;right:-50px;top:-60px;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(212,255,58,.13),transparent 65%);pointer-events:none}
+.co-h{display:flex;align-items:center;gap:12px}
+.co-mark{width:38px;height:38px;border-radius:50%;padding:2px;flex:none;background:conic-gradient(from 200deg,#FF5E2B,#FF9A3C,#D4FF3A,#FF5E2B)}
+.co-mark i{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;background:#101012;color:var(--volt)}
+.co-mark svg{width:18px;height:18px}
+.co-t b{display:block;font-size:15px;font-weight:700}
+.co-t span{display:block;font-size:13px;color:var(--mu2);margin-top:1px}
+.co-v{font-family:var(--d);font-weight:600;font-size:19px;letter-spacing:-.03em;line-height:1.22;margin-top:14px;text-wrap:balance}
+.co-v span{color:var(--volt);text-shadow:0 0 18px rgba(212,255,58,.35)}
+.co-v span.lt{color:var(--org);text-shadow:0 0 18px rgba(255,122,51,.35)}
 </style>
 </head>
 <body>
@@ -1063,18 +1099,33 @@ function plRowsHtml(rows){
 function aiCardHtml(){
   if(!aiOn())return '';
   var today=todayISO(),nd=nextDay(),plan=aiGet('plan',today,'Full Body '+nd),h='';
-  var hd='<div class="eyebrow hot">Тренер на сегодня · Full Body '+esc(nd)+'</div>';
+  var hd=coachHead('посмотрел тренировки, сон и питание')+'<div class="co-v">'+coachVerdict(nd)+'</div>';
   if(restDay()){
-    var dy=aiGet('day',today),dh='<div class="eyebrow hot">Тренер на сегодня · день отдыха</div>';
+    var dy=aiGet('day',today),dh=coachHead('сон и питание за последние дни')+'<div class="co-v">'+coachVerdict(nd)+'</div>';
     var foot='';
     if(dy){var d=dy.data||{};
-      h+='<div class="glass ai">'+dh+(d.recovery&&d.food&&d.focus?plRowsHtml([{k:'rec',t:[d.recovery]},{k:'food',t:[d.food]},{k:'focus',t:[d.focus]}]):aiPlanHtml(dy.text))+foot+'</div>'}
-    else if(S.aiBusy.day)h+='<div class="glass ai">'+dh+'<div class="wait" style="margin-top:12px"><i></i>Смотрю сон и питание — это до минуты</div></div>';
-    else if(S.aiErr.day)h+='<div class="glass ai"><div class="hd">'+dh+'<button class="btn2" data-act="ai-retry">Повторить</button></div><div class="tx muc">Не ответил: '+esc(S.aiErr.day)+'.</div></div>';
+      h+='<div class="glass ai coach">'+dh+(d.recovery&&d.food&&d.focus?plRowsHtml([{k:'rec',t:[d.recovery]},{k:'food',t:[d.food]},{k:'focus',t:[d.focus]}]):aiPlanHtml(dy.text))+foot+'</div>'}
+    else if(S.aiBusy.day)h+='<div class="glass ai coach">'+dh+'<div class="wait" style="margin-top:12px"><i></i>Смотрю сон и питание — это до минуты</div></div>';
+    else if(S.aiErr.day)h+='<div class="glass ai coach"><div class="hd">'+dh+'<button class="btn2" data-act="ai-retry">Повторить</button></div><div class="tx muc">Не ответил: '+esc(S.aiErr.day)+'.</div></div>';
   }
-  else if(plan)h+='<div class="glass ai">'+hd+aiPlanHtml(plan.text)+'<div class="note-s" style="margin-top:14px">Цифры на каждое упражнение уже ждут в тренировке — режим подберу по самочувствию перед стартом.</div></div>';
-  else if(S.aiBusy.plan)h+='<div class="glass ai">'+hd+'<div class="wait" style="margin-top:12px"><i></i>Смотрю тренировки, сон и питание — это до минуты</div></div>';
-  else if(S.aiErr.plan)h+='<div class="glass ai"><div class="hd">'+hd+'<button class="btn2" data-act="ai-retry">Повторить</button></div><div class="tx muc">Не ответил: '+esc(S.aiErr.plan)+'. Без него цели посчитаю по правилам методики.</div></div>';
+  else if(plan)h+='<div class="glass ai coach">'+hd+aiPlanHtml(plan.text)+'<div class="note-s" style="margin-top:14px">Цифры на каждое упражнение уже ждут в тренировке — режим подберу по самочувствию перед стартом.</div></div>';
+  else if(S.aiBusy.plan)h+='<div class="glass ai coach">'+hd+'<div class="wait" style="margin-top:12px"><i></i>Смотрю тренировки, сон и питание — это до минуты</div></div>';
+  else if(S.aiErr.plan)h+='<div class="glass ai coach"><div class="hd">'+hd+'<button class="btn2" data-act="ai-retry">Повторить</button></div><div class="tx muc">Не ответил: '+esc(S.aiErr.plan)+'. Без него цели посчитаю по правилам методики.</div></div>';
+  return h;
+}
+/* The coach card head and a one-line verdict computed here from the schedule and recovery, so it costs no AI call. */
+var CO_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12h4l2.5-6 4.5 12 2.5-6h5.5"/></svg>';
+function coachHead(sub){return '<div class="co-h"><span class="co-mark"><i>'+CO_IC+'</i></span><span class="co-t"><b>Тренер</b><span>'+sub+'</span></span></div>'}
+function coachVerdict(nd){
+  if(restDay())return 'День отдыха — <span>восстанавливаемся</span>';
+  var t=todayISO();if(!isTrainDay(t)||doneToday())return 'Full Body '+esc(nd);
+  var rec=recovery(),m=rec?decideMode('ok',rec):null;
+  if(m&&m.mode==='light')return 'Full Body '+esc(nd)+' — <span class="lt">похоже на лёгкий день</span>';
+  return 'Full Body '+esc(nd)+' — <span>'+(rec&&rec.level==='good'&&rec.night!=null?'можно прибавлять':'обычный день')+'</span>';
+}
+/* the latest workout review (last 2 days) as a card for the «Тренер» tab */
+function aiReviewCardHtml(){
+  var today=todayISO(),h='';
   var rv=aiGet('review');
   if(rv&&rv.date>=isoAdd(today,-2)){var rw=null;workoutsList().forEach(function(x){if(x.date===rv.date&&x.name===baseName(rv.workout))rw=x});
     var rs=rw?wkStats(rw):null;
@@ -1091,6 +1142,7 @@ function aiReviewHtml(){
 }
 function aiRefresh(){
   if(S.view==='home'){var c=$('#ai-card');if(c)c.innerHTML=aiCardHtml()}
+  if(S.view==='home'){var rvc=$('#ai-rv');if(rvc)rvc.innerHTML=aiReviewCardHtml()}
   if(S.view==='done'){var r=$('#ai-review');if(r)r.innerHTML=aiReviewHtml()}
   if(S.view==='home'){var wc=$('#wk-card');if(wc)wc.innerHTML=weekCardHtml()}
   if(S.view==='hist'){var sc=$('#hist-scroll'),t=sc?sc.scrollTop:0;renderHist();sc=$('#hist-scroll');if(sc)sc.scrollTop=t}
@@ -1489,50 +1541,134 @@ function render(){
 }
 
 /* ================= render: home ================= */
+/* Home is five tabs: «Сегодня» answers what to do now; the others hold the detail for one topic each.
+   Tab and per-tab scroll live only in memory: the app always opens on «Сегодня». */
+var TAB_IC={
+  today:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>',
+  train:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>',
+  food:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v8a2 2 0 0 0 2 2v8M5 3v5M9 3v5M16.5 21V3c-2.2 1.2-3.3 3.6-3.3 6.6V13h3.3"/></svg>',
+  sleep:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M19.5 14.6A8 8 0 0 1 9.4 4.5a8 8 0 1 0 10.1 10.1Z"/></svg>',
+  coach:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5.5h15v10h-8l-4.5 3.6v-3.6h-2.5z"/><path d="M8.5 10.5h7"/></svg>'
+};
+var TABS=[['today','Сегодня'],['train','Тренировки'],['food','Питание'],['sleep','Сон'],['coach','Тренер']];
+function tabbarHtml(){
+  return '<nav class="tabbar" role="tablist">'+TABS.map(function(t){var on=S.tab===t[0];
+    return '<button role="tab" aria-selected="'+on+'" class="'+(on?'on':'')+'" data-act="tab" data-tab="'+t[0]+'">'+TAB_IC[t[0]]+'<span>'+t[1]+'</span></button>'}).join('')+'</nav>';
+}
+function openTab(t){if(!TAB_IC[t])return;S.tab=t;S.view='home';render()}
 function renderHome(){
-  var b=S.boot,today=todayISO(),rec=recovery(),nd=nextDay(),draft=sheetDraft();
-  if(!S.day)S.day=nd;
-  var keepTop=($('#home-scroll')||{}).scrollTop||0;
+  if(!TAB_IC[S.tab])S.tab='today';
+  if(!S.day)S.day=nextDay();
+  S.tabTop=S.tabTop||{};
+  var hs0=$('#home-scroll');if(hs0&&S.homeTab)S.tabTop[S.homeTab]=hs0.scrollTop;
+  var body={today:homeToday,train:homeTrain,food:homeFood,sleep:homeSleep,coach:homeCoach}[S.tab]();
+  var cta=S.tab==='today'||S.tab==='train';
+  $('#app').innerHTML='<div class="screen"><div class="scroll" id="home-scroll"><div class="pad">'+body+'<div style="height:28px"></div></div></div>'+
+    (cta?'<div class="bottom tabbed" id="home-cta">'+homeCta()+'</div>':'')+tabbarHtml()+'</div>';
+  S.homeTab=S.tab;
+  var car=$('#car');
+  if(car){snapCar(false);car.addEventListener('scroll',function(){clearTimeout(car._t);car._t=setTimeout(onCarStop,90)},{passive:true})}
+  var hs=$('#home-scroll');if(hs)hs.scrollTop=S.tabTop[S.tab]||0;
+}
+function tabTitle(t){return '<h1 class="h1 tab-h">'+t+'</h1>'}
+function emptyNote(t){return '<div class="glass empty-tab"><div class="note-s" style="margin-top:0">'+t+'</div></div>'}
+
+function homeToday(){
+  var today=todayISO(),rec=recovery(),nd=nextDay(),draft=sheetDraft();
   var greet=['Доброй ночи','Доброе утро','Добрый день','Добрый вечер'][Math.floor(new Date().getHours()/6)];
-  var h='<div class="screen"><div class="scroll" id="home-scroll"><div class="pad">';
-  h+='<div class="h-top"><span class="h-date">'+esc(fmtWd(today))+', '+esc(fmtDay(today))+'</span><span class="sync-host">'+syncPill()+'</span>'+(NB?'<button class="wb-gear" data-act="app-settings" aria-label="Настройки приложения">'+I.gear+'</button>':'')+'</div>';
+  var h='<div class="h-top"><span class="h-date">'+esc(fmtWd(today))+', '+esc(fmtDay(today))+'</span><span class="sync-host">'+syncPill()+'</span>'+(NB?'<button class="wb-gear" data-act="app-settings" aria-label="Настройки приложения">'+I.gear+'</button>':'')+'</div>';
   h+='<h1 class="h1">'+greet+',<br>Сергей</h1>';
   if(S.session){
     var tt=totals();
-    h+='<button class="resume" data-act="resume"><span class="t"><b>Тренировка идёт · Full Body '+esc(S.session.day)+'</b><span>'+(S.session.backfill?'Задним числом за '+fmtDay(S.session.date):tt.done+' из '+tt.planned+' подходов — продолжить')+'</span></span>'+I.play+'</button>';
+    h+='<button class="resume" data-act="resume"><span class="t"><b>Тренировка идёт · Full Body '+esc(S.session.day)+'</b><span>'+(S.session.backfill?'Задним числом за '+fmtDay(S.session.date):tt.done+' из '+tt.planned+' подходов')+'</span></span>'+I.play+'</button>';
     h+='<button class="linkbtn" style="margin:-6px 0 6px" data-act="cancel-ask">Отменить эту тренировку</button>';
   }else if(draft){
-    h+='<button class="resume alt" data-act="restore"><span class="t"><b>Продолжить Full Body '+esc(draft.day)+'</b><span>В таблице уже '+plural(draft.rows.length,'подход','подхода','подходов')+' за сегодня</span></span>'+I.restore+'</button>';
-  }
-  if(rec){
-    var lvl={good:['good','В норме'],ok:['warnc','Есть сигнал'],warn:['warnc','Осторожно']}[rec.level];
-    var mv=function(k){return rec.t[k]?rec.t[k].m:null};
-    h+='<div class="glass"><div class="row-b"><span class="eyebrow">Восстановление</span><span class="status '+lvl[0]+'" style="font-size:13px"><i></i>'+lvl[1]+'</span></div><div class="gauges" style="margin-top:14px">';
-    var slv=rec.night!=null?rec.night:mv('sleep');
-    h+=gauge(rec.night!=null?'Сон ночью':'Сон, 3 дня',slv,'ч',1,rec.b.sleep,true)+gauge('HRV',mv('hrv'),'мс',0,rec.b.hrv,true)+gauge('Пульс покоя',mv('rhr'),'',0,rec.b.rhr,false);
-    var sig=rec.issues.concat(rec.notes);
-    h+='</div><div class="note-s" style="margin-top:14px">'+(sig.length?esc(sig.join('; ').replace(/^./,function(x){return x.toUpperCase()}))+'. ':'')+(rec.night!=null?'Сон — прошлая ночь; HRV и пульс — среднее за 3 дня по ':'Среднее за 3 дня по ')+esc(fmtDay(rec.last))+' против твоей нормы'+(rec.ready?' за 28 дней':' — она ещё собирается ('+rec.baseDays+' из 28 дней), поэтому нагрузку пока решает твоё самочувствие перед стартом')+'.'+(rec.night!=null?'':' Данных за сегодня с часов пока нет — перед стартом спрошу только самочувствие.')+'</div></div>';
+    h+='<button class="resume alt" data-act="restore"><span class="t"><b>Продолжить Full Body '+esc(draft.day)+'</b><span>В таблице уже '+plural(draft.rows.length,'подход','подхода','подходов')+' за сегодня</span></span>'+I.play+'</button>';
   }
   if(aiOn())h+='<div id="ai-card">'+aiCardHtml()+'</div>';
-  h+=nutriCardHtml();
-  h+='<div id="wt-card">'+weightCardHtml()+'</div>';
-  h+='<div id="wk-card">'+weekCardHtml()+'</div>';
-  unloggedWatch().forEach(function(w){
-    h+='<div class="notice"><div class="ic">'+I.watch+'</div><div class="tx"><b>'+esc(fmtDay(w.date))+' — подходы не записаны</b><span>Apple Watch: '+Math.round(w.minutes)+' мин'+(w.kcal?' · '+Math.round(w.kcal)+' ккал':'')+'</span></div><button class="btn2" data-act="backfill" data-date="'+w.date+'">Внести</button></div>';
-  });
-  h+='<div class="sec"><h2>Тренировка</h2><span>'+esc(String(b.program.totalSets||'').replace(/\D+$/,''))+(b.program.totalSets?' подходов в неделю':'')+'</span></div>';
+  if(rec)h+='<button class="tap-card" data-act="tab" data-tab="sleep">'+recoveryCardHtml(rec,false)+'</button>';
+  h+='<button class="tap-card" data-act="tab" data-tab="train">'+heroCard(S.day,nd).replace('class="hero"','class="hero solo"')+'</button>';
+  h+='<div id="tiles">'+todayTilesHtml()+'</div>';
+  unloggedWatch().forEach(function(w){h+=watchNotice(w)});
+  return h;
+}
+function watchNotice(w){
+  return '<div class="notice"><div class="ic">'+I.watch+'</div><div class="tx"><b>'+esc(fmtDay(w.date))+' — подходы не записаны</b><span>Apple Watch: '+Math.round(w.minutes)+' мин'+(w.kcal?' · '+Math.round(w.kcal)+' ккал':'')+'</span></div><button class="btn2" data-act="backfill" data-date="'+w.date+'">Внести</button></div>';
+}
+function homeTrain(){
+  var b=S.boot,nd=nextDay(),h=tabTitle('Тренировки');
+  h+='<div class="sec" style="margin-top:4px"><h2>Программа</h2><span>'+esc(String(b.program.totalSets||'').replace(/\D+$/,''))+(b.program.totalSets?' подходов в неделю':'')+'</span></div>';
   h+='<div class="seg" id="seg">'+['A','B','C'].map(function(d){return '<button data-act="day" data-day="'+d+'" class="'+(d===S.day?'on':'')+'">'+d+(d===nd?'<span class="dot"></span>':'')+'</button>'}).join('')+'</div>';
   h+='<div class="car" id="car">'+['A','B','C'].map(function(d){return heroCard(d,nd)}).join('')+'</div>';
   h+='<div class="card plist" id="plist">'+planList(S.day)+'</div>';
   var all=workoutsList();
   if(all.length){var shown=S.histAll?all:all.slice(0,4);
     h+='<div class="sec"><h2>История</h2><span>'+plural(all.length,'тренировка','тренировки','тренировок')+'</span></div><div class="card" style="padding:4px 18px">'+shown.map(function(w,i){return histRow(w,i)}).join('')+(all.length>4?'<button class="linkbtn" style="border-top:1px solid var(--line)" data-act="hist-all">'+(S.histAll?'Свернуть':'Все тренировки')+'</button>':'')+'</div>'}
-  h+='<div style="height:28px"></div></div></div>';
-  h+='<div class="bottom" id="home-cta">'+homeCta()+'</div></div>';
-  $('#app').innerHTML=h;
-  var car=$('#car');snapCar(false);
-  car.addEventListener('scroll',function(){clearTimeout(car._t);car._t=setTimeout(onCarStop,90)},{passive:true});
-  var hs=$('#home-scroll');if(hs)hs.scrollTop=keepTop;
+  return h;
+}
+function homeFood(){
+  var n=nutriCardHtml(),w=weightCardHtml(),h=tabTitle('Питание и вес');
+  if(!n&&!w)return h+emptyNote('Здесь будут еда за день из листа «Питание», вес из Здоровья и реальный расход калорий.');
+  return h+n+'<div id="wt-card">'+w+'</div>';
+}
+function homeSleep(){
+  var rec=recovery(),h=tabTitle('Сон и восстановление');
+  if(!rec)return h+emptyNote('Сон, HRV и пульс покоя появятся после первой ночной выгрузки из Здоровья.');
+  return h+recoveryCardHtml(rec,true)+sleepNightsHtml(rec);
+}
+function homeCoach(){
+  var h=tabTitle('Тренер'),rv=aiOn()?aiReviewCardHtml():'',wk=weekCardHtml();
+  if(!rv&&!wk)return h+emptyNote('Разборы тренировок и итоги недели появятся здесь после первой тренировки.');
+  return h+'<div id="ai-rv">'+rv+'</div><div id="wk-card">'+wk+'</div>';
+}
+
+/* Recovery gauges against the personal norm; the full card (tab «Сон») adds the sentence about the signals. */
+function recoveryCardHtml(rec,full){
+  var lvl={good:['good','В норме'],ok:['warnc','Есть сигнал'],warn:['warnc','Осторожно']}[rec.level];
+  var mv=function(k){return rec.t[k]?rec.t[k].m:null};
+  var h='<div class="glass rec-card"><div class="row-b"><span class="eyebrow">Восстановление</span><span class="status '+lvl[0]+'" style="font-size:13px"><i></i>'+lvl[1]+'</span></div><div class="gauges" style="margin-top:14px">';
+  var slv=rec.night!=null?rec.night:mv('sleep');
+  h+=gauge(rec.night!=null?'Сон ночью':'Сон, 3 дня',slv,'ч',1,rec.b.sleep,true)+gauge('HRV',mv('hrv'),'мс',0,rec.b.hrv,true)+gauge('Пульс покоя',mv('rhr'),'',0,rec.b.rhr,false)+'</div>';
+  if(full){var sig=rec.issues.concat(rec.notes);
+    h+='<div class="note-s" style="margin-top:14px">'+(sig.length?esc(sig.join('; ').replace(/^./,function(x){return x.toUpperCase()}))+'. ':'')+(rec.night!=null?'Сон — прошлая ночь; HRV и пульс — среднее за 3 дня по ':'Среднее за 3 дня по ')+esc(fmtDay(rec.last))+' против твоей нормы'+(rec.ready?' за 28 дней':' — она ещё собирается ('+rec.baseDays+' из 28 дней), поэтому нагрузку пока решает твоё самочувствие перед стартом')+'.'+(rec.night!=null?'':' Данных за сегодня с часов пока нет — перед стартом спрошу только самочувствие.')+'</div>'}
+  return h+'</div>';
+}
+/* The last 14 nights against the personal sleep norm; nights that reached it glow. */
+function sleepNightsHtml(rec){
+  var t=todayISO(),from=isoAdd(t,-13),H=(S.boot.health||[]).filter(function(x){return x.date>=from&&x.date<=t&&x.sleep!=null});
+  if(H.length<3)return '';
+  var norm=rec.b.sleep?rec.b.sleep.m:null,mx=Math.max(9,Math.max.apply(null,H.map(function(x){return x.sleep}))),W=300,Hh=110,bw=14,days=14,gp=(W-days*bw)/(days-1);
+  var y=function(v){return Hh-16-v/mx*(Hh-24)},id='sn'+(++svgN),s='';
+  s+='<defs><linearGradient id="'+id+'b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9DC2FF"/><stop offset="1" stop-color="#3D5A8C"/></linearGradient><linearGradient id="'+id+'v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EFFFAE"/><stop offset="1" stop-color="#7E9A1E"/></linearGradient></defs>';
+  var by={};H.forEach(function(x){by[x.date]=x.sleep});
+  for(var i=0;i<days;i++){var d=isoAdd(from,i),v=by[d];if(v==null)continue;
+    var x=i*(bw+gp),top=y(v),ok=norm!=null&&v>=norm-0.05,r='<rect x="'+x.toFixed(1)+'" y="'+top.toFixed(1)+'" width="'+bw+'" height="'+(Hh-16-top).toFixed(1)+'" rx="5" fill="url(#'+id+(ok?'v':'b')+')"/>';
+    s+=ok?glow(r,W,Hh):r}
+  if(norm!=null)s+='<line x1="0" x2="'+W+'" y1="'+y(norm).toFixed(1)+'" y2="'+y(norm).toFixed(1)+'" stroke="rgba(255,255,255,.55)" stroke-dasharray="3 4"/>';
+  var avg=H.reduce(function(a,x){return a+x.sleep},0)/H.length;
+  return '<div class="glass sn"><div class="row-b"><span class="eyebrow">Сон · 14 ночей</span><span class="nb-cap">'+(norm!=null?'норма '+fmtN(Math.round(norm*10)/10)+' ч':'')+'</span></div>'+
+    '<div class="wt-main"><div class="wt-v">'+fmtN(Math.round(avg*10)/10)+'<small>ч в среднем</small></div></div>'+
+    '<svg class="sn-ch" viewBox="0 0 '+W+' '+Hh+'" aria-hidden="true">'+s+'</svg><div class="wt-ax"><span>'+esc(fmtDay(from))+'</span><span>эта ночь</span></div></div>';
+}
+/* Two glanceable numbers under the workout: today's calories against the goal and the latest weight. */
+function todayTilesHtml(){
+  var N=S.boot.nutrition||[],t=todayISO(),r=null,i;
+  for(i=N.length-1;i>=0;i--)if(N[i].kcal>0&&N[i].date<=t&&N[i].date>=isoAdd(t,-1)){r=N[i];break}
+  var W=weights(),w=W.length?W[W.length-1]:null;
+  if(!r&&!w)return '';
+  var fmt=function(v){return Math.round(v).toLocaleString('ru-RU')},h='<div class="tiles">';
+  if(r){var g=r.kcalGoal;if(g==null)for(i=N.length-1;i>=0;i--)if(N[i].kcalGoal!=null){g=N[i].kcalGoal;break}
+    var f=g?Math.min(1,r.kcal/g):0,c=26,rr=21,L=2*Math.PI*rr,id='tk'+(++svgN);
+    var ring='<svg viewBox="0 0 52 52" class="tile-ring" aria-hidden="true"><defs><linearGradient id="'+id+'" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#FF9A3C"/><stop offset="1" stop-color="#D4FF3A"/></linearGradient></defs><circle cx="'+c+'" cy="'+c+'" r="'+rr+'" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="6"/>'+
+      (f>0?glow('<circle cx="'+c+'" cy="'+c+'" r="'+rr+'" fill="none" stroke="url(#'+id+')" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+(L*f).toFixed(1)+' '+L.toFixed(1)+'" transform="rotate(-90 26 26)"/>',52,52):'')+'</svg>';
+    h+='<button class="glass tile" data-act="tab" data-tab="food"><span class="eyebrow">Калории</span><div class="tile-row">'+ring+'<div><b class="tile-v">'+fmt(r.kcal)+'</b><span class="tile-s">'+(g?'из '+fmt(g):'ккал')+(r.date===t?'':' · вчера')+'</span></div></div></button>'}
+  if(w){var f1=function(v){return fmtN(Math.round(v*10)/10)},lim=isoAdd(w.date,-7),b=null;W.forEach(function(x){if(x.date<=lim)b=x});
+    var d=b?Math.round((w.kg-b.kg)*10)/10:null,P=W.filter(function(x){return x.date>=isoAdd(w.date,-30)}),sp='';
+    if(P.length>=2){var lo=Math.min.apply(null,P.map(function(p){return p.kg})),hi=Math.max.apply(null,P.map(function(p){return p.kg})),x0=dObj(P[0].date)-0,span=dObj(w.date)-x0||1;
+      var pts=P.map(function(p){return ((dObj(p.date)-x0)/span*116+2).toFixed(1)+','+(26-(p.kg-lo)/((hi-lo)||1)*22).toFixed(1)}).join(' ');
+      sp='<svg viewBox="0 0 120 30" preserveAspectRatio="none" class="tile-sp" aria-hidden="true">'+glow('<polyline points="'+pts+'" fill="none" stroke="#D4FF3A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>',120,30)+'</svg>'}
+    h+='<button class="glass tile" data-act="tab" data-tab="food"><span class="eyebrow">Вес</span><div><b class="tile-v">'+f1(w.kg)+'<small>кг</small></b>'+(d!=null?'<span class="tile-s">'+(d>0?'+':d<0?'−':'±')+f1(Math.abs(d))+' за неделю</span>':'')+'</div>'+sp+'</button>'}
+  return h+'</div>';
 }
 function heroCard(d,nd){
   var exs=buildDay(d),total=exs.reduce(function(n,e){return n+e.sets},0),mins=Math.round(total*3.4+8);
@@ -1825,6 +1961,7 @@ document.addEventListener('click',function(e){
     case 'week-back':S.view='home';render();break;
     case 'app-settings':nbPost({type:'settings'});break;
     case 'hist-all':S.histAll=!S.histAll;render();break;
+    case 'tab':openTab(a.dataset.tab);break;
   }
 });
 function pickOn(btn,off){$$('.choice',btn.parentNode).forEach(function(x){x.classList.toggle('on',!off&&x===btn)})}
@@ -2253,6 +2390,7 @@ if(NB){
       if(!Array.isArray(list))return;
       S.hw=list.filter(function(x){return x&&/^\d{4}-\d{2}-\d{2}$/.test(x.date)&&x.kg>0}).slice(-400);lsSet('wf1.hw',S.hw);
       var wc=S.view==='home'&&$('#wt-card');if(wc)wc.innerHTML=weightCardHtml();
+      var tl=S.view==='home'&&$('#tiles');if(tl)tl.innerHTML=todayTilesHtml();
       weightsSync();
     }
   };
