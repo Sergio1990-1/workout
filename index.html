@@ -608,6 +608,25 @@ body.resting .w-bottom .wnav{visibility:hidden}
 .act-row .act-ic.hot{background:rgba(212,255,58,.13);color:var(--volt);box-shadow:0 0 18px rgba(212,255,58,.12)}
 .act-row .act-ic svg{width:23px;height:23px}
 .act-row .md span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* sleep debt and the illness sign */
+.debt{margin-top:12px}
+.sd-ch{display:block;width:100%;height:96px;margin-top:12px;overflow:visible}
+.sd-ax{display:grid;grid-template-columns:repeat(7,1fr);font-size:11px;color:var(--mu2);margin-top:2px;text-align:center}
+.sd-ax span.on{color:var(--tx)}
+.sd-lg{display:flex;gap:14px;font-size:11px;color:var(--mu2);margin-top:8px}
+.sd-lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.sd-lg i.o{background:#FF7A33}.sd-lg i.g{background:#D4FF3A}
+.badc{color:var(--bad)}
+.rc-debt{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--mu)}
+.rc-debt b{font-size:15px;color:var(--org)}
+.ill{border:1px solid rgba(255,122,51,.35);background:radial-gradient(120% 90% at 100% 0%,rgba(255,94,43,.16),transparent 60%),linear-gradient(180deg,#1C1714,#141416);margin-bottom:12px}
+.ill-t{font-family:var(--d);font-weight:600;font-size:20px;letter-spacing:-.03em;line-height:1.2;margin-top:12px;text-wrap:balance}
+.ill-t span{color:var(--org);text-shadow:0 0 18px rgba(255,122,51,.35)}
+.ill-m{display:flex;gap:22px;margin-top:14px}
+.ill-m div{font-size:12px;color:var(--mu2)}
+.ill-m b{display:block;font-family:var(--d);font-size:24px;font-weight:600;color:var(--tx);letter-spacing:-.03em;margin-bottom:2px}
+.ill-m b small{font-family:var(--f);font-size:12px;color:var(--mu);margin-left:3px}
 </style>
 </head>
 <body>
@@ -1002,18 +1021,19 @@ function recovery(){
   var nightShort=night!=null&&b.sleep&&b.sleep.n>=7&&night<b.sleep.m-b.sleep.sd;
   if(nightShort)notes.push('короткая ночь — '+fmtN(Math.round(night*10)/10)+' ч');
   else if(night==null&&last.sleep!=null&&b.sleep&&b.sleep.n>=7&&last.sleep<b.sleep.m-b.sleep.sd&&issues.indexOf('сна меньше нормы')<0)notes.push('короткая ночь на '+fmtDay(last.date)+' — '+fmtN(Math.round(last.sleep*10)/10)+' ч');
-  return {t:t,b:b,issues:issues,notes:notes,baseDays:base.length,ready:base.length>=28,last:last.date,night:night,nightShort:nightShort,app:!!last.app,
+  return {t:t,b:b,issues:issues,notes:notes,baseDays:base.length,ready:base.length>=28,last:last.date,night:night,nightShort:nightShort,app:!!last.app,ill:illness(),
     level:!issues.length?'good':(issues.length===1?'ok':'warn')};
 }
 /* mode from the check-in (+ confirmed recovery signals once the 28-day baseline exists) */
 function decideMode(feel,rec){
-  var why=[],up=feel==='good'||feel==='great',signals=rec&&rec.ready&&rec.level==='warn',shortN=rec&&rec.nightShort;
+  var why=[],up=feel==='good'||feel==='great',signals=rec&&rec.ready&&rec.level==='warn',shortN=rec&&rec.nightShort,ill=rec&&rec.ill;
   if(feel==='bad')why.push('самочувствие — разбит');
+  if(ill&&feel!=='great')why.push(ILL_WHY);
   if(shortN&&!up)why.push('короткая ночь — '+fmtN(Math.round(rec.night*10)/10)+' ч');
   if(signals&&!up)why.push(rec.issues.join(', '));
   if(why.length)return {mode:'light',why:why};
-  if(feel==='great'&&!shortN&&!signals)return {mode:'push',why:[]};
-  return {mode:'normal',why:feel==='great'?['много сил, но '+(shortN?'ночь была короткой':'восстановление ниже нормы')+' — без форсирования']:[]};
+  if(feel==='great'&&!shortN&&!signals&&!ill)return {mode:'push',why:[]};
+  return {mode:'normal',why:feel==='great'?['много сил, но '+(ill?'пульс и HRV похожи на начало болезни':shortN?'ночь была короткой':'восстановление ниже нормы')+' — без форсирования']:[]};
 }
 var FEEL_ORDER=['great','good','ok','bad'],CI_FEEL={great:'много сил',good:'бодр',ok:'нормально',bad:'разбит'},CI_ENERGY={great:'Много сил',good:'Бодр',ok:'Нормально',bad:'Разбит'};
 function modeText(m){return m==='light'?'<b>Лёгкий день</b> — без попытки прогресса, на подход меньше в упражнениях с 3+ подходами, запас 2–3 повтора.':(m==='push'?'<b>Сильный день</b> — +1 повтор в каждом подходе ниже верха диапазона (или шаг веса), запас хотя бы 1 повтор.':'<b>Обычный день</b> — цель с прогрессией: +1 повтор или шаг веса, запас 1–2 повтора.')}
@@ -1657,6 +1677,7 @@ function homeToday(){
   }else if(draft){
     h+='<button class="resume alt" data-act="restore"><span class="t"><b>Продолжить Full Body '+esc(draft.day)+'</b><span>В таблице уже '+plural(draft.rows.length,'подход','подхода','подходов')+' за сегодня</span></span>'+I.play+'</button>';
   }
+  if(rec&&rec.ill)h+=illnessHtml(rec.ill);
   if(aiOn())h+='<div id="ai-card">'+aiCardHtml()+'</div>';
   h+='<div id="hab-card">'+habitsCardHtml()+'</div>';
   if(rec)h+='<button class="tap-card" data-act="tab" data-tab="sleep">'+recoveryCardHtml(rec,false)+'</button>';
@@ -1715,7 +1736,7 @@ function homeFood(){
 function homeSleep(){
   var rec=recovery(),h=tabTitle('Сон и восстановление');
   if(!rec)return h+emptyNote('Сон, HRV и пульс покоя появятся после первой ночной выгрузки из Здоровья.');
-  return h+recoveryCardHtml(rec,true)+sleepNightsHtml(rec);
+  return h+recoveryCardHtml(rec,true)+sleepDebtHtml(rec)+sleepNightsHtml(rec);
 }
 function homeCoach(){
   var h=tabTitle('Тренер'),rv=aiOn()?aiReviewCardHtml():'',wk=weekCardHtml();
@@ -1725,14 +1746,75 @@ function homeCoach(){
 
 /* Recovery gauges against the personal norm; the full card (tab «Сон») adds the sentence about the signals. */
 function recoveryCardHtml(rec,full){
-  var lvl={good:['good','В норме'],ok:['warnc','Есть сигнал'],warn:['warnc','Осторожно']}[rec.level];
+  var lvl=rec.ill?['warnc','Похоже на болезнь']:{good:['good','В норме'],ok:['warnc','Есть сигнал'],warn:['warnc','Осторожно']}[rec.level];
   var mv=function(k){return rec.t[k]?rec.t[k].m:null};
   var h='<div class="glass rec-card"><div class="row-b"><span class="eyebrow">Восстановление</span><span class="status '+lvl[0]+'" style="font-size:13px"><i></i>'+lvl[1]+'</span></div><div class="gauges" style="margin-top:14px">';
   var slv=rec.night!=null?rec.night:mv('sleep');
   h+=gauge(rec.night!=null?'Сон ночью':'Сон, 3 дня',slv,'ч',1,rec.b.sleep,true)+gauge('HRV',mv('hrv'),'мс',0,rec.b.hrv,true)+gauge('Пульс покоя',mv('rhr'),'',0,rec.b.rhr,false)+'</div>';
+  if(!full){var sd=sleepDebt(rec);if(sd&&sd.debt>=3)h+='<div class="rc-debt"><span>Долг сна за неделю</span><b>'+fmtHM(sd.debt)+'</b></div>'}
   if(full){var sig=rec.issues.concat(rec.notes);
     h+='<div class="note-s" style="margin-top:14px">'+(sig.length?esc(sig.join('; ').replace(/^./,function(x){return x.toUpperCase()}))+'. ':'')+(rec.night!=null?'Сон — прошлая ночь'+(rec.app?' прямо из Здоровья':'')+'; HRV и пульс — среднее за 3 дня по ':'Среднее за 3 дня по ')+esc(fmtDay(rec.last))+' против твоей нормы'+(rec.ready?' за 28 дней':' — она ещё собирается ('+rec.baseDays+' из 28 дней), поэтому нагрузку пока решает твоё самочувствие перед стартом')+'.'+(rec.night!=null?'':' Данных за сегодня с часов пока нет — перед стартом спрошу только самочувствие.')+'</div>'}
   return h+'</div>';
+}
+/* Early sign of illness: resting pulse above and HRV below the personal norm on the same day, two days running,
+   or one day by a wide margin. Norm = the days before the last three (14+ needed). A hint, not a diagnosis:
+   alcohol, a hard day or a short night move both numbers the same way. */
+var ILL_WHY='пульс покоя выше и HRV ниже нормы — похоже на начало болезни';
+function illness(){
+  var today=todayISO(),H=healthRows().filter(function(x){return x.date<=today&&(x.rhr!=null||x.hrv!=null)});
+  var base=H.slice(-31,-3),bR=stat(base,'rhr'),bH=stat(base,'hrv');
+  if(!bR||!bH||bR.n<14||bH.n<14)return null;
+  var sig=function(x){if(!x||x.rhr==null||x.hrv==null)return 0;var r=x.rhr-bR.m,v=bH.m-x.hrv;
+    if(r>=Math.max(5,1.5*bR.sd)&&v>=Math.max(8,1.5*bH.sd))return 2;if(r>=Math.max(3,bR.sd)&&v>=Math.max(5,bH.sd))return 1;return 0};
+  var a=H[H.length-1];if(!a||a.date<isoAdd(today,-1))return null; // only fresh data: today or yesterday
+  var b=H.length>1&&H[H.length-2].date===isoAdd(a.date,-1)?H[H.length-2]:null,sa=sig(a),sb=sig(b);
+  if(!(sa===2||(sa>=1&&sb>=1)))return null;
+  var ev=null;((S.boot&&S.boot.habits)||[]).forEach(function(x){if(x.date===isoAdd(a.date,-1))ev=x});
+  return {date:a.date,days:sb>=1?2:1,rhr:a.rhr-bR.m,hrv:bH.m-a.hrv,alcohol:!!(ev&&ev.tags.indexOf('alcohol')>=0)};
+}
+function illnessHtml(x){
+  var s=function(v){return Math.round(v)};
+  var why=x.alcohol?'Вчера вечером был алкоголь — скорее всего, дело в нём. Всё равно сегодня лучше отдых или лёгкий день и побольше воды.'
+    :'Так бывает в начале простуды, после сильного стресса, недосыпа или алкоголя. Сегодня лучше отдых или лёгкий день, больше воды и сна. Если появятся насморк, горло или температура — без тренировки.';
+  return '<button class="tap-card" data-act="tab" data-tab="sleep"><div class="glass ill"><div class="row-b"><span class="eyebrow">Восстановление</span><span class="status warnc" style="font-size:13px"><i></i>'+(x.days>1?'2 дня подряд':'сегодня')+'</span></div>'+
+    '<div class="ill-t">Похоже, организм <span>с чем-то борется</span></div>'+
+    '<div class="ill-m"><div><b>+'+s(x.rhr)+'</b>пульс покоя к норме</div><div><b>−'+s(x.hrv)+'<small>мс</small></b>HRV к норме</div></div>'+
+    '<div class="tdee-t">'+why+'</div><div class="nb-n" style="margin-top:8px">Это не диагноз: сравниваю пульс покоя и HRV с твоей нормой за последние недели.</div></div></button>';
+}
+/* Sleep debt over the last 7 nights against the need (the personal norm, at least 7.5 h). Extra sleep pays off
+   shortfalls of the same week; the debt never goes below zero. Nights without data are skipped. */
+var SLEEP_NEED_MIN=7.5,WD2=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+function fmtHM(h){var m=Math.round(h*60);return m>=60?Math.floor(m/60)+' ч'+(m%60?' '+(m%60)+' мин':''):m+' мин'}
+function sleepDebt(rec){
+  var t=todayISO(),need=SLEEP_NEED_MIN;
+  if(rec&&rec.b.sleep&&rec.b.sleep.n>=14)need=Math.max(need,Math.round(rec.b.sleep.m*4)/4);
+  var by={},n=0;healthRows().forEach(function(x){if(x.sleep!=null&&x.date>isoAdd(t,-7)&&x.date<=t){by[x.date]=x.sleep;n++}});
+  if(n<4)return null;
+  var nights=[],sum=0;for(var i=6;i>=0;i--){var d=isoAdd(t,-i),v=by[d];nights.push({date:d,sleep:v==null?null:v});if(v!=null)sum+=need-v}
+  return {need:need,debt:Math.max(0,sum),nights:nights,n:n};
+}
+function sleepDebtHtml(rec){
+  var x=sleepDebt(rec);if(!x)return '';
+  var W=300,Hh=96,mid=46,bw=22,gp=(W-7*bw)/6,mx=Math.max(1.5,Math.max.apply(null,x.nights.map(function(q){return q.sleep==null?0:Math.abs(x.need-q.sleep)}))),k=38/mx,id='sd'+(++svgN),s='';
+  s+='<defs><linearGradient id="'+id+'o" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF7A33"/><stop offset="1" stop-color="#FF5E2B" stop-opacity=".55"/></linearGradient><linearGradient id="'+id+'g" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#7E9A1E"/><stop offset="1" stop-color="#EFFFAE"/></linearGradient></defs>';
+  s+='<line x1="0" x2="'+W+'" y1="'+mid+'" y2="'+mid+'" stroke="rgba(255,255,255,.18)"/>';
+  x.nights.forEach(function(q,i){var cx=i*(bw+gp);
+    if(q.sleep==null){s+='<circle cx="'+(cx+bw/2).toFixed(1)+'" cy="'+mid+'" r="2.5" fill="rgba(255,255,255,.25)"/>';return}
+    var d=x.need-q.sleep,hgt=Math.max(3,Math.abs(d)*k),r;
+    if(d>0)r='<rect x="'+cx.toFixed(1)+'" y="'+mid+'" width="'+bw+'" height="'+hgt.toFixed(1)+'" rx="6" fill="url(#'+id+'o)"/>';
+    else r='<rect x="'+cx.toFixed(1)+'" y="'+(mid-hgt).toFixed(1)+'" width="'+bw+'" height="'+hgt.toFixed(1)+'" rx="6" fill="url(#'+id+'g)"/>';
+    s+=(i===6?glow(r,W,Hh):r);
+  });
+  var lv=x.debt<1?['good','Высыпаешься']:x.debt<3?['warnc','Небольшой']:x.debt<6?['warnc','Заметный']:['badc','Большой'];
+  var add=Math.min(90,Math.max(20,Math.round(x.debt*60/4/5)*5));
+  var tip=x.debt<1?'За неделю сна хватает — так держать.':x.debt<3?'Добавь ~'+Math.min(45,add)+' мин сна в ближайшие пару ночей — и долг закроется.'
+    :'Чтобы вернуть, спи на ~'+add+' мин дольше следующие 4 ночи. Отоспаться за одну ночь не выйдет — лучше ровно и понемногу. Пока долг не закрыт, силовые даются тяжелее, а аппетит выше.';
+  return '<div class="glass debt"><div class="row-b"><span class="eyebrow">Долг сна · 7 ночей</span><span class="status '+lv[0]+'" style="font-size:13px"><i></i>'+lv[1]+'</span></div>'+
+    '<div class="wt-main"><div class="wt-v">'+(x.debt<0.1?'0':fmtHM(x.debt).replace(/ (ч|мин)/g,'<small>$1</small>'))+(x.debt<0.1?'<small>долга нет</small>':'')+'</div><div class="nb-cap" style="text-align:right">нужно '+fmtN(x.need)+' ч<br>в ночь</div></div>'+
+    '<svg class="sd-ch" viewBox="0 0 '+W+' '+Hh+'" aria-label="Недосып и пересып по ночам">'+s+'</svg>'+
+    '<div class="sd-ax">'+x.nights.map(function(q,i){return '<span'+(i===6?' class="on"':'')+'>'+(i===6?'Эта':WD2[dObj(q.date).getDay()])+'</span>'}).join('')+'</div>'+
+    '<div class="sd-lg"><span><i class="o"></i>недосып</span><span><i class="g"></i>сверх нормы</span></div>'+
+    '<div class="tdee-t" style="margin-top:12px">'+tip+'</div></div>';
 }
 /* The last 14 nights against the personal sleep norm; nights that reached it glow. */
 function sleepNightsHtml(rec){
@@ -2235,7 +2317,9 @@ function openCheckin(){
   openSheet(h);
   /* with the coach's plan the mode comes from it (never «strong» when you feel broken); otherwise from the rules */
   function pick(){
-    if(ai&&feel&&ai.by_feel[feel]){var f=ai.by_feel[feel],m=f.mode;if(feel==='bad'&&m==='push')m='light';if(['normal','push','light'].indexOf(m)<0)m='normal';return {mode:m,why:f.why?[f.why]:[],ai:1}}
+    if(ai&&feel&&ai.by_feel[feel]){var f=ai.by_feel[feel],m=f.mode;if(feel==='bad'&&m==='push')m='light';if(['normal','push','light'].indexOf(m)<0)m='normal';
+      if(rec&&rec.ill&&m!=='light'){if(feel!=='great')return {mode:'light',why:[ILL_WHY]};if(m==='push')return {mode:'normal',why:['много сил, но пульс и HRV похожи на начало болезни — без форсирования']}}
+      return {mode:m,why:f.why?[f.why]:[],ai:1}}
     return decideMode(feel,rec);
   }
   function upd(){
