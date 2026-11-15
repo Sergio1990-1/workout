@@ -1181,6 +1181,7 @@ function hnSig(x){return ''+(x.sleep==null?0:1)+(x.hrv==null?0:1)+(x.rhr==null?0
 function hnSame(d,x){return !!d&&d.sig===hnSig(x)&&(x.sleep==null||Math.abs((d.sl||0)-x.sleep)<0.25)}
 var aiAsked={};
 function aiStale(item,slot){
+  if(item&&!(item.data&&Array.isArray(item.data.tasks))&&!aiAsked[slot+':tk']){aiAsked[slot+':tk']=1;return true} // written before daily tasks
   var n=hnToday();if(!item||!n||hnSame(item.data,n))return false;var sig=hnSig(n)+'|'+n.sleep;
   if(aiAsked[slot]===sig)return false; // asked once already with these numbers
   aiAsked[slot]=sig;return true;
@@ -1782,7 +1783,7 @@ function renderHome(){
   S.tabTop=S.tabTop||{};
   var hs0=$('#home-scroll');if(hs0&&S.homeTab)S.tabTop[S.homeTab]=hs0.scrollTop;
   var body={today:homeToday,train:homeTrain,food:homeFood,sleep:homeSleep,coach:homeCoach}[S.tab]();
-  var cta=S.tab==='today'||S.tab==='train';
+  var cta=S.tab==='train'; // the start button lives on Тренировки only; on Today it took the screen's space
   $('#app').innerHTML='<div class="screen">'+ptrHtml()+'<div class="scroll" id="home-scroll"><div class="pad">'+body+'<div style="height:28px"></div></div></div>'+
     (cta?'<div class="bottom tabbed" id="home-cta">'+homeCta()+'</div>':'')+tabbarHtml()+'</div>';
   S.homeTab=S.tab;
