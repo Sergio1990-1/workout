@@ -1011,51 +1011,64 @@ function setsStr(sets){return sets.map(function(s){return (s.kg!=null?fmtN(s.kg)
 /* ================= coach («Методика v2.1» + «Правила тренера») =================
    Double progression: every set at the top of the range with RIR >= 1 -> one weight step, else +1 rep in one set.
    Light day (bad sleep / feeling / confirmed recovery signals): no progression attempt, one set fewer, RIR 2–3.
-   Weight steps are never guessed: only a numeric step from «Справочник упражнений» is applied. */
+   Weight steps are never guessed: the step from «Справочник упражнений», else the smallest jump between weights
+   already used on this machine (the same check the coach's numbers pass). */
 function lastRir(prev){var r=null;prev.sets.forEach(function(s){var v=num(s.rir);if(v!=null)r=v});return r}
 function stepOf(ex){var m=/^\s*(\d+(?:[.,]\d+)?)/.exec(String((ex.cat&&ex.cat.step)||''));return m?Number(m[1].replace(',','.')):null}
 function topKg(sets){var k=sets.map(function(s){return s.kg}).filter(function(v){return v!=null});return k.length?Math.max.apply(null,k):null}
-function stalled(ex,beforeIso){ // the last two sessions did not beat the one before them
+function stalled(ex,beforeIso){ // neither of the last two sessions beat the one before them, by strength or by volume
   var h=historyList(ex,beforeIso,3);if(h.length<3)return false;
-  var e=h.map(function(x){return x.sets.reduce(function(m,s){return Math.max(m,e1rm(s.kg,s.reps))},0)});
-  return e[2]>0&&e[0]<=e[2]&&e[1]<=e[2];
+  var m=h.map(function(x){return exMetrics(x.sets,!!ex.counter)});
+  // going lighter into the range with clearly more work (12,5×10 → 10×13×3) is a deliberate reset, not a stall
+  var moved=function(a){return exStatus(a,m[2],!!ex.counter).k==='up'||(m[2].vol>0&&a.vol>=m[2].vol*(1+VOL_DROP))};
+  return !moved(m[0])&&!moved(m[1]);
 }
 function coachTarget(ex,prev,mode){
   if(!prev||!prev.sets.length)return {sets:null,text:'Первый раз — подбери вес так, чтобы в запасе оставалось 2–3 повтора.'};
   var src=[];
   for(var i=0;i<ex.sets;i++){var p=prev.sets[i]||prev.sets[prev.sets.length-1],lr=ex.unilateral?parseLR(p.note):null;
     src.push({kg:p.kg,reps:p.reps,left:lr?num(lr[0]):p.reps,right:lr?num(lr[1]):p.reps})}
-  // a set below the range (110×4 in a 6–10 range) is not repeated: its weight drops to the heaviest weight that
-  // made the range last time, or one step lower; with neither known the person picks it
-  var lo=ex.repLo,low=[],noKg=[];
+  // A set below the range at a weight heavier than any set that made the range (110×4 in 6–10 after 100×6) is not
+  // repeated: it drops to that weight with the reps done at it, or one step lower. Below the range at a weight that
+  // did make it in another set (47×11 then 47×9) is just fatigue: normal progression brings that set up.
+  var lo=ex.repLo,low=[],noKg=[],stp=stepOf(ex)||inferStep(histWeights(ex));
   if(lo&&!ex.unilateral&&!ex.counter){
-    var okKg=prev.sets.filter(function(s){return s.kg>0&&(s.reps||0)>=lo}).map(function(s){return s.kg}),
-        safe=okKg.length?Math.max.apply(null,okKg):null,stp=stepOf(ex);
+    var okSets=prev.sets.filter(function(s){return s.kg>0&&(s.reps||0)>=lo}),
+        safe=okSets.length?Math.max.apply(null,okSets.map(function(s){return s.kg})):null,
+        safeReps=safe!=null?Math.min.apply(null,okSets.filter(function(s){return s.kg===safe}).map(function(s){return s.reps})):null;
     src.forEach(function(q,k){
-      if(!(q.kg>0)||q.reps==null||q.reps>=lo)return;
-      var nk=safe!=null&&safe<q.kg?safe:(stp?Math.round((q.kg-stp)*100)/100:null);
-      if(nk>0){q.kg=nk;q.reps=lo;q.left=lo;q.right=lo;low.push(k+1)}else noKg.push(k+1);
+      if(!(q.kg>0)||q.reps==null||q.reps>=lo||(safe!=null&&q.kg<=safe))return;
+      var nk=safe!=null?safe:(stp?Math.round((q.kg-stp)*100)/100:null),nr=safe!=null?safeReps:lo;
+      if(nk>0){q.kg=nk;q.reps=nr;q.left=nr;q.right=nr;low.push(k+1)}else noKg.push(k+1);
     });
   }
   if(low.length||noKg.length){var all=low.concat(noKg).sort();
     return {sets:src,goal:goalStr(src),text:'В прошлый раз в '+(all.length===1?all[0]+'-м подходе':'подходах '+all.join(', '))+' вышло меньше '+lo+' повторов — это ниже диапазона '+ex.reps+'. '+
-      (low.length?'Сбавь вес и работай от '+lo+' повторов.':'Сбавь вес на шаг тренажёра и работай от '+lo+' повторов.')+(mode==='light'?' Лёгкий день: запас 2–3 повтора.':'')}}
+      (low.length?'Сбавь вес до того, с которым диапазон получился.':'Сбавь вес на шаг тренажёра и работай от '+lo+' повторов.')+(mode==='light'?' Лёгкий день: запас 2–3 повтора.':'')}}
   var w=topKg(prev.sets),same=prev.sets.every(function(x){return x.kg===prev.sets[0].kg}),kgTxt=w!=null&&same?fmtN(w)+' кг':'веса как в прошлый раз';
   if(mode==='light')return {sets:src,goal:kgTxt+', повторы как в прошлый раз',text:'Лёгкий день: без попытки прогресса, запас 2–3 повтора.'};
   var reps=prev.sets.map(function(s){return ex.unilateral?Math.min.apply(null,[s.reps||0].concat((parseLR(s.note)||[]).map(Number))):(s.reps||0)});
   var top=ex.repHi&&reps.every(function(r){return r>=ex.repHi}),rir=lastRir(prev),t,goal;
   if(top&&rir===0){t='Все подходы дошли до '+ex.repHi+', но на пределе (RIR 0). Сначала повтори те же цифры с запасом хотя бы 1 повтор.';goal=kgTxt+', как в прошлый раз'}
   else if(top){
-    var st=stepOf(ex);
-    if(st&&w!=null){var nw=Math.round((w+st)*100)/100;src.forEach(function(s){s.kg=nw;s.reps=ex.repLo;s.left=ex.repLo;s.right=ex.repLo});
-      goal=fmtN(nw)+' кг × от '+ex.repLo;t='Все подходы дошли до '+ex.repHi+(rir!=null?' с запасом':'')+' — сегодня +'+fmtN(st)+' кг, повторы снова от '+ex.repLo+'.'}
+    // the step is the catalog's, else the smallest jump between weights already used on this machine
+    var st=stp,stCat=!!stepOf(ex);
+    // A step should land at the bottom of the range: from the top reps that allows (1+hi/30)/(1+lo/30) more weight —
+    // about 10% for 8–12, 12% for 10–15, 19% for 12–20. A bigger step (20 → 25 kg curls) drops the reps far below
+    // the range, so the weight stays and the reps get harder.
+    var room=ex.repLo&&ex.repHi?(1+ex.repHi/30)/(1+ex.repLo/30)-1:0.1;
+    if(st&&w>0&&st/w>room+0.005){goal=fmtN(w)+' кг, повторы как в прошлый раз, медленнее';
+      t='Все подходы дошли до '+ex.repHi+', но следующий вес +'+fmtN(st)+' кг — это +'+Math.round(st/w*100)+'%, слишком много за раз. Оставь '+fmtN(w)+' кг и опускай за 3 секунды с паузой внизу; если есть маленькие блины или гантели с шагом 1–2 кг — возьми их.'}
+    else if(st&&w!=null){var nw=Math.round((w+st)*100)/100;src.forEach(function(s){s.kg=nw;s.reps=ex.repLo;s.left=ex.repLo;s.right=ex.repLo});
+      goal=fmtN(nw)+' кг × от '+ex.repLo;t='Все подходы дошли до '+ex.repHi+(rir!=null?' с запасом':'')+' — сегодня +'+fmtN(st)+' кг'+(stCat?'':' (наименьший шаг из твоей истории на этом тренажёре)')+', повторы снова от '+ex.repLo+'.'}
     else{goal='+ шаг веса, повторы от '+ex.repLo;t='Все подходы дошли до '+ex.repHi+' — добавь минимальный шаг веса на этом тренажёре и начни снова от '+ex.repLo+' повторов. Шаг тренажёра ещё не записан в справочнике, поэтому вес поставь сам.'}
   }else{
     if(mode==='push'){
       var up=[];src.forEach(function(q,k){if(!ex.repHi||(reps[k]!=null?reps[k]:reps[reps.length-1])<ex.repHi){q.reps=(q.reps||0)+1;if(ex.unilateral){q.left=(q.left||0)+1;q.right=(q.right||0)+1}up.push(k+1)}});
       return {sets:src,goal:'+1 повтор '+(up.length===src.length?'в каждом подходе':(up.length===1?'в '+up[0]+'-м подходе':'в подходах '+up.join(', ')))+', вес тот же',text:'Много сил: добавь повтор везде, где не дошёл до верха, но без отказа — запас хотя бы 1 повтор.'+(stalled(ex,S.session?S.session.date:todayISO())?' Два занятия без прогресса — сегодня хороший день это исправить.':'')};
     }
-    var j=reps.findIndex(function(r){return !ex.repHi||r<ex.repHi});if(j<0||j>=src.length)j=0;
+    // +1 rep goes to the weakest set still below the top (47×11, 47×9 → the second set), first one on a tie
+    var j=-1;reps.forEach(function(r,k){if(k<src.length&&(!ex.repHi||r<ex.repHi)&&(j<0||r<reps[j]))j=k});if(j<0)j=0;
     var s=src[j];s.reps=(s.reps||0)+1;if(ex.unilateral){s.left=(s.left||0)+1;s.right=(s.right||0)+1}
     goal=(j+1)+'-й подход: '+(s.kg!=null?fmtN(s.kg)+' кг × ':'')+(ex.unilateral?'Л '+s.left+' / П '+s.right:s.reps)+' (+1 повтор), остальные как в прошлый раз';t='Двойная прогрессия: вес тот же, добавь повтор хотя бы в одном подходе.'+(rir===0?' В прошлый раз был предел (RIR 0) — если не идёт, повтори прошлые цифры.':'');
   }
@@ -1515,8 +1528,8 @@ function wkStats(w){
     var rows=ex[n].sort(function(a,b){return a.setNo-b.setNo}),cnt=isCounter(n),h=exHist(n);
     if(!cnt)rows.forEach(function(r){ton+=(r.kg||0)*rowReps(r)});
     var prev=prevSession(h,w.date),cur=exMetrics(rows,cnt),pm=prev?exMetrics(prev.sets,cnt):null;
-    var best=bestE1(h,w.date),trend=historyList(h,isoAdd(w.date,1),6).reverse().map(function(x){var m=exMetrics(x.sets,cnt);return m.e1||m.reps});
-    return {name:n,rows:rows,prev:prev,cur:cur,st:exStatus(cur,pm,cnt),pr:!cnt&&!!prev&&best>0&&cur.e1>best+0.01,trend:trend,counter:cnt};
+    var best=bestE1(h,w.date),th=historyList(h,isoAdd(w.date,1),6).reverse(),trend=th.map(function(x){var m=exMetrics(x.sets,cnt);return m.e1||m.reps});
+    return {name:n,rows:rows,prev:prev,cur:cur,st:exStatus(cur,pm,cnt),pr:!cnt&&!!prev&&best>0&&cur.e1>best+0.01,trend:trend,trendFrom:th.length?th[0].date:null,counter:cnt};
   });
   var c={up:0,same:0,down:0,'new':0};list.forEach(function(x){c[x.st.k]++});
   return (w._st={list:list,ton:ton,sets:w.rows.length,count:c,prs:list.filter(function(x){return x.pr}).length});
@@ -1538,11 +1551,13 @@ function setBarsHtml(x){
     return '<div class="sb1"><div class="col" style="height:'+h+'px"><div class="bar" style="background:'+BARG[x.st.k]+';top:0"></div>'+(ph!=null?'<div class="tick" style="bottom:'+(ph-1)+'px"></div>':'')+'</div><div class="lb'+(rir===0?' f':'')+'">'+(r.kg!=null?fmtN(r.kg)+'×'+reps:reps+' повт.')+'</div></div>';
   }).join('')+'</div>';
 }
+/* the line spans up to six times: the chip compares with the previous time, this label with the first point («с 30.10»),
+   so a drop since last time and a gain over the weeks can both be true without reading as a contradiction */
 function trendHtml(x){
   var v=x.trend;if(v.length<2)return '';
-  var a=v[0],b=v[v.length-1],t;
-  if(x.counter||!x.cur.e1){var d=b-a;t=d?(d>0?'+':'−')+Math.abs(d)+' повт.':'ровно'}
-  else{var pc=a?Math.round((b-a)/a*100):0;t=pc?(pc>0?'+':'−')+Math.abs(pc)+'% сила':'сила ровно'}
+  var a=v[0],b=v[v.length-1],t,since=x.trendFrom?' с '+fmtShort(x.trendFrom):'';
+  if(x.counter||!x.cur.e1){var d=b-a;t=(d?(d>0?'+':'−')+Math.abs(d)+' повт.':'ровно')+since}
+  else{var pc=a?Math.round((b-a)/a*100):0;t=pc?'сила '+(pc>0?'+':'−')+Math.abs(pc)+'%'+since:'сила ровно'+since}
   return '<div class="trend">'+trendSvg(v)+'<span style="color:'+(b>a?'var(--volt)':(b<a?'var(--org)':'var(--mu)'))+'">'+t+'</span></div>';
 }
 function renderHist(){
