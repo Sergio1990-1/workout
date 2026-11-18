@@ -438,6 +438,12 @@ svg{display:block}
 .chips5 button{height:46px;border-radius:13px;background:var(--s1);font-weight:700;font-size:17px}
 .chips5 button.on{background:var(--tx);color:var(--ink)}
 .ex-tools{display:flex;gap:8px;margin-top:12px}
+.ex-was{font-size:14px;color:var(--volt);font-weight:600;margin:-2px 0 8px}
+.swap-l{display:flex;flex-direction:column;gap:8px;margin:14px 0}
+.swap-l .choice{width:100%}
+.swap-own{display:flex;gap:8px;margin-top:6px}
+.swap-own input{flex:1;min-width:0;height:50px;border-radius:14px;background:var(--s2);border:0;color:var(--tx);font:inherit;font-size:16px;padding:0 14px}
+.swap-own button{height:50px;padding:0 16px}
 .tool{flex:1;height:46px;border-radius:13px;background:var(--s1);font-size:15px;font-weight:600;color:var(--tx2);display:flex;align-items:center;justify-content:center;gap:7px}
 .tool svg{width:18px;height:18px}
 .note-in{width:100%;margin-top:10px;background:var(--s1);border:2px solid transparent;border-radius:14px;padding:12px 14px;font-size:16px;outline:none;resize:none;line-height:1.4}
@@ -752,7 +758,7 @@ var LIB=[
   {re:/laydown|рычажн/i, img:'Leverage_Chest_Press', cues:['Лопатки сведены и прижаты к спинке','Вниз подконтрольно 2–3 с, без отбива']},
   {re:/нейтральн/i, img:'V-Bar_Pulldown', cues:['Тяни рукоять к верху груди','Локти вниз и чуть назад, без рывков']},
   {re:/вертикальн.*обратн|обратн.*хват/i, img:'Underhand_Cable_Pulldowns', hist:/вертикальн.*обратн/i, cues:['Тяни локтями вниз к нижним рёбрам','Грудь вперёд, корпус не раскачивай']},
-  {re:/гакк|hack/i, img:'Hack_Squat', hist:/гакк|hack|жим ногами \(/i, cues:['Спина и таз прижаты к опоре','Колени по линии носков, глубина без отрыва таза']},
+  {re:/гакк|hack/i, img:'Hack_Squat', hist:/гакк|hack/i, cues:['Спина и таз прижаты к опоре','Колени по линии носков, глубина без отрыва таза']},
   {re:/жим ногами|leg press/i, img:'Leg_Press', hist:/жим ногами сидя|seated leg press/i, cues:['Поясница плотно прижата к спинке','Колени по линии носков, вверху не замыкай']},
   {re:/жим гантел.*наклонн/i, img:'Incline_Dumbbell_Press', hist:/жим гантелей на наклонной/i, cues:['Угол скамьи 30–45°, лопатки сведены','Гантели к верху груди, локти под ~45°']},
   {re:/махи/i, img:'Side_Lateral_Raise', cues:['Поднимай до уровня плеч, не выше','Ведёт локоть, плечи не тянутся к ушам']},
@@ -905,6 +911,7 @@ var I={
   play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
   note:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>',
+  swap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg>',
   info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>',
   link:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/></svg>',
   flag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>',
@@ -949,6 +956,10 @@ var saveSoonT;function saveSessionSoon(){clearTimeout(saveSoonT);saveSoonT=setTi
 
 /* ================= data model ================= */
 function libFor(name){for(var i=0;i<LIB.length;i++)if(LIB[i].re.test(name))return LIB[i];return {img:null,cues:[]}}
+/* rows that count as this exercise's history; a matcher that would not even match the exercise itself
+   («Жим ногами (тип тренажёра не уточнён)» against the seated leg press) falls back to the exact name */
+function histRe(name){var lib=libFor(name),re=lib.hist||lib.re;return re&&re.test(name)?re:exactRe(name)}
+function exactRe(name){return new RegExp('^'+String(name).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'$')}
 function catFor(name){var c=(S.boot.catalog||[]);for(var i=0;i<c.length;i++){if(c[i].name===name)return c[i]}var lib=libFor(name);for(var j=0;j<c.length;j++){if(lib.re&&lib.re.test(c[j].name))return c[j]}return null}
 
 var dayCache={};
@@ -960,7 +971,7 @@ function buildDay(day,items,key){
     var lib=libFor(it.name),cat=catFor(it.name),rr=parseRange(it.reps);
     var wm=(cat&&cat.weightMeaning)||'';
     return {id:day+it.order,day:day,name:it.name,sets:it.sets,reps:it.reps,repLo:rr[0],repHi:rr[1],rest:String(it.rest||''),restSec:parseRest(it.rest),
-      group:it.group,superset:it.superset||'',note:it.note,img:lib.img,cues:lib.cues||[],tech:lib.img?TECH[lib.img]:null,hist:lib.hist||lib.re,
+      group:it.group,superset:it.superset||'',note:it.note,img:lib.img,cues:lib.cues||[],tech:lib.img?TECH[lib.img]:null,hist:histRe(it.name),was:it.was||'',
       unilateral:/одной рукой/i.test(it.name),cat:cat,
       dumbbell:/ОДНОЙ гантели/i.test(wm)||/вес одной гантели/i.test(it.note||''),
       addedWeight:/ДОПОЛНИТЕЛЬНОГО/i.test(wm)||/добавочн/i.test(it.note||''),
@@ -1014,6 +1025,21 @@ function coachTarget(ex,prev,mode){
   var src=[];
   for(var i=0;i<ex.sets;i++){var p=prev.sets[i]||prev.sets[prev.sets.length-1],lr=ex.unilateral?parseLR(p.note):null;
     src.push({kg:p.kg,reps:p.reps,left:lr?num(lr[0]):p.reps,right:lr?num(lr[1]):p.reps})}
+  // a set below the range (110×4 in a 6–10 range) is not repeated: its weight drops to the heaviest weight that
+  // made the range last time, or one step lower; with neither known the person picks it
+  var lo=ex.repLo,low=[],noKg=[];
+  if(lo&&!ex.unilateral&&!ex.counter){
+    var okKg=prev.sets.filter(function(s){return s.kg>0&&(s.reps||0)>=lo}).map(function(s){return s.kg}),
+        safe=okKg.length?Math.max.apply(null,okKg):null,stp=stepOf(ex);
+    src.forEach(function(q,k){
+      if(!(q.kg>0)||q.reps==null||q.reps>=lo)return;
+      var nk=safe!=null&&safe<q.kg?safe:(stp?Math.round((q.kg-stp)*100)/100:null);
+      if(nk>0){q.kg=nk;q.reps=lo;q.left=lo;q.right=lo;low.push(k+1)}else noKg.push(k+1);
+    });
+  }
+  if(low.length||noKg.length){var all=low.concat(noKg).sort();
+    return {sets:src,goal:goalStr(src),text:'В прошлый раз в '+(all.length===1?all[0]+'-м подходе':'подходах '+all.join(', '))+' вышло меньше '+lo+' повторов — это ниже диапазона '+ex.reps+'. '+
+      (low.length?'Сбавь вес и работай от '+lo+' повторов.':'Сбавь вес на шаг тренажёра и работай от '+lo+' повторов.')+(mode==='light'?' Лёгкий день: запас 2–3 повтора.':'')}}
   var w=topKg(prev.sets),same=prev.sets.every(function(x){return x.kg===prev.sets[0].kg}),kgTxt=w!=null&&same?fmtN(w)+' кг':'веса как в прошлый раз';
   if(mode==='light')return {sets:src,goal:kgTxt+', повторы как в прошлый раз',text:'Лёгкий день: без попытки прогресса, запас 2–3 повтора.'};
   var reps=prev.sets.map(function(s){return ex.unilateral?Math.min.apply(null,[s.reps||0].concat((parseLR(s.note)||[]).map(Number))):(s.reps||0)});
@@ -1140,7 +1166,7 @@ function aiTarget(ex,prev,mode){
   ws.forEach(function(v){ok[v]=1});if(W!=null&&st)for(var k=-2;k<=2;k++)ok[Math.round((W+k*st)*100)/100]=1;
   for(var i=0;i<ex.sets;i++){
     var q=m.sets[Math.min(i,m.sets.length-1)],kg=q.kg==null?null:Math.round(Number(q.kg)*100)/100,r=Math.round(Number(q.reps));
-    if(!(r>=1&&r<=hi))return {rej:1};
+    if(!(r>=1&&r<=hi)||(ex.repLo&&r<ex.repLo-1))return {rej:1};
     if(kg!=null&&!ok[kg])return {rej:1};
     if(W!=null&&(kg==null||kg<W*0.6||(kg>W*1.1+0.01&&!(st&&kg<=W+st+0.01))))return {rej:1};
     out.push({kg:kg,reps:r,left:r,right:r});
@@ -1289,9 +1315,11 @@ function tkToggle(i){
   Object.keys(all).forEach(function(k){if(k<isoAdd(d,-3))delete all[k]});lsSet(LS_TK,all);
   if(m[k]&&NB)nbPost({type:'haptic',kind:'rest'});tkRefresh();
 }
-/* yesterday's results for the coach: he sees what worked */
-function tkDone(){var y=isoAdd(todayISO(),-1),T=tasksFor(y);if(!T)return null;
-  return T.map(function(x,i){var s=tkState(x,y,i).st;return {text:x.text,ok:s==='ok'?true:s==='fail'?false:null}})}
+/* the last three days' results for the coach, newest first: he sees what worked, what was easy and what kept failing */
+function tkDone(){var out=[];
+  [1,2,3].forEach(function(k){var d=isoAdd(todayISO(),-k),T=tasksFor(d);if(!T)return;
+    T.forEach(function(x,i){var s=tkState(x,d,i);out.push({date:d,text:x.text,ok:s.st==='ok'?true:s.st==='fail'?false:null,note:s.note||''})})});
+  return out.length?out:null}
 function tkIcon(s){
   if(s.st==='ok')return '<span class="tk-ic ok">'+I.check+'</span>';
   if(s.st==='fail')return '<span class="tk-ic fail">'+I.x+'</span>';
@@ -1439,7 +1467,7 @@ function baseName(w){return String(w||'').replace(/ · .*/,'')}
 function dayLetter(w){var m=/Full Body ([ABC])/.exec(w||'');return m?m[1]:''}
 function rowReps(r){var lr=parseLR(r.note);return lr?(num(lr[0])||0)+(num(lr[1])||0):(r.reps||0)}
 function isCounter(name){var c=catFor(name);return !!(c&&/ПРОТИВОВЕС/i.test(c.weightMeaning||''))}
-function exHist(name){var lib=libFor(name),re=lib.hist||lib.re;return {hist:re||{test:function(n){return n===name}}}}
+function exHist(name){return {hist:histRe(name)}}
 /* one entry per date + workout, newest first, with the «Сессии» row (minutes, pulse) when there is one */
 function workoutsList(){
   if(S._wl)return S._wl;
@@ -1449,16 +1477,30 @@ function workoutsList(){
     .sort(function(a,b){return a.date<b.date?1:(a.date>b.date?-1:0)}));
 }
 function exMetrics(rows,cnt){
-  var top=null,reps=0,e1=0,topReps=0,topSets=0;
-  rows.forEach(function(r){reps+=rowReps(r);if(r.kg!=null&&(top==null||(cnt?r.kg<top:r.kg>top)))top=r.kg;if(!cnt)e1=Math.max(e1,e1rm(r.kg,r.reps))});
+  var top=null,reps=0,e1=0,topReps=0,topSets=0,vol=0;
+  rows.forEach(function(r){reps+=rowReps(r);if(r.kg!=null&&(top==null||(cnt?r.kg<top:r.kg>top)))top=r.kg;if(!cnt){e1=Math.max(e1,e1rm(r.kg,r.reps));vol+=(r.kg>0?r.kg:0)*rowReps(r)}});
   rows.forEach(function(r){if(r.kg===top){topReps+=rowReps(r);topSets++}});
-  return {top:top,reps:reps,e1:e1,topReps:topReps,topSets:topSets};
+  return {top:top,reps:reps,e1:e1,topReps:topReps,topSets:topSets,vol:vol};
 }
-/* against the previous time: heavier top weight wins; at the same weight, more sets, then more reps at it (counterweight: lighter is harder) */
+/* Against the previous time. With weights: strength is the best set's estimated max (Epley), work is kg × reps.
+   Within ±2.5% strength is the same (day-to-day noise), and then the work decides: 90×10/9/8 after
+   90×11, 100×6, 110×4 is more work at the same strength — progress, not a 20 kg drop.
+   A drop only when strength fell more than 5% without extra work, or the work fell 10% without extra strength.
+   Without weights or with a counterweight (lighter is harder): weight, then sets, then reps, as before. */
+var ST_SAME=0.025,ST_DROP=0.05,VOL_UP=0.05,VOL_DROP=0.10;
+function pctTxt(x){return (x>0?'+':'−')+Math.round(Math.abs(x)*100)+'%'}
 function exStatus(c,p,cnt){
   if(!p)return {k:'new',t:'впервые'};
+  if(!cnt&&c.e1>0&&p.e1>0&&c.vol>0&&p.vol>0){
+    var de=c.e1/p.e1-1,dv=c.vol/p.vol-1,dvTxt='объём '+pctTxt(dv);
+    if(de>=ST_SAME)return {k:'up',t:'сила '+pctTxt(de)+(dv>=VOL_UP?', '+dvTxt:'')};
+    if(dv>=VOL_UP&&de>-ST_DROP)return {k:'up',t:dvTxt+(de>-ST_SAME?', сила на уровне':', сила '+pctTxt(de))};
+    if(de<=-ST_DROP&&dv<VOL_DROP)return {k:'down',t:'сила '+pctTxt(de)+(dv<=-VOL_UP?', '+dvTxt:'')};
+    if(dv<=-VOL_DROP)return {k:'down',t:dvTxt+(de>-ST_SAME?', сила на уровне':', сила '+pctTxt(de))};
+    return {k:'same',t:de<=-ST_DROP?'легче, но '+dvTxt:'на уровне прошлого раза'};
+  }
   if(c.top!=null&&p.top!=null&&c.top!==p.top){var d=c.top-p.top;return {k:(cnt?d<0:d>0)?'up':'down',t:(d>0?'+':'−')+fmtN(Math.abs(d))+' кг'+(cnt?' противовеса':'')}}
-  var at=c.top!=null?' с '+fmtN(c.top)+' кг':'',ds=c.top!=null?c.topSets-p.topSets:0;
+  var at=c.top>0?' с '+fmtN(c.top)+' кг':'',ds=c.top!=null?c.topSets-p.topSets:0;
   if(ds)return {k:ds>0?'up':'down',t:(ds>0?'+':'−')+plural(Math.abs(ds),'подход','подхода','подходов')+at};
   var dr=(c.top!=null?c.topReps:c.reps)-(p.top!=null?p.topReps:p.reps);
   if(dr>0)return {k:'up',t:'+'+plural(dr,'повтор','повтора','повторов')+at};
@@ -1744,6 +1786,7 @@ function payloadFor(ex,n){
   if(ex.counter)notes.push('в гравитроне — противовес');
   if(ex.unilateral)notes.push('левая '+(s.left||'—')+', правая '+(s.right||'—'));
   if(n>ex.sets)notes.push('дополнительный подход');
+  if(ex.was)notes.push('вместо «'+ex.was+'»');
   if(S.session.notes[ex.id])notes.push(S.session.notes[ex.id]);
   return {date:S.session.date,workout:S.session.workout,exercise:ex.name,setNo:n,kg:num(s.kg),reps:repsOf(ex,s),
     rir:(n===last&&S.session.rir[ex.id]!=null)?S.session.rir[ex.id]:null,note:notes.join('; '),feeling:''};
@@ -2456,7 +2499,7 @@ function exPage(ex,i,total){
   var m=mates(ex),mi=m?m.findIndex(function(x){return x.id===ex.id}):-1;
   var h='<button class="media" data-act="detail" data-ex="'+ex.id+'" aria-label="Как выполнять">'+(ex.img?'<img src="'+imgUrl(ex.img,0)+'" alt=""><img class="b" src="'+imgUrl(ex.img,1)+'" alt="">':'')+'<span class="cnt">'+(i+1)+' из '+total+'</span><span class="how">'+I.info+'Техника</span></button>';
   if(m)h+='<div class="ss-bar">'+I.link+'Суперсет · '+(mi+1)+' из '+m.length+' — '+(mi<m.length-1?'после подхода сразу '+esc(short(m[mi+1].name).toLowerCase()):'после пары отдых '+esc(ex.rest.replace(/ после пары/,'')))+'</div>';
-  h+='<h2 class="ex-name">'+esc(short(ex.name))+'</h2>';
+  h+='<h2 class="ex-name">'+esc(short(ex.name))+'</h2>'+(ex.was?'<div class="ex-was">вместо «'+esc(short(ex.was))+'» · своя история</div>':'');
   h+='<div class="ex-meta"><span><b>'+ex.sets+' × '+esc(ex.reps)+'</b> повторов</span><span>отдых '+esc(ex.rest.replace(/ после пары/,''))+'</span>'+(ex.dumbbell?'<span class="tg">вес одной гантели</span>':'')+(ex.addedWeight?'<span class="tg">добавочный вес</span>':'')+(ex.counter?'<span class="tg">противовес</span>':'')+(ex.unilateral?'<span class="tg">левая и правая отдельно</span>':'')+'</div>';
   h+=modeBar();
   h+='<div class="last"><div class="k">'+(prev?'Прошлый раз, '+fmtShort(prev.date):'Прошлый раз')+'</div><div class="v">'+(prev?esc(setsStr(prev.sets)):'Нет записей')+'</div>'+(tg&&tg.goal&&s.coach?'<div class="tgt">Сегодня'+(tg.ai?' · тренер':'')+': '+esc(tg.goal)+'</div>':'')+(tg?'<div class="s">'+esc(tg.text)+'</div>':'')+'</div>';
@@ -2474,8 +2517,8 @@ function exPage(ex,i,total){
   h+='</div>';
   var rv=S.session.rir[ex.id];
   h+='<div class="rir"><div class="k">Сколько повторов ещё мог бы сделать в последнем подходе? <b>RIR</b></div><div class="chips5">'+[0,1,2,3,4].map(function(v){return '<button data-act="rir" data-v="'+v+'" class="'+(rv===v?'on':'')+'">'+(v===4?'4+':v)+'</button>'}).join('')+'</div></div>';
-  h+='<div class="ex-tools"><button class="tool" data-act="addset">'+I.plus+'Подход</button><button class="tool" data-act="note">'+I.note+(S.session.notes[ex.id]?'Заметка ✓':'Заметка или замена')+'</button></div>';
-  if(S.session.noteOpen===ex.id||S.session.notes[ex.id])h+='<textarea class="note-in" rows="2" data-f="exnote" placeholder="Например: заменил на кроссовер, болело плечо">'+esc(S.session.notes[ex.id]||'')+'</textarea>';
+  h+='<div class="ex-tools"><button class="tool" data-act="addset">'+I.plus+'Подход</button><button class="tool" data-act="swap">'+I.swap+(ex.was?'Заменено':'Замена')+'</button><button class="tool" data-act="note">'+I.note+(S.session.notes[ex.id]?'Заметка ✓':'Заметка')+'</button></div>';
+  if(S.session.noteOpen===ex.id||S.session.notes[ex.id])h+='<textarea class="note-in" rows="2" data-f="exnote" placeholder="Например: болело плечо, сиденье на 4">'+esc(S.session.notes[ex.id]||'')+'</textarea>';
   return h;
 }
 
@@ -2529,6 +2572,9 @@ document.addEventListener('click',function(e){
     case 'check':toggleSet(exId,+row.dataset.n);break;
     case 'rir':{var ex2=exById(exId),v=+a.dataset.v;S.session.rir[exId]=S.session.rir[exId]===v?null:v;saveSession();var ln=doneSets(ex2).slice(-1)[0];if(ln)enqueue('saveSet',payloadFor(ex2,ln));$$('.chips5 button',a.parentNode).forEach(function(b){b.classList.toggle('on',S.session.rir[exId]===+b.dataset.v)});break}
     case 'addset':addSet(exId);break;
+    case 'swap':openSwap(exId);break;
+    case 'swap-pick':swapEx(S.swapFor,a.dataset.name);closeSheet();break;
+    case 'swap-own':{var si=$('#swap-in'),sv=si?si.value.trim().replace(/\s+/g,' ').slice(0,80):'';if(sv){swapEx(S.swapFor,sv);closeSheet()}else if(si)si.focus();break}
     case 'note':S.session.noteOpen=exId;saveSession();rerenderEx(exId);var ta=$('#pg-'+exId+' .note-in');if(ta)ta.focus();break;
     case 'feel':S.session.feeling=a.dataset.v;saveSession();pickOn(a);break;
     case 'energy':S.session.energy=S.session.energy===a.dataset.v?'':a.dataset.v;saveSession();pickOn(a,!S.session.energy);break;
@@ -2589,7 +2635,9 @@ document.addEventListener('focusin',function(e){
   if(el.classList&&(el.classList.contains('num')||el.id==='f-min')){setTimeout(function(){try{el.setSelectionRange(0,el.value.length)}catch(x){}},30)}
 });
 document.addEventListener('keydown',function(e){
-  if(e.key!=='Enter')return;var el=e.target;if(!el.classList||!el.classList.contains('num'))return;
+  if(e.key!=='Enter')return;var el=e.target;
+  if(el.id==='swap-in'){e.preventDefault();var sb=$('[data-act="swap-own"]');if(sb)sb.click();return}
+  if(!el.classList||!el.classList.contains('num'))return;
   e.preventDefault();var row=el.closest('.set-row'),ins=$$('.num',row),i=ins.indexOf(el);
   if(i<ins.length-1)ins[i+1].focus();else{el.blur();toggleSet(row.dataset.ex,+row.dataset.n)}
 });
@@ -2638,11 +2686,15 @@ function openCheckin(){
 /* note text the user typed, without the parts payloadFor() generates */
 function userNote(note){
   var parts=String(note||'').split('; ');if(parts[0]===MARK)parts.shift();
-  return parts.filter(function(x){return x&&!/^(вес одной гантели|добавочный вес|в гравитроне — противовес|дополнительный подход|левая .*, правая .*)$/.test(x)}).join('; ');
+  return parts.filter(function(x){return x&&!/^(вес одной гантели|добавочный вес|в гравитроне — противовес|дополнительный подход|левая .*, правая .*|вместо «.*»)$/.test(x)}).join('; ');
 }
+function wasOf(note){var m=/(?:^|; )вместо «([^»]+)»/.exec(String(note||''));return m?m[1]:''}
 function restoreDraft(){
   var d=sheetDraft();if(!d)return render();
   newSession(d.day,todayISO(),{workout:d.workout});
+  // rows of a swapped exercise carry «вместо «planned»»: put the swap back into the plan first
+  d.rows.forEach(function(r){var w=wasOf(r.note),it=w&&S.session.plan.filter(function(x){return x.name===w})[0];if(it){it.was=w;it.name=r.exercise}});
+  delete dayCache['s:'+S.session.id];
   var exs=exList();
   d.rows.forEach(function(r){
     var ex=exs.filter(function(x){return x.name===r.exercise})[0];if(!ex)return;
@@ -2751,6 +2803,41 @@ document.addEventListener('visibilitychange',function(){
   if(S.view==='workout')keepAwake();if(S.session&&S.session.rest)runRest();flushNow();
 });
 window.addEventListener('pagehide',function(){if(S.session)saveSession();flushNow()});
+
+/* ================= swapping a machine =================
+   The set rows go to the sheet under the machine actually used, with «вместо «planned»» in the note, so each machine
+   keeps its own history, records and targets; weights from one machine are never compared with another's.
+   Sets already ticked move to the new name; open sets drop the old machine's numbers. */
+function swapOptions(ex){
+  var orig=ex.was||ex.name,g=String(ex.group||'').split(/[ ,(]/)[0].toLowerCase(),seen={},out=[];
+  var add=function(n){n=String(n||'').trim();if(!n||seen[n.toLowerCase()])return;seen[n.toLowerCase()]=1;out.push(n)};
+  seen[ex.name.toLowerCase()]=1;
+  if(ex.was)add(ex.was);
+  orig.split(/ или /i).forEach(function(x,i,a){if(a.length>1)add(capz(x.replace(/\s*\(.*?(при необходимости).*?\)/i,'')))});
+  (S.boot.catalog||[]).forEach(function(c){if(g&&String(c.group||'').toLowerCase().indexOf(g)===0&&!/ или /i.test(c.name))add(c.name)});
+  // machines swapped in before for this slot
+  (S.boot.log||[]).forEach(function(r){if(wasOf(r.note)===orig)add(r.exercise)});
+  // «Жим ногами» from «… или жим ногами» is dropped when a precise «Жим ногами сидя (…)» is listed
+  return out.filter(function(n){var l=n.toLowerCase();return !out.some(function(m){return m!==n&&m.toLowerCase().indexOf(l+' ')===0})});
+}
+function openSwap(exId){
+  var ex=exById(exId);if(!ex)return;S.swapFor=exId;
+  var opts=swapOptions(ex);
+  openSheet('<h3>Чем заменить?</h3><p class="sub">'+(ex.was?'Сейчас «'+esc(short(ex.name))+'» вместо «'+esc(short(ex.was))+'».':'По плану «'+esc(short(ex.name))+'».')+' У каждого тренажёра своя история и свои цели.</p>'+
+    '<div class="swap-l">'+opts.map(function(n){var back=n===ex.was;return '<button class="choice" data-act="swap-pick" data-name="'+esc(n)+'">'+esc(n)+(back?'<small>вернуть по плану</small>':'')+'</button>'}).join('')+'</div>'+
+    '<div class="sub">Другой тренажёр</div><div class="swap-own"><input id="swap-in" maxlength="80" placeholder="Например: кроссовер" enterkeyhint="done"><button class="btn2 volt" data-act="swap-own">Готово</button></div>');
+}
+function swapEx(exId,name){
+  var s=S.session,ex=exId&&exById(exId);if(!s||!ex||!name||name===ex.name)return;
+  var it=s.plan.filter(function(x){return s.day+x.order===exId})[0];if(!it)return;
+  var orig=ex.was||ex.name,done=doneSets(ex);
+  done.forEach(function(n){var p={date:s.date,workout:s.workout,exercise:ex.name,setNo:n};enqueue('deleteSet',p);unmergeLog(p)});
+  for(var n=1;n<=setCount(ex);n++)if(done.indexOf(n)<0)delete s.sets[exId+'#'+n];
+  it.name=name;if(name===orig)delete it.was;else it.was=orig;
+  delete dayCache['s:'+s.id];saveSession();
+  var nx=exById(exId);done.forEach(function(n){var p=payloadFor(nx,n);enqueue('saveSet',p);mergeLog(p)});
+  rerenderEx(exId);toast(name===orig?'Вернул «'+short(name)+'»':'Записываю как «'+short(name)+'»','volt');
+}
 
 /* ================= sheets ================= */
 function openSheet(html){
