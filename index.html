@@ -2107,7 +2107,7 @@ function recoveryCardHtml(rec,full){
 }
 /* Early sign of illness: resting pulse above and HRV below the personal norm on the same day, two days running,
    or one day by a wide margin. Norm = the days before the last three (14+ needed). A hint, not a diagnosis:
-   alcohol, a hard day or a short night move both numbers the same way. */
+   alcohol, a sauna, a hard day or a short night move both numbers the same way. */
 var ILL_WHY='пульс покоя выше и HRV ниже нормы — похоже на начало болезни';
 function illness(){
   var today=todayISO(),H=healthRows().filter(function(x){return x.date<=today&&(x.rhr!=null||x.hrv!=null)});
@@ -2119,11 +2119,14 @@ function illness(){
   var b=H.length>1&&H[H.length-2].date===isoAdd(a.date,-1)?H[H.length-2]:null,sa=sig(a),sb=sig(b);
   if(!(sa===2||(sa>=1&&sb>=1)))return null;
   var ev=null;((S.boot&&S.boot.habits)||[]).forEach(function(x){if(x.date===isoAdd(a.date,-1))ev=x});
-  return {date:a.date,days:sb>=1?2:1,rhr:a.rhr-bR.m,hrv:bH.m-a.hrv,alcohol:!!(ev&&ev.tags.indexOf('alcohol')>=0)};
+  var tag=function(k){return !!(ev&&ev.tags.indexOf(k)>=0)};
+  return {date:a.date,days:sb>=1?2:1,rhr:a.rhr-bR.m,hrv:bH.m-a.hrv,alcohol:tag('alcohol'),sauna:tag('sauna')};
 }
 function illnessHtml(x){
   var s=function(v){return Math.round(v)};
-  var why=x.alcohol?'Вчера вечером был алкоголь — скорее всего, дело в нём. Всё равно сегодня лучше отдых или лёгкий день и побольше воды.'
+  var why=x.alcohol&&x.sauna?'Вчера были баня и алкоголь — скорее всего, дело в них: оба поднимают пульс и сушат организм. Сегодня лучше отдых или лёгкий день и побольше воды.'
+    :x.alcohol?'Вчера вечером был алкоголь — скорее всего, дело в нём. Всё равно сегодня лучше отдых или лёгкий день и побольше воды.'
+    :x.sauna?'Вчера была баня — жара и потеря воды на день-два поднимают пульс и снижают HRV, скорее всего, дело в ней. Пей побольше воды; если завтра не вернётся к норме — лучше лёгкий день.'
     :'Так бывает в начале простуды, после сильного стресса, недосыпа или алкоголя. Сегодня лучше отдых или лёгкий день, больше воды и сна. Если появятся насморк, горло или температура — без тренировки.';
   return '<button class="tap-card" data-act="tab" data-tab="sleep"><div class="glass ill"><div class="row-b"><span class="eyebrow">Восстановление</span><span class="status warnc" style="font-size:13px"><i></i>'+(x.days>1?'2 дня подряд':'сегодня')+'</span></div>'+
     '<div class="ill-t">Похоже, организм <span>с чем-то борется</span></div>'+
@@ -2397,7 +2400,7 @@ function mealAiHtml(){
 }
 /* Evening marks (19:00–04:00; after midnight they belong to the evening before). One tap a day; in a few weeks
    they let the coach compare sleep and resting pulse on evenings with and without each habit. */
-var HABITS=[['alcohol','Алкоголь'],['late','Поздний ужин'],['coffee','Кофе после 16:00'],['stress','Стресс']];
+var HABITS=[['alcohol','Алкоголь'],['late','Поздний ужин'],['coffee','Кофе после 16:00'],['stress','Стресс'],['sauna','Баня']];
 function habitDate(){var h=new Date().getHours();return h>=19?todayISO():h<4?isoAdd(todayISO(),-1):null}
 function habitsCardHtml(){
   var d=habitDate();if(!d||!S.boot)return '';
