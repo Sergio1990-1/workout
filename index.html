@@ -646,6 +646,57 @@ body.resting .w-bottom .wnav{visibility:hidden}
 .hab-c.on{background:rgba(255,122,51,.16);color:var(--org);border-color:rgba(255,122,51,.4)}
 .hab-act{display:flex;align-items:center;gap:12px;margin-top:14px}
 .hab-act .nb-n{margin-top:0;flex:1}
+/* alcohol: what and how much in the evening card, the morning line, «Алкоголь и следующий день» on «Сон» */
+.alc-pick{margin-top:12px;padding:12px;border-radius:18px;background:rgba(255,122,51,.06);border:1px solid rgba(255,122,51,.18)}
+.alc-l{font-size:13px;color:var(--mu);margin:0 2px 10px}
+.alc-l span{color:var(--mu2)}
+.alc-pick .hab-chips{margin-top:0;gap:6px}
+.alc-pick .hab-c{height:34px;font-size:13px;padding:0 12px}
+.alc-lv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.alc-am{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 4px 9px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid transparent;color:var(--tx2);font-size:13px;font-weight:600}
+.alc-am svg{width:28px;height:36px;display:block}
+.alc-am small{font-size:11px;font-weight:500;color:var(--mu2);line-height:1.3;text-align:center}
+.alc-am.on{background:rgba(255,122,51,.18);border-color:rgba(255,122,51,.55);color:var(--tx)}
+.alc-why{margin-top:14px;display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:16px;background:rgba(255,122,51,.08);font-size:14px;line-height:1.4;color:var(--tx2)}
+.alc-why b{color:var(--tx);font-weight:600}
+.alc-why .alc-ic{width:22px;height:28px;flex:none;color:var(--tx2)}
+.alc-why .alc-ic svg{width:22px;height:28px;display:block}
+.alc-why.calm{background:var(--volt-dim);align-items:center}
+.alc-why .alc-n{font-size:20px;font-weight:800;color:var(--volt);min-width:22px;text-align:center}
+.alc-card{margin-top:12px}
+.alc-big{font-size:21px;font-weight:800;letter-spacing:-.02em;line-height:1.15;margin-top:8px;text-wrap:balance}
+.alc-big em{font-style:normal;color:#FF7A33}
+.alc-sub{font-size:14px;color:var(--mu);margin-top:6px}
+.alc-seg{display:flex;gap:4px;margin-top:16px;padding:4px;border-radius:13px;background:rgba(255,255,255,.04);overflow-x:auto;scrollbar-width:none}
+.alc-seg::-webkit-scrollbar{display:none}
+.alc-seg button{flex:1 0 auto;height:32px;padding:0 10px;border-radius:9px;font-size:13px;font-weight:600;color:var(--mu);white-space:nowrap}
+.alc-seg button.on{background:rgba(255,255,255,.1);color:var(--tx)}
+.alc-chart{position:relative;margin-top:10px}
+.alc-chart svg{display:block;width:100%;height:auto;overflow:visible}
+.alc-tip{position:absolute;pointer-events:none;transform:translate(-50%,calc(-100% - 12px));background:#26262A;color:var(--tx);font-size:12px;line-height:1.35;padding:7px 10px;border-radius:10px;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.45);border:1px solid var(--line)}
+.alc-ang-t{font-size:13px;color:var(--mu);margin:14px 2px 6px}
+.alc-ang{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.alc-ang>div{display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 2px 8px;border-radius:12px;background:rgba(255,255,255,.035)}
+.alc-ang .pips{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;max-width:64px}
+.alc-ang .pips i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.12)}
+.alc-ang .pips i.y{background:var(--bad)}
+.alc-ang b{font-size:13px;font-weight:700;color:var(--tx2);font-variant-numeric:tabular-nums}
+.alc-ang span{font-size:10px;color:var(--mu2)}
+.alc-streak{display:flex;align-items:baseline;gap:10px;margin-top:18px}
+.alc-streak b{font-size:36px;font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--volt);font-variant-numeric:tabular-nums}
+.alc-streak span{font-size:14px;color:var(--tx2);line-height:1.3}
+.alc-streak small{display:block;color:var(--mu2);font-size:13px}
+.alc-strip{display:grid;grid-template-columns:repeat(30,1fr);gap:2px;margin-top:16px;align-items:end}
+.alc-ev{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;padding:2px 0;border-radius:4px;min-height:52px}
+.alc-ev .bar{width:100%;max-width:9px;border-radius:3px 3px 1px 1px;background:var(--c)}
+.alc-ev .m{width:9px;height:9px;border-radius:50%;background:var(--m);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+.alc-ev.sel{background:rgba(255,255,255,.08)}
+.alc-ax{display:flex;justify-content:space-between;font-size:11px;color:var(--mu2);margin-top:6px}
+.alc-leg{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:12px;font-size:12px;color:var(--mu)}
+.alc-leg span{display:inline-flex;align-items:center;gap:6px}
+.alc-leg .sw{width:9px;height:12px;border-radius:2px;background:var(--c)}
+.alc-leg .ramp{width:42px;height:9px;border-radius:5px;background:linear-gradient(90deg,#3A3A40,var(--volt))}
+.alc-det{margin-top:12px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.04);font-size:13px;line-height:1.4;color:var(--tx2)}
 .hab-done{display:flex;align-items:center;gap:12px;font-size:15px;color:var(--tx2);padding:14px 18px}
 .hab-ok{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--volt-dim);color:var(--volt)}
 .hab-ok svg{width:16px;height:16px}
@@ -2127,8 +2178,9 @@ function homeFood(){
 }
 function homeSleep(){
   var rec=recovery(),h=tabTitle('Сон и восстановление');
-  if(!rec)return h+emptyNote('Сон, HRV и пульс покоя появятся после первой ночной выгрузки из Здоровья.');
-  return h+recoveryCardHtml(rec,true)+sleepDebtHtml(rec)+sleepNightsHtml(rec);
+  var alc='<div id="alc-card">'+alcCardHtml()+'</div>';
+  if(!rec)return h+emptyNote('Сон, HRV и пульс покоя появятся после первой ночной выгрузки из Здоровья.')+alc;
+  return h+recoveryCardHtml(rec,true)+sleepDebtHtml(rec)+sleepNightsHtml(rec)+alc;
 }
 function homeCoach(){
   var h=tabTitle('Тренер'),rv=aiOn()?aiReviewCardHtml():'',wk=weekCardHtml();
@@ -2445,26 +2497,47 @@ function mealAiHtml(){
 /* Evening marks (19:00–04:00; after midnight they belong to the evening before). One tap a day; in a few weeks
    they let the coach compare sleep and resting pulse on evenings with and without each habit. */
 var HABITS=[['alcohol','Алкоголь'],['late','Поздний ужин'],['coffee','Кофе после 16:00'],['stress','Стресс'],['sauna','Баня']];
+/* Alcohol: how much in all (немного / средне / много) and what. A row of ALC_EX is roughly the same alcohol for each drink,
+   so evenings compare by amount whatever was in the glass. */
+var ALC_LV=[['low','Немного'],['mid','Средне'],['high','Много']];
+var ALC_DR=[['wine','Вино'],['beer','Пиво'],['strong','Крепкое'],['cocktail','Коктейли']];
+var ALC_EX={wine:['бокал вина','2–3 бокала','бутылка вина'],beer:['пиво 0,5','2–3 пива','4 пива и больше'],strong:['1–2 рюмки','3–5 рюмок','6 рюмок и больше'],cocktail:['1 коктейль','2–3 коктейля','4 и больше']};
+var ALC_WORD=['без алкоголя','немного','средне','много'],ALC_GRP=['Ничего','Немного','Средне','Много'];
+var ALC_COL=['rgba(255,255,255,.22)','rgba(255,122,51,.42)','rgba(255,122,51,.72)','#FF7A33'];
+var agN=0;
+function alcGlass(lv){var h=[0,9,17,26][lv]||0,id='ag'+(++agN),p='M6 4h18l-2.4 28a2 2 0 0 1-2 1.8h-9.2a2 2 0 0 1-2-1.8z';
+  return '<svg viewBox="0 0 30 38" aria-hidden="true"><defs><clipPath id="'+id+'"><path d="'+p+'"/></clipPath></defs><rect x="0" y="'+(34-h)+'" width="30" height="'+h+'" fill="#FF7A33" clip-path="url(#'+id+')"/><path d="'+p+'" fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="1.6" stroke-linejoin="round"/></svg>'}
+function alcIdx(k){for(var i=0;i<ALC_LV.length;i++)if(ALC_LV[i][0]===k)return i+1;return 0}
+function alcDrinks(list){return ALC_DR.filter(function(x){return (list||[]).indexOf(x[0])>=0}).map(function(x){return x[1].toLowerCase()}).join(', ')}
 function habitDate(){var h=new Date().getHours();return h>=19?todayISO():h<4?isoAdd(todayISO(),-1):null}
 function habitsCardHtml(){
   var d=habitDate();if(!d||!S.boot)return '';
   if(S.habJust===d)return '<div class="glass hab hab-done"><span class="hab-ok">'+I.check+'</span><span>Вечер отмечен — спасибо</span></div>';
   if((S.boot.habits||[]).some(function(x){return x.date===d}))return '';
-  var sel=S.habSel||[],n=(S.boot.habits||[]).length;
+  var sel=S.habSel||[],n=(S.boot.habits||[]).length,drank=sel.indexOf('alcohol')>=0,lv=alcIdx(S.habAlc),dr=S.habDr||[];
+  var pick='';
+  if(drank){var shown=dr.length?ALC_DR.filter(function(x){return dr.indexOf(x[0])>=0}).map(function(x){return x[0]}):['wine','beer','strong'];
+    pick='<div class="alc-pick"><div class="alc-l">Что пил? <span>можно несколько</span></div><div class="hab-chips">'+ALC_DR.map(function(x){return '<button class="hab-c'+(dr.indexOf(x[0])>=0?' on':'')+'" data-act="alc-dr" data-k="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>'+
+      '<div class="alc-l" style="margin-top:14px">Сколько всего?</div><div class="alc-lv">'+ALC_LV.map(function(x,i){return '<button class="alc-am'+(lv===i+1?' on':'')+'" data-act="alc-lv" data-k="'+x[0]+'">'+alcGlass(i+1)+x[1]+'<small>'+shown.map(function(k){return ALC_EX[k][i]}).join('<br>')+'</small></button>'}).join('')+'</div></div>'}
   return '<div class="glass hab"><div class="row-b"><span class="eyebrow">Как прошёл вечер?</span><span class="nb-cap">'+(n?plural(n,'вечер','вечера','вечеров')+' отмечено':'отметь, что было')+'</span></div>'+
-    '<div class="hab-chips">'+HABITS.map(function(x){return '<button class="hab-c'+(sel.indexOf(x[0])>=0?' on':'')+'" data-act="hab-t" data-k="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>'+
-    '<div class="hab-act">'+(sel.length?'<button class="btn2 volt" data-act="hab-save">Записать</button>':'<button class="btn2 ghost" data-act="hab-none">Ничего из этого</button>')+
-    '<span class="nb-n">Через пару недель покажу, как это влияет на сон и пульс.</span></div></div>';
+    '<div class="hab-chips">'+HABITS.map(function(x){return '<button class="hab-c'+(sel.indexOf(x[0])>=0?' on':'')+'" data-act="hab-t" data-k="'+x[0]+'">'+x[1]+(x[0]==='alcohol'&&drank&&lv?' · '+ALC_WORD[lv]:'')+'</button>'}).join('')+'</div>'+pick+
+    '<div class="hab-act">'+(sel.length?'<button class="btn2 volt" data-act="hab-save"'+(drank&&!lv?' disabled':'')+'>Записать</button>':'<button class="btn2 ghost" data-act="hab-none">Ничего из этого</button>')+
+    '<span class="nb-n">'+(drank&&!lv?'Выбери, сколько всего — одно нажатие.':'Через пару недель покажу во вкладке «Сон», как это влияет на сон, пульс и утро.')+'</span></div></div>';
 }
 function habRefresh(){var c=$('#hab-card');if(c)c.innerHTML=habitsCardHtml();tkRefresh()}
-function habToggle(k){var s=S.habSel=(S.habSel||[]).slice(),i=s.indexOf(k);if(i>=0)s.splice(i,1);else s.push(k);habRefresh()}
+function habToggle(k){var s=S.habSel=(S.habSel||[]).slice(),i=s.indexOf(k);if(i>=0)s.splice(i,1);else s.push(k);if(k==='alcohol'&&i>=0){S.habAlc=null;S.habDr=[]}habRefresh()}
+function alcPickLv(k){S.habAlc=S.habAlc===k?null:k;habRefresh()}
+function alcPickDr(k){var s=S.habDr=(S.habDr||[]).slice(),i=s.indexOf(k);if(i>=0)s.splice(i,1);else s.push(k);habRefresh()}
 function habSave(tags){
   var d=habitDate();if(!d)return;
   $$('#hab-card button').forEach(function(b){b.disabled=true});
+  var drank=tags.indexOf('alcohol')>=0,p={date:d,tags:tags,alc:drank?S.habAlc||'':'',drinks:drank?(S.habDr||[]).slice():[]};
   google.script.run.withSuccessHandler(function(){
-    var H=S.boot.habits=(S.boot.habits||[]).filter(function(x){return x.date!==d});H.push({date:d,tags:tags.slice()});lsSet(LS.boot,S.boot);
-    S.habJust=d;S.habSel=[];habRefresh();
-  }).withFailureHandler(function(e){toast('Не записалось: '+((e&&e.message)||'нет связи'),'bad');habRefresh()}).saveHabits({date:d,tags:tags});
+    var H=S.boot.habits=(S.boot.habits||[]).filter(function(x){return x.date!==d}),it={date:d,tags:tags.slice()};
+    if(drank){it.alc=p.alc;it.drinks=p.drinks}
+    H.push(it);lsSet(LS.boot,S.boot);
+    S.habJust=d;S.habSel=[];S.habAlc=null;S.habDr=[];habRefresh();
+  }).withFailureHandler(function(e){toast('Не записалось: '+((e&&e.message)||'нет связи'),'bad');habRefresh()}).saveHabits(p);
 }
 /* Morning check-in (04:00–19:00, until marked): strength up the pad, mood across it, one drag on a 5×5 grid. «Что именно?»
    appears when the mood is 1–2; the body is optional. The coach reads it with sleep and HRV; the app reminds at 10:00 and
@@ -2491,8 +2564,7 @@ function wbFace(x,y,angry){
 function wbVars(st){var c=wbColor(st.x,st.y);return '--x:'+st.x.toFixed(3)+';--y:'+st.y.toFixed(3)+';--c:'+wbRgb(c)+';--glow:'+wbRgb(c,st.touched?.32:.16)}
 function wbCardHtml(){
   var d=wbDate();if(!d||!S.boot)return '';
-  if(S.wbJust===d)return wbDoneHtml();
-  if(wbToday())return '';
+  if(S.wbJust===d||wbToday())return wbDoneHtml(); // stays until 19:00: the week strip and the line about last evening
   var st=wbState(),s=wbScore(st.x,st.y),t=wbTexts(st),n=(S.boot.wellbeing||[]).length,dots='';
   for(var i=0;i<25;i++)dots+='<i></i>';
   return '<div class="glass wb"><div class="row-b"><span class="eyebrow">Как ты сегодня?</span><span class="nb-cap">'+(n?plural(n,'день','дня','дней')+' отмечено':'силы и настроение')+'</span></div>'+
@@ -2563,8 +2635,101 @@ function wbDoneHtml(){
     days+='<div class="wb-day'+(i===0?' now':'')+'"><i'+(c?' style="--c:'+wbRgb(c)+'"':'')+'>'+(x?x.energy:'')+'</i>'+['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][dObj(d).getDay()]+'</div>'}
   var txt=w?WB_EN[w.energy-1].toLowerCase()+', настроение '+WB_MO[w.mood-1]+(w.mood<=2&&w.why?', '+wbWhy(w.why):''):'';
   return '<div class="glass wb"><div class="wb-done-t"><span class="hab-ok">'+I.check+'</span><span>Утро отмечено: '+esc(txt)+'</span></div>'+
-    '<div class="wb-week">'+days+'</div><div class="nb-n" style="text-align:center;margin-top:8px">Цвет — настроение, цифра — силы. Тренер учтёт отметку в совете на сегодня.</div></div>';
+    '<div class="wb-week">'+days+'</div><div class="nb-n" style="text-align:center;margin-top:8px">Цвет — настроение, цифра — силы. Тренер учтёт отметку в совете на сегодня.</div>'+alcMorningHtml()+'</div>';
 }
+/* ---- alcohol and the morning after: evening D is compared with the morning of D+1 (check-in, sleep, HRV, pulse) ---- */
+function alcData(){
+  var B=S.boot||{},wb={},hr={};(B.wellbeing||[]).forEach(function(x){wb[x.date]=x});healthRows().forEach(function(x){hr[x.date]=x});
+  return (B.habits||[]).map(function(h){var m=isoAdd(h.date,1),on=h.tags.indexOf('alcohol')>=0,w=wb[m]||null,r=hr[m]||null;
+    return {ev:h.date,on:on,g:on?(alcIdx(h.alc)||-1):0,drinks:h.drinks||[],energy:w?w.energy:null,mood:w?w.mood:null,angry:!!(w&&w.mood<=2&&w.why==='angry'),
+      hrv:r&&r.hrv!=null?r.hrv:null,rhr:r&&r.rhr!=null?r.rhr:null,sleep:r&&r.sleep!=null?r.sleep:null}}).sort(function(a,b){return a.ev<b.ev?-1:1});
+}
+function alcMean(l,k){var v=l.map(function(x){return x[k]}).filter(function(x){return x!=null});return v.length?v.reduce(function(a,b){return a+b},0)/v.length:null}
+/* evenings in a row, back from `from`, marked and without alcohol (an unmarked evening ends the run: we don't know) */
+function alcStreak(D,from){var by={};D.forEach(function(x){by[x.ev]=x});var n=0,d=from;while(by[d]&&!by[d].on){n++;d=isoAdd(d,-1)}return n}
+function alcWhat(e){return (e.g>0?ALC_WORD[e.g]:'алкоголь')+(e.drinks.length?' ('+alcDrinks(e.drinks)+')':'')}
+/* one line under the morning mark: how mornings after an evening like yesterday's usually go, or the sober run */
+function alcMorningHtml(){
+  var y=isoAdd(todayISO(),-1),D=alcData(),e=D.filter(function(x){return x.ev===y})[0];if(!e)return '';
+  if(e.on){
+    var g=D.filter(function(x){return x.ev<y&&(e.g>0?x.g===e.g:x.on)&&x.energy!=null}),ang=g.filter(function(x){return x.angry}).length;
+    var t='Вчера — <b>'+esc(alcWhat(e))+'</b>. '+(g.length>=3?'Твои утра после '+(e.g>0?'«'+ALC_WORD[e.g]+'»':'алкоголя')+': силы в среднем <b>'+fmtN(Math.round(alcMean(g,'energy')*10)/10)+'</b>'+(ang?', «Злой» в <b>'+ang+' из '+g.length+'</b>':'')+'.'
+      :'Сравню с прошлыми такими утрами, когда их наберётся 3'+(g.length?' (сейчас '+g.length+')':'')+'.');
+    return '<div class="alc-why"><span class="alc-ic">'+alcGlass(e.g>0?e.g:2)+'</span><span>'+t+'</span></div>';
+  }
+  var st=alcStreak(D,y);if(st<2)return '';
+  var sob=D.filter(function(x){return x.g===0&&x.energy!=null&&x.ev<y}),m=sob.length>=3?alcMean(sob,'energy'):null;
+  return '<div class="alc-why calm"><b class="alc-n">'+st+'</b><span><b>'+st+'-й вечер без алкоголя подряд.</b>'+(m!=null?' Утра после трезвых вечеров: силы в среднем <b>'+fmtN(Math.round(m*10)/10)+'</b>.':'')+'</span></div>';
+}
+var ALC_M=[{k:'energy',t:'Силы',u:'',d:1,b:1,fix:1},{k:'mood',t:'Настроение',u:'',d:1,b:1,fix:1},{k:'hrv',t:'Вариабельность',u:' мс',d:0,b:1},{k:'rhr',t:'Пульс покоя',u:' уд/мин',d:0,b:-1},{k:'sleep',t:'Сон',u:' ч',d:1,b:1}];
+function alcRange(vals,m){
+  if(m.fix)return {lo:1,hi:5,ticks:[1,2,3,4,5]};
+  if(!vals.length)return null;
+  var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals),span=Math.max(mx-mn,m.k==='sleep'?2:8);
+  var st=[0.5,1,2,5,10,20].filter(function(x){return span/x<=4})[0]||20,lo=Math.floor((mn-span*.1)/st)*st,hi=Math.ceil((mx+span*.1)/st)*st,t=[];
+  for(var v=lo;v<=hi+1e-9;v+=st)t.push(Math.round(v*10)/10);
+  return {lo:lo,hi:hi,ticks:t};
+}
+function alcLead(D){
+  var s=D.filter(function(x){return x.g===0&&x.energy!=null}),on=D.filter(function(x){return x.on&&x.energy!=null}),hv=null;
+  for(var g=3;g>=1&&!hv;g--){var l=D.filter(function(x){return x.g===g&&x.energy!=null});if(l.length>=3)hv={g:g,l:l}}
+  if(s.length<3||!hv)return '<div class="alc-big">Пока собираю утра</div><div class="alc-sub">Сравнение появится, когда наберётся хотя бы 3 утра после трезвого вечера и 3 после одного и того же количества алкоголя. Сейчас: '+s.length+' после трезвых, '+on.length+' после алкоголя.</div>';
+  var de=alcMean(s,'energy')-alcMean(hv.l,'energy'),w='«'+ALC_WORD[hv.g]+'»',ang=hv.l.filter(function(x){return x.angry}).length;
+  var big=de>=0.3?'После '+w+' силы наутро ниже на <em>'+fmtN(Math.round(de*10)/10)+'</em> из 5':de<=-0.3?'После '+w+' силы наутро даже выше — на '+fmtN(Math.round(-de*10)/10):'После '+w+' силы наутро почти как после трезвого вечера';
+  return '<div class="alc-big">'+big+'</div><div class="alc-sub">чем после трезвого вечера · «Злой» в '+ang+' из '+hv.l.length+' таких утр</div>';
+}
+function alcChartHtml(D,m){
+  var W=360,H=226,L=40,R=352,T=14,B=168,cw=(R-L)/4,all=[];
+  var G=[0,1,2,3].map(function(g){var l=D.filter(function(x){return x.g===g&&x[m.k]!=null});l.forEach(function(x){all.push(x[m.k])});return l});
+  var rg=alcRange(all,m);if(!rg)return '<div class="note-s">Для «'+m.t+'» данных утром пока нет.</div>';
+  var y=function(v){return B-(v-rg.lo)/(rg.hi-rg.lo)*(B-T)},f=function(v){return fmtN(m.d?Math.round(v*10)/10:Math.round(v))};
+  var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+m.t+' наутро по количеству алкоголя накануне">';
+  rg.ticks.forEach(function(t){s+='<line x1="'+L+'" x2="'+R+'" y1="'+y(t)+'" y2="'+y(t)+'" stroke="rgba(255,255,255,.06)"/><text x="'+(L-8)+'" y="'+(y(t)+4)+'" text-anchor="end" font-size="11" fill="#71717A">'+fmtN(t)+'</text>'});
+  var base=G[0].length>=3?alcMean(G[0],m.k):null;
+  G.forEach(function(l,g){
+    var cx=L+cw*g+cw/2,cnt={},seen={},key=function(v){return m.k==='sleep'?Math.round(v*4):m.d?v:Math.round(v/2)},per=Math.floor(cw*.84/8.5)+1;
+    l.forEach(function(x){var k=key(x[m.k]);cnt[k]=(cnt[k]||0)+1});
+    l.forEach(function(x){var k=key(x[m.k]),n=seen[k]=(seen[k]||0)+1,row=Math.floor((n-1)/per),inRow=Math.min(per,cnt[k]-row*per),c=(n-1)%per;
+      var px=cx+(c-(inRow-1)/2)*8.5,py=y(x[m.k])+[0,-7,7,-14,14][Math.min(row,4)];
+      s+='<circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="4.2" fill="'+ALC_COL[g]+'" stroke="#141416" stroke-width="2"/><circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="11" fill="transparent" data-act="alc-dot" data-d="'+x.ev+'"/>'});
+    var ok=l.length>=3,mu=ok?alcMean(l,m.k):null,worse=ok&&g&&base!=null&&(mu-base)*m.b<0&&Math.abs(mu-base)>=(m.fix?.4:m.k==='sleep'?.3:3);
+    if(ok)s+='<line x1="'+(cx-cw*.36)+'" x2="'+(cx+cw*.36)+'" y1="'+y(mu)+'" y2="'+y(mu)+'" stroke="#F4F4F5" stroke-width="2" stroke-linecap="round"/>';
+    s+='<text x="'+cx+'" y="'+(B+20)+'" text-anchor="middle" font-size="12" font-weight="600" fill="#D4D4D8">'+ALC_GRP[g]+'</text>'+
+      '<text x="'+cx+'" y="'+(B+36)+'" text-anchor="middle" font-size="12" font-weight="700" fill="'+(worse?'#FF7A33':'#A1A1AA')+'">'+(ok?f(mu):l.length?'мало':'—')+'</text>'+
+      '<text x="'+cx+'" y="'+(B+52)+'" text-anchor="middle" font-size="10" fill="#71717A">'+plural(l.length,'утро','утра','утр')+'</text>';
+  });
+  return s+'</svg><div class="alc-tip" id="alc-tip" hidden></div>';
+}
+function alcTip(el){
+  var t=$('#alc-tip'),box=$('#alc-chart');if(!t||!box)return;
+  var e=alcData().filter(function(x){return x.ev===el.dataset.d})[0],m=ALC_M[S.alcM||0];if(!e)return;
+  var b=box.getBoundingClientRect(),r=el.getBoundingClientRect(),v=e[m.k];
+  t.innerHTML='<b>'+esc(fmtDay(e.ev))+'</b> · '+esc(e.on?alcWhat(e):'без алкоголя')+'<br>наутро: '+m.t.toLowerCase()+' '+fmtN(m.d?Math.round(v*10)/10:Math.round(v))+m.u+(e.angry?' · злой':'');
+  t.hidden=false;t.style.left=Math.max(90,Math.min(b.width-90,r.left+r.width/2-b.left))+'px';t.style.top=(r.top+r.height/2-b.top)+'px';
+}
+function alcEnergyCol(e){if(e==null)return 'transparent';var t=(e-1)/4,a=[58,58,64],c=[212,255,58];return 'rgb('+a.map(function(v,i){return Math.round(v+(c[i]-v)*t)}).join(',')+')'}
+function alcCardHtml(){
+  var D=alcData();if(!D.length)return '';
+  var m=ALC_M[S.alcM||0],by={};D.forEach(function(x){by[x.ev]=x});
+  var y=isoAdd(todayISO(),-1),st=alcStreak(D,y),strip='',ang='';
+  var G=[0,1,2,3].map(function(g){return D.filter(function(x){return x.g===g&&x.mood!=null})});
+  if(G.some(function(l){return l.length}))ang='<div class="alc-ang-t">Утром «Злой»</div><div class="alc-ang">'+G.map(function(l,g){var n=l.filter(function(x){return x.angry}).length;
+    return '<div><div class="pips">'+l.slice(-14).map(function(x){return '<i class="'+(x.angry?'y':'')+'"></i>'}).join('')+'</div><b>'+(l.length?n+' из '+l.length:'—')+'</b><span>'+ALC_GRP[g]+'</span></div>'}).join('')+'</div>';
+  for(var i=29;i>=0;i--){var d=isoAdd(y,-i),e=by[d],sel=S.alcEv===d;
+    var bar=!e?'':e.on?'<span class="bar" style="--c:'+ALC_COL[e.g>0?e.g:2]+';height:'+(e.g>0?[0,10,20,32][e.g]:14)+'px"></span>':'<span class="bar" style="--c:'+ALC_COL[0]+';height:2px"></span>';
+    strip+='<button class="alc-ev'+(sel?' sel':'')+'" data-act="alc-ev" data-d="'+d+'" aria-label="'+esc(fmtDay(d))+'">'+bar+'<span class="m" style="--m:'+alcEnergyCol(e?e.energy:null)+'"></span></button>'}
+  var det='Нажми на вечер, чтобы увидеть подробности. Пустой — вечер не отмечен.',se=S.alcEv&&by[S.alcEv];
+  if(S.alcEv)det=se?'<b style="color:var(--tx)">'+esc(fmtDay(se.ev))+'</b> — '+esc(se.on?alcWhat(se):'без алкоголя')+'. Наутро: '+[se.energy!=null?'силы '+se.energy:'',se.mood!=null?'настроение '+se.mood:'',se.angry?'злой':'',se.sleep!=null?'сон '+fmtN(Math.round(se.sleep*10)/10)+' ч':'',se.hrv!=null?'HRV '+Math.round(se.hrv):''].filter(String).join(', ')+'.':'<b style="color:var(--tx)">'+esc(fmtDay(S.alcEv))+'</b> — вечер не отмечен.';
+  var mon=todayISO().slice(0,7),mo=D.filter(function(x){return x.ev.slice(0,7)===mon}),mOn=mo.filter(function(x){return x.on}).length,mHi=mo.filter(function(x){return x.g===3}).length;
+  return '<div class="glass alc-card"><div class="eyebrow">Алкоголь и следующий день</div>'+alcLead(D)+
+    '<div class="alc-seg" role="tablist">'+ALC_M.map(function(x,i){return '<button role="tab" aria-selected="'+(x===m)+'" class="'+(x===m?'on':'')+'" data-act="alc-m" data-i="'+i+'">'+x.t+'</button>'}).join('')+'</div>'+
+    '<div class="alc-chart" id="alc-chart">'+alcChartHtml(D,m)+'</div>'+ang+
+    '<div class="alc-streak"><b>'+st+'</b><span>'+(st===1?'вечер':st>=2&&st<=4?'вечера':'вечеров')+' без алкоголя подряд<small>в этом месяце: '+mOn+' с алкоголем'+(mHi?', из них '+mHi+' — «много»':'')+'</small></span></div>'+
+    '<div class="alc-strip">'+strip+'</div><div class="alc-ax"><span>'+esc(fmtDay(isoAdd(y,-29)))+'</span><span>вчера</span></div>'+
+    '<div class="alc-leg"><span><i class="sw" style="--c:'+ALC_COL[1]+'"></i>немного</span><span><i class="sw" style="--c:'+ALC_COL[2]+'"></i>средне</span><span><i class="sw" style="--c:'+ALC_COL[3]+'"></i>много</span><span><i class="ramp"></i>силы наутро</span></div>'+
+    '<div class="alc-det">'+det+'</div></div>';
+}
+function alcRefresh(){var c=$('#alc-card');if(c)c.innerHTML=alcCardHtml()}
 /* New or changed Health weighings go to «Тело» once per page; weights typed into the sheet are never replaced. */
 var hwSent='';
 function weightsSync(){
@@ -2770,6 +2935,11 @@ document.addEventListener('click',function(e){
     case 'hab-t':habToggle(a.dataset.k);break;
     case 'hab-save':habSave(S.habSel||[]);break;
     case 'hab-none':habSave([]);break;
+    case 'alc-lv':alcPickLv(a.dataset.k);break;
+    case 'alc-dr':alcPickDr(a.dataset.k);break;
+    case 'alc-m':S.alcM=+a.dataset.i;alcRefresh();break;
+    case 'alc-ev':S.alcEv=S.alcEv===a.dataset.d?null:a.dataset.d;alcRefresh();break;
+    case 'alc-dot':alcTip(a);break;
   }
 });
 function pickOn(btn,off){$$('.choice',btn.parentNode).forEach(function(x){x.classList.toggle('on',!off&&x===btn)})}
