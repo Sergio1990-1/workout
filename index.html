@@ -3148,23 +3148,36 @@ window.addEventListener('pagehide',function(){if(S.session)saveSession();flushNo
    The set rows go to the sheet under the machine actually used, with «вместо «planned»» in the note, so each machine
    keeps its own history, records and targets; weights from one machine are never compared with another's.
    Sets already ticked move to the new name; open sets drop the old machine's numbers. */
+/* Offered in this order: back to the plan; each part of an «… или …» name; the other exercises of the planned one's
+   «Движение» in «Замены» (same movement, other equipment); machines swapped in before for this slot. Without a movement
+   in «Замены», exercises of the catalog with the same main muscle group (whole name, not its first word: «Задняя
+   поверхность бедра» is not «Задняя дельта»). Never an exercise already in today's workout. */
+function swapKey(n){return String(n||'').replace(/\s+/g,' ').trim().toLowerCase()}
+function swapNames(n){var a=[n,short(n)];String(n||'').split(/ или /i).forEach(function(x){x=capz(x.trim());a.push(x,short(x))});return a.map(swapKey)}
+function swapGroup(g){return swapKey(String(g||'').split(',')[0].replace(/\(.*?\)/g,''))}
 function swapOptions(ex){
-  var orig=ex.was||ex.name,g=String(ex.group||'').split(/[ ,(]/)[0].toLowerCase(),seen={},out=[];
-  var add=function(n){n=String(n||'').trim();if(!n||seen[n.toLowerCase()])return;seen[n.toLowerCase()]=1;out.push(n)};
-  seen[ex.name.toLowerCase()]=1;
+  var orig=ex.was||ex.name,seen={},out=[],sw=S.boot.swaps||[];
+  var add=function(n){n=String(n||'').replace(/\s+/g,' ').trim();if(!n||seen[swapKey(n)])return;seen[swapKey(n)]=1;out.push(n)};
+  seen[swapKey(ex.name)]=1;
   if(ex.was)add(ex.was);
   orig.split(/ или /i).forEach(function(x,i,a){if(a.length>1)add(capz(x.replace(/\s*\(.*?(при необходимости).*?\)/i,'')))});
-  (S.boot.catalog||[]).forEach(function(c){if(g&&String(c.group||'').toLowerCase().indexOf(g)===0&&!/ или /i.test(c.name))add(c.name)});
+  var mine=swapNames(orig),moves={};
+  sw.forEach(function(r){if(mine.indexOf(swapKey(r.name))>=0||mine.indexOf(swapKey(short(r.name)))>=0)moves[r.move]=1});
+  sw.forEach(function(r){if(moves[r.move]&&!/ или /i.test(r.name))add(r.name)});
+  if(!Object.keys(moves).length){var g=swapGroup(ex.group);
+    (S.boot.catalog||[]).forEach(function(c){if(g&&swapGroup(c.group)===g&&!/ или /i.test(c.name))add(c.name)})}
   // machines swapped in before for this slot
   (S.boot.log||[]).forEach(function(r){if(wasOf(r.note)===orig)add(r.exercise)});
+  var today={};((S.session&&S.session.plan)||[]).forEach(function(x){if(x.name!==ex.name)today[swapKey(x.name)]=1});
   // «Жим ногами» from «… или жим ногами» is dropped when a precise «Жим ногами сидя (…)» is listed
-  return out.filter(function(n){var l=n.toLowerCase();return !out.some(function(m){return m!==n&&m.toLowerCase().indexOf(l+' ')===0})});
+  return out.filter(function(n){var l=n.toLowerCase();return (n===ex.was||!today[swapKey(n)])&&!out.some(function(m){return m!==n&&m.toLowerCase().indexOf(l+' ')===0})});
 }
+function swapEquip(n){var k=swapKey(n),r=(S.boot.swaps||[]).filter(function(x){return swapKey(x.name)===k})[0];return r?r.equipment:''}
 function openSwap(exId){
   var ex=exById(exId);if(!ex)return;S.swapFor=exId;
   var opts=swapOptions(ex);
   openSheet('<h3>Чем заменить?</h3><p class="sub">'+(ex.was?'Сейчас «'+esc(short(ex.name))+'» вместо «'+esc(short(ex.was))+'».':'По плану «'+esc(short(ex.name))+'».')+' У каждого тренажёра своя история и свои цели.</p>'+
-    '<div class="swap-l">'+opts.map(function(n){var back=n===ex.was;return '<button class="choice" data-act="swap-pick" data-name="'+esc(n)+'">'+esc(n)+(back?'<small>вернуть по плану</small>':'')+'</button>'}).join('')+'</div>'+
+    (opts.length?'<div class="swap-l">'+opts.map(function(n){var back=n===ex.was,eq=swapEquip(n);return '<button class="choice" data-act="swap-pick" data-name="'+esc(n)+'">'+esc(n)+(back?'<small>вернуть по плану</small>':eq?'<small>'+esc(eq)+'</small>':'')+'</button>'}).join('')+'</div>':'<p class="sub">Похожих упражнений в листе «Замены» нет — впиши тренажёр ниже или добавь строку в лист.</p>')+
     '<div class="sub">Другой тренажёр</div><div class="swap-own"><input id="swap-in" maxlength="80" placeholder="Например: кроссовер" enterkeyhint="done"><button class="btn2 volt" data-act="swap-own">Готово</button></div>');
 }
 function swapEx(exId,name){
