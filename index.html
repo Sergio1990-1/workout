@@ -1161,7 +1161,10 @@ function modePreview(){
   var rec=recovery();if(!rec)return '';
   var m=decideMode('ok',rec);
   if(m.mode==='light')return 'Похоже на лёгкий день: '+esc(m.why.join(', '))+'. Решим после вопроса о самочувствии';
-  if(rec.level==='good'&&rec.night!=null)return 'Сон и восстановление в норме — можно прогрессировать';
+  var w=wbToday();
+  if(w&&w.energy<=2)return 'Утром отметил мало сил — решим после вопроса о самочувствии';
+  if(w&&w.mood<=2)return 'Цифры в норме, но настроение утром на нуле — по плану, без рекордов';
+  if(rec.level==='good'&&rec.night!=null&&(!w||w.energy>=4))return 'Сон и восстановление в норме — можно прогрессировать';
   return '';
 }
 function nextDay(){
@@ -1416,7 +1419,11 @@ function coachVerdict(nd){
   var t=todayISO();if(!isTrainDay(t)||doneToday())return 'Full Body '+esc(nd);
   var rec=recovery(),m=rec?decideMode('ok',rec):null;
   if(m&&m.mode==='light')return 'Full Body '+esc(nd)+' — <span class="lt">похоже на лёгкий день</span>';
-  return 'Full Body '+esc(nd)+' — <span>'+(rec&&rec.level==='good'&&rec.night!=null?'можно прибавлять':'обычный день')+'</span>';
+  // the morning mark counts as much as the watch: «можно прибавлять» only when both say so
+  var w=wbToday();
+  if(w&&w.energy<=2)return 'Full Body '+esc(nd)+' — <span class="lt">похоже на лёгкий день</span>';
+  if(w&&w.mood<=2)return 'Full Body '+esc(nd)+' — <span>по плану, без рекордов</span>';
+  return 'Full Body '+esc(nd)+' — <span>'+(rec&&rec.level==='good'&&rec.night!=null&&(!w||w.energy>=4)?'можно прибавлять':'обычный день')+'</span>';
 }
 /* the latest workout review (last 2 days) as a card for the «Тренер» tab */
 function aiReviewCardHtml(){
@@ -2816,7 +2823,12 @@ function openCheckin(){
   h+='<div class="ci-plan" id="ci-plan"></div><div style="height:18px"></div><button class="cta" id="ci-go">Начать Full Body '+esc(day)+'</button>';
   openSheet(h);
   /* with the coach's plan the mode comes from it (never «strong» when you feel broken); otherwise from the rules */
-  function pick(){
+  function pick(){var m=pick0();
+    // a bad mood in the morning: train, but no strong day
+    if(wb&&wb.mood<=2&&m.mode==='push')return {mode:'normal',why:['утром настроение на нуле — по плану, без рекордов']};
+    return m;
+  }
+  function pick0(){
     if(ai&&feel&&ai.by_feel[feel]){var f=ai.by_feel[feel],m=f.mode;if(feel==='bad'&&m==='push')m='light';if(['normal','push','light'].indexOf(m)<0)m='normal';
       if(rec&&rec.ill&&m!=='light'){if(feel!=='great')return {mode:'light',why:[ILL_WHY]};if(m==='push')return {mode:'normal',why:['много сил, но пульс и HRV похожи на начало болезни — без форсирования']}}
       return {mode:m,why:f.why?[f.why]:[],ai:1}}
