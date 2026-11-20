@@ -558,6 +558,8 @@ body.resting .w-bottom .wnav{visibility:hidden}
 
 /* ===== tabs: «Сегодня», Тренировки, Питание, Сон, Тренер ===== */
 .tabbar{flex:none;display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px var(--sb);background:rgba(14,14,16,.96);border-top:1px solid var(--line);position:relative;z-index:2}
+/* inside the app the web view already stops above the home indicator: no extra gap under the tabs */
+.in-app .tabbar{padding-bottom:2px}
 .tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0 0;font-size:11px;font-weight:600;color:var(--mu2);letter-spacing:-.01em;white-space:nowrap}
 .tabbar svg{width:24px;height:24px}
 .tabbar button.on{color:var(--volt)}
@@ -3224,6 +3226,7 @@ function nbRun(a){
 var nbMem=[]; // applied in this page's life, even if storing the list failed
 var nbBoot=nbApplied(); // read from storage when the page loaded: these taps are known to be on disk
 var NB=window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.wb||null;
+if(NB)document.documentElement.classList.add('in-app');
 if(NB){
   window.wbNative={
     apply:function(actions){
