@@ -647,6 +647,39 @@ body.resting .w-bottom .wnav{visibility:hidden}
 .hab-done{display:flex;align-items:center;gap:12px;font-size:15px;color:var(--tx2);padding:14px 18px}
 .hab-ok{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--volt-dim);color:var(--volt)}
 .hab-ok svg{width:16px;height:16px}
+/* morning check-in: the orb sits on a 5×5 grid, --x mood and --y strength (0 top) in 0..1; --m keeps it inside */
+.wb{margin-top:12px}
+.wb-read{display:flex;align-items:center;gap:14px;margin-top:12px;min-height:54px}
+.wb-rt{flex:1;min-width:0}
+.wb-rt b{display:block;font-family:var(--d);font-size:22px;font-weight:700;letter-spacing:-.03em;line-height:1.05}
+.wb-rt span{display:block;font-size:14px;color:var(--mu);margin-top:4px}
+.wb-sc{display:flex;gap:6px;flex:none}
+.wb-sc div{width:46px;padding:6px 0 5px;border-radius:12px;background:rgba(255,255,255,.05);text-align:center}
+.wb-sc b{display:block;font-family:var(--d);font-size:18px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.wb-sc span{font-size:10px;color:var(--mu2)}
+.wb-pad{--m:42px;--px:calc(var(--m) + var(--x) * (100% - 2 * var(--m)));--py:calc(var(--m) + var(--y) * (100% - 2 * var(--m)));
+  position:relative;margin-top:12px;height:268px;border-radius:20px;touch-action:none;user-select:none;-webkit-user-select:none;overflow:hidden;
+  background:radial-gradient(180px 180px at var(--px) var(--py),var(--glow),transparent 70%),#111113;box-shadow:inset 0 0 0 1px var(--line)}
+.wb-grid{position:absolute;inset:22px;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);pointer-events:none}
+.wb-grid i{justify-self:center;align-self:center;width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.12)}
+.wb-ax{position:absolute;font-size:11px;color:var(--mu2);pointer-events:none}
+.wb-ax-y{left:12px;top:8px}.wb-ax-x{left:50%;bottom:6px;transform:translateX(-50%)}
+.wb-orb{position:absolute;left:var(--px);top:var(--py);width:76px;height:76px;margin:-38px 0 0 -38px;border-radius:50%;background:var(--c);pointer-events:none;
+  box-shadow:0 0 0 6px rgba(255,255,255,.06),0 10px 40px -4px var(--glow);transition:background .12s}
+.wb-orb.snap{transition:left .32s cubic-bezier(.3,1.5,.5,1),top .32s cubic-bezier(.3,1.5,.5,1),background .12s}
+.wb-orb svg{width:100%;height:100%;display:block}
+.wb-orb.idle{animation:wbBreathe 2.2s ease-in-out infinite}
+@keyframes wbBreathe{50%{box-shadow:0 0 0 14px rgba(255,255,255,.04),0 10px 40px -4px var(--glow)}}
+.wb-hint{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);font-size:12px;color:var(--mu);background:rgba(0,0,0,.45);padding:5px 10px;border-radius:999px;pointer-events:none;white-space:nowrap}
+.wb-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:12px}.wb-row[hidden]{display:none}
+.wb-l{font-size:13px;color:var(--mu);margin-right:2px}
+.wb-done-t{display:flex;align-items:center;gap:12px;font-size:15px;color:var(--tx2)}
+.wb-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px}
+.wb-day{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:var(--mu2)}
+.wb-day i{width:30px;height:30px;border-radius:50%;background:var(--c,transparent);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.wb-day.now{color:var(--tx)}.wb-day.now i{animation:wbPop .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes wbPop{0%{transform:scale(0)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.wb-orb,.wb-orb.snap,.wb-day.now i{animation:none;transition:none}}
 
 .act-row .act-ic{flex:none;width:46px;height:46px;border-radius:15px;display:grid;place-items:center;background:rgba(122,167,255,.13);color:#7AA7FF}
 .act-row .act-ic.hot{background:rgba(212,255,58,.13);color:var(--volt);box-shadow:0 0 18px rgba(212,255,58,.12)}
@@ -692,7 +725,7 @@ var BODY={"front": {"chest": ["M272.91 422.84c-18.95-17.19-22-57-12.64-78.79 5.5
    The access key comes from the link (#k=...) once and is kept in this page's own storage. */
 (function () {
   var API = 'https://script.google.com/macros/s/AKfycbzcbmUZZP3RrPeqQHUzEDnt28Gj98l1pHzzgB9dKVgNqT05DQZvrfOsPBgcLOKQ7TXt5A/exec';
-  var FNS = ['getBootstrap', 'saveSet', 'deleteSet', 'finishSession', 'applyOps', 'getCoachPlan', 'getCoachDay', 'reviewSession', 'weeklyReview', 'saveWeights', 'saveHabits', 'setKcalGoal', 'suggestMeal'];
+  var FNS = ['getBootstrap', 'saveSet', 'deleteSet', 'finishSession', 'applyOps', 'getCoachPlan', 'getCoachDay', 'reviewSession', 'weeklyReview', 'saveWeights', 'saveHabits', 'saveWellbeing', 'setKcalGoal', 'suggestMeal'];
   var SLOW = { getCoachPlan: 1, getCoachDay: 1, reviewSession: 1, weeklyReview: 1 }; // the coach thinks for up to a couple of minutes
   var key = null;
   try {
@@ -1221,6 +1254,7 @@ function hnSame(d,x){return !!d&&d.sig===hnSig(x)&&(x.sleep==null||Math.abs((d.s
 var aiAsked={};
 function aiStale(item,slot){
   if(item&&!(item.data&&Array.isArray(item.data.tasks))&&!aiAsked[slot+':tk']){aiAsked[slot+':tk']=1;return true} // written before daily tasks
+  var w=wbPayload();if(item&&w&&(item.data||{}).wb!==wbSig(w)&&aiAsked[slot+':wb']!==wbSig(w)){aiAsked[slot+':wb']=wbSig(w);return true} // written before this morning's mark
   var n=hnToday();if(!item||!n||hnSame(item.data,n))return false;var sig=hnSig(n)+'|'+n.sleep;
   if(aiAsked[slot]===sig)return false; // asked once already with these numbers
   aiAsked[slot]=sig;return true;
@@ -1230,8 +1264,8 @@ function aiEnsure(){
   var today=todayISO(),nd=nextDay(),h=new Date().getHours(),hn=hnToday();
   if(doneToday()||h<7||h>=23){aiWeekMaybe();return}
   if(restDay()){var dy=aiGet('day',today);
-    if((!dy||aiStale(dy,'day'))&&!S.aiErr.day&&!S.aiBusy.day)aiRequest('day','getCoachDay',{date:today,next:nd,nextDate:nextTrainDate(today),hn:hn,done:tkDone()},aiWeekMaybe);else aiWeekMaybe();return}
-  if((!aiPlanFor(nd,today)||aiStale(aiGet('plan',today,'Full Body '+nd),'plan'))&&!S.aiErr.plan&&!S.aiBusy.plan)aiRequest('plan','getCoachPlan',{date:today,day:nd,hn:hn,done:tkDone()},aiWeekMaybe);
+    if((!dy||aiStale(dy,'day'))&&!S.aiErr.day&&!S.aiBusy.day)aiRequest('day','getCoachDay',{date:today,next:nd,nextDate:nextTrainDate(today),hn:hn,wb:wbPayload(),done:tkDone()},aiWeekMaybe);else aiWeekMaybe();return}
+  if((!aiPlanFor(nd,today)||aiStale(aiGet('plan',today,'Full Body '+nd),'plan'))&&!S.aiErr.plan&&!S.aiBusy.plan)aiRequest('plan','getCoachPlan',{date:today,day:nd,hn:hn,wb:wbPayload(),done:tkDone()},aiWeekMaybe);
   else aiWeekMaybe();
 }
 function aiWeekMaybe(){
@@ -1355,7 +1389,7 @@ function tasksCardHtml(){
   return h+'</div>';
 }
 function tkRefresh(){if(S.view==='home'){var c=$('#tk-card');if(c)c.innerHTML=tasksCardHtml()}}
-var AI_FRESH='<div class="wait" style="margin-top:12px"><i></i>Обновляю по свежим данным из Здоровья</div>';
+var AI_FRESH='<div class="wait" style="margin-top:12px"><i></i>Обновляю по свежим данным</div>'; // new Health numbers or this morning's check-in
 function aiCardHtml(){
   if(!aiOn())return '';
   var today=todayISO(),nd=nextDay(),plan=aiGet('plan',today,'Full Body '+nd),h='';
@@ -1857,7 +1891,7 @@ function ptrHtml(){return '<div class="ptr'+(S.refreshing?' on spin':'')+'" id="
 function ptrBind(hs){
   var y0=null,pull=0,el=$('#ptr');if(!el)return;
   var reset=function(){el.style.opacity='';el.style.transform='';el.firstChild.style.transform='';el.classList.remove('ready')};
-  hs.addEventListener('touchstart',function(e){y0=hs.scrollTop<=0&&!S.refreshing?e.touches[0].clientY:null;pull=0},{passive:true});
+  hs.addEventListener('touchstart',function(e){y0=hs.scrollTop<=0&&!S.refreshing&&!(e.target.closest&&e.target.closest('#wb-pad'))?e.touches[0].clientY:null;pull=0},{passive:true});
   hs.addEventListener('touchmove',function(e){if(y0==null)return;var dy=e.touches[0].clientY-y0;
     if(dy<=0&&hs.scrollTop>=0){y0=null;reset();return}
     pull=Math.max(-hs.scrollTop,dy*.45);var p=Math.min(1,pull/PTR_AT);
@@ -1888,6 +1922,7 @@ function homeToday(){
     h+='<button class="resume alt" data-act="restore"><span class="t"><b>Продолжить Full Body '+esc(draft.day)+'</b><span>В таблице уже '+plural(draft.rows.length,'подход','подхода','подходов')+' за сегодня</span></span>'+I.play+'</button>';
   }
   if(rec&&rec.ill)h+=illnessHtml(rec.ill);
+  h+='<div id="wb-card">'+wbCardHtml()+'</div>';
   if(aiOn())h+='<div id="ai-card">'+aiCardHtml()+'</div><div id="tk-card">'+tasksCardHtml()+'</div>';
   h+='<div id="hab-card">'+habitsCardHtml()+'</div>';
   if(rec)h+='<button class="tap-card" data-act="tab" data-tab="sleep">'+recoveryCardHtml(rec,false)+'</button>';
@@ -2422,6 +2457,105 @@ function habSave(tags){
     S.habJust=d;S.habSel=[];habRefresh();
   }).withFailureHandler(function(e){toast('Не записалось: '+((e&&e.message)||'нет связи'),'bad');habRefresh()}).saveHabits({date:d,tags:tags});
 }
+/* Morning check-in (04:00–19:00, until marked): strength up the pad, mood across it, one drag on a 5×5 grid. «Что именно?»
+   appears when the mood is 1–2; the body is optional. The coach reads it with sleep and HRV; the app reminds at 10:00 and
+   drops the reminder once the day is marked. Colour follows mood only and fades to grey with low strength. */
+var WB_EN=['Без сил','Вяло','Нормально','Бодро','Полон сил'],WB_MO=['плохое','так себе','ровное','хорошее','отличное'];
+var WB_WHY=[['angry','Злой','злой'],['anxious','Тревожно','тревожно'],['sad','Грустно','грустно'],['meh','Просто никак','никак']];
+var WB_BODY=[['fresh','Свежее'],['ok','Нормально'],['ache','Ноет'],['sore','Болит']];
+var WB_RGB={bad:[255,90,95],mid:[255,179,92],good:[212,255,58],grey:[118,118,128]};
+function wbMix(a,b,t){return [0,1,2].map(function(i){return Math.round(a[i]+(b[i]-a[i])*t)})}
+function wbColor(x,y){var c=x<.5?wbMix(WB_RGB.bad,WB_RGB.mid,x*2):wbMix(WB_RGB.mid,WB_RGB.good,(x-.5)*2);return wbMix(c,WB_RGB.grey,y*.55)}
+function wbRgb(c,a){return a==null?'rgb('+c.join(',')+')':'rgba('+c.join(',')+','+a+')'}
+function wbScore(x,y){return {mood:1+Math.round(x*4),energy:1+Math.round((1-y)*4)}}
+function wbDate(){var h=new Date().getHours();return h>=4&&h<19?todayISO():null}
+function wbToday(){var t=todayISO();return ((S.boot&&S.boot.wellbeing)||[]).filter(function(x){return x.date===t})[0]||null}
+function wbSig(w){return [w.energy,w.mood,w.mood<=2?w.why||'':'',w.body||''].join('|')}
+function wbWhy(k){var w=WB_WHY.filter(function(x){return x[0]===k})[0];return w?w[2]:''}
+function wbState(){return S.wb||(S.wb={x:.5,y:.5,touched:false,why:'',body:''})}
+function wbFace(x,y,angry){
+  var k=-9+x*20,ry=(1.4+(1-y)*3.8).toFixed(2),m=function(v){return v.toFixed(1)};
+  return '<svg viewBox="0 0 76 76"><ellipse cx="28" cy="33" rx="3.6" ry="'+ry+'" fill="#0B0B0C"/><ellipse cx="48" cy="33" rx="3.6" ry="'+ry+'" fill="#0B0B0C"/>'+
+    (angry?'<path d="M24 24l7 3M52 24l-7 3" stroke="#0B0B0C" stroke-width="2.6" stroke-linecap="round"/>':'')+
+    '<path d="M25 '+m(48-k*.25)+' Q38 '+m(48+k)+' 51 '+m(48-k*.25)+'" fill="none" stroke="#0B0B0C" stroke-width="3.2" stroke-linecap="round"/></svg>';
+}
+function wbVars(st){var c=wbColor(st.x,st.y);return '--x:'+st.x.toFixed(3)+';--y:'+st.y.toFixed(3)+';--c:'+wbRgb(c)+';--glow:'+wbRgb(c,st.touched?.32:.16)}
+function wbCardHtml(){
+  var d=wbDate();if(!d||!S.boot)return '';
+  if(S.wbJust===d)return wbDoneHtml();
+  if(wbToday())return '';
+  var st=wbState(),s=wbScore(st.x,st.y),t=wbTexts(st),n=(S.boot.wellbeing||[]).length,dots='';
+  for(var i=0;i<25;i++)dots+='<i></i>';
+  return '<div class="glass wb"><div class="row-b"><span class="eyebrow">Как ты сегодня?</span><span class="nb-cap">'+(n?plural(n,'день','дня','дней')+' отмечено':'силы и настроение')+'</span></div>'+
+    '<div class="wb-read"><div class="wb-rt"><b id="wb-big">'+t.big+'</b><span id="wb-sub">'+t.sub+'</span></div><div class="wb-sc"><div><b id="wb-e">'+t.e+'</b><span>силы</span></div><div><b id="wb-m">'+t.m+'</b><span>настр.</span></div></div></div>'+
+    '<div class="wb-pad" id="wb-pad" style="'+wbVars(st)+'"><div class="wb-grid">'+dots+'</div><span class="wb-ax wb-ax-y">↑ силы</span><span class="wb-ax wb-ax-x">настроение →</span>'+
+    '<div class="wb-orb snap'+(st.touched?'':' idle')+'" id="wb-orb">'+wbFace(st.x,st.y,st.why==='angry'&&s.mood<=2)+'</div>'+(st.touched?'':'<div class="wb-hint" id="wb-hint">Потяни шарик туда, где ты сейчас</div>')+'</div>'+
+    '<div class="wb-row" id="wb-why"'+(st.touched&&s.mood<=2?'':' hidden')+'><span class="wb-l">Что именно?</span>'+WB_WHY.map(function(w){return '<button class="hab-c'+(st.why===w[0]?' on':'')+'" data-act="wb-why" data-k="'+w[0]+'">'+w[1]+'</button>'}).join('')+'</div>'+
+    '<div class="wb-row"><span class="wb-l">Тело:</span>'+WB_BODY.map(function(b){return '<button class="hab-c'+(st.body===b[0]?' on':'')+'" data-act="wb-body" data-k="'+b[0]+'">'+b[1]+'</button>'}).join('')+'</div>'+
+    '<div class="hab-act"><button class="btn2 volt" id="wb-save" data-act="wb-save"'+(st.touched?'':' disabled')+'>Записать</button><span class="nb-n" id="wb-cap">'+t.cap+'</span></div></div>';
+}
+function wbTexts(st){
+  var s=wbScore(st.x,st.y),wl=st.touched&&s.mood<=2&&st.why?wbWhy(st.why):'';
+  return st.touched?{big:WB_EN[s.energy-1],sub:'настроение '+WB_MO[s.mood-1]+(wl?', '+wl:''),e:s.energy,m:s.mood,cap:'Тело — по желанию'}
+    :{big:'Отметь утро',sub:'силы и настроение — одним жестом',e:'–',m:'–',cap:'Сначала потяни шарик'};
+}
+function wbPlace(snap){
+  var pad=$('#wb-pad'),orb=$('#wb-orb');if(!pad||!orb)return;
+  var st=wbState(),s=wbScore(st.x,st.y),low=st.touched&&s.mood<=2;
+  orb.classList.toggle('snap',!!snap);pad.setAttribute('style',wbVars(st));
+  orb.innerHTML=wbFace(st.x,st.y,low&&st.why==='angry');
+  var why=$('#wb-why');if(why)why.hidden=!low;
+  var t=wbTexts(st);
+  $('#wb-big').textContent=t.big;$('#wb-sub').textContent=t.sub;$('#wb-e').textContent=t.e;$('#wb-m').textContent=t.m;$('#wb-cap').textContent=t.cap;
+}
+var wbDrag=null,wbCell='';
+function wbMove(e){
+  var r=wbDrag.getBoundingClientRect(),m=42,st=wbState();
+  st.x=Math.min(1,Math.max(0,(e.clientX-r.left-m)/(r.width-2*m)));st.y=Math.min(1,Math.max(0,(e.clientY-r.top-m)/(r.height-2*m)));
+  var s=wbScore(st.x,st.y),cell=s.energy+'|'+s.mood;
+  if(cell!==wbCell){if(wbCell)nbPost({type:'haptic',kind:'tick'});wbCell=cell} // a light detent on every grid step
+  wbPlace(false);
+}
+document.addEventListener('pointerdown',function(e){
+  var pad=e.target.closest&&e.target.closest('#wb-pad');if(!pad)return;
+  e.preventDefault();wbDrag=pad;wbCell='';try{pad.setPointerCapture(e.pointerId)}catch(_){}
+  var st=wbState();
+  if(!st.touched){st.touched=true;var o=$('#wb-orb'),h=$('#wb-hint'),b=$('#wb-save');if(o)o.classList.remove('idle');if(h)h.remove();if(b)b.disabled=false}
+  wbMove(e);
+});
+document.addEventListener('pointermove',function(e){if(wbDrag)wbMove(e)});
+function wbUp(){
+  if(!wbDrag)return;wbDrag=null;
+  var st=wbState(),s=wbScore(st.x,st.y);st.x=(s.mood-1)/4;st.y=1-(s.energy-1)/4; // settle on the grid the scores come from
+  wbPlace(true);
+}
+document.addEventListener('pointerup',wbUp);document.addEventListener('pointercancel',wbUp);
+function wbPick(kind,k){
+  var st=wbState();st[kind]=st[kind]===k?'':k;
+  $$('[data-act="wb-'+kind+'"]').forEach(function(b){b.classList.toggle('on',b.dataset.k===st[kind])});
+  wbPlace(false);
+}
+function wbPayload(){var w=wbToday();return w?{date:w.date,energy:w.energy,mood:w.mood,why:w.mood<=2?w.why||'':'',body:w.body||''}:null}
+function wbSave(){
+  var d=wbDate(),st=wbState();if(!d||!st.touched)return;
+  var s=wbScore(st.x,st.y),p={date:d,energy:s.energy,mood:s.mood,why:s.mood<=2?st.why:'',body:st.body};
+  $$('#wb-card button').forEach(function(b){b.disabled=true});
+  google.script.run.withSuccessHandler(function(){
+    var W=S.boot.wellbeing=(S.boot.wellbeing||[]).filter(function(x){return x.date!==d});W.push(p);lsSet(LS.boot,S.boot);
+    S.wbJust=d;S.wb=null;wbRefresh();
+    nbPost({type:'wellbeing',date:d}); // the app drops today's 10:00 reminder
+    setTimeout(aiEnsure,0); // the day's advice is redone with the mark
+  }).withFailureHandler(function(e){toast('Не записалось: '+((e&&e.message)||'нет связи'),'bad');$$('#wb-card button').forEach(function(b){b.disabled=false})}).saveWellbeing(p);
+}
+function wbRefresh(){var c=$('#wb-card');if(c)c.innerHTML=wbCardHtml()}
+function wbDoneHtml(){
+  var t=todayISO(),by={},w=wbToday();((S.boot&&S.boot.wellbeing)||[]).forEach(function(x){by[x.date]=x});
+  var days='';for(var i=-6;i<=0;i++){var d=isoAdd(t,i),x=by[d],c=x?wbColor((x.mood-1)/4,1-(x.energy-1)/4):null;
+    days+='<div class="wb-day'+(i===0?' now':'')+'"><i'+(c?' style="--c:'+wbRgb(c)+'"':'')+'>'+(x?x.energy:'')+'</i>'+['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][dObj(d).getDay()]+'</div>'}
+  var txt=w?WB_EN[w.energy-1].toLowerCase()+', настроение '+WB_MO[w.mood-1]+(w.mood<=2&&w.why?', '+wbWhy(w.why):''):'';
+  return '<div class="glass wb"><div class="wb-done-t"><span class="hab-ok">'+I.check+'</span><span>Утро отмечено: '+esc(txt)+'</span></div>'+
+    '<div class="wb-week">'+days+'</div><div class="nb-n" style="text-align:center;margin-top:8px">Цвет — настроение, цифра — силы. Тренер учтёт отметку в совете на сегодня.</div></div>';
+}
 /* New or changed Health weighings go to «Тело» once per page; weights typed into the sheet are never replaced. */
 var hwSent='';
 function weightsSync(){
@@ -2616,6 +2750,9 @@ document.addEventListener('click',function(e){
     case 'app-settings':nbPost({type:'settings'});break;
     case 'hist-all':S.histAll=!S.histAll;render();break;
     case 'tab':openTab(a.dataset.tab);break;
+    case 'wb-why':wbPick('why',a.dataset.k);break;
+    case 'wb-body':wbPick('body',a.dataset.k);break;
+    case 'wb-save':wbSave();break;
     case 'cardio-all':S.cardioAll=!S.cardioAll;render();break;
     case 'tk-tap':tkToggle(+a.dataset.i);break;
     case 'goal-ok':goalAccept(+a.dataset.kcal,a);break;
@@ -2672,9 +2809,9 @@ function startToday(){
 }
 /* pre-workout check-in: the watch has no data for last night before ~midnight, and only you know how you feel */
 function openCheckin(){
-  var feel='',rec=recovery(),day=S.day,today=todayISO(),ai=aiPlanFor(day,today);
+  var wb=wbToday(),feel=wb?(wb.energy>=5?'great':wb.energy===4?'good':wb.energy===3?'ok':'bad'):'',rec=recovery(),day=S.day,today=todayISO(),ai=aiPlanFor(day,today);
   var sl=rec&&rec.night!=null?'Сон этой ночью по часам: <b>'+fmtN(Math.round(rec.night*10)/10)+' ч</b>'+(rec.nightShort?' — меньше твоей нормы':''):'Сон за эту ночь ещё не пришёл с часов — учитываю самочувствие и тренд за 3 дня.';
-  var h='<h3>Как ты сегодня?</h3><p class="sub">'+sl+'</p><p class="sub ai-sum" id="ci-ai"></p>';
+  var h='<h3>Как ты сегодня?</h3><p class="sub">'+sl+'</p>'+(wb?'<p class="sub">Утром отметил: силы '+wb.energy+' из 5, настроение '+wb.mood+' из 5'+(wb.mood<=2&&wb.why?' ('+wbWhy(wb.why)+')':'')+'. Выбрал по этой отметке — поменяй, если стало иначе.</p>':'')+'<p class="sub ai-sum" id="ci-ai"></p>';
   h+='<div class="field"><div class="choices c2" id="ci-feel">'+FEEL_ORDER.map(function(k){return '<button class="choice" data-v="'+k+'">'+CI_ENERGY[k]+'</button>'}).join('')+'</div></div>';
   h+='<div class="ci-plan" id="ci-plan"></div><div style="height:18px"></div><button class="cta" id="ci-go">Начать Full Body '+esc(day)+'</button>';
   openSheet(h);
@@ -2693,6 +2830,7 @@ function openCheckin(){
   }
   S.ciUpd=function(){if(!ai)ai=aiPlanFor(day,today);upd()};
   $('#ci-feel').addEventListener('click',function(e){var b=e.target.closest('.choice');if(!b)return;feel=feel===b.dataset.v?'':b.dataset.v;pickOn(b,!feel);upd()});
+  var b0=feel&&$('#ci-feel .choice[data-v="'+feel+'"]');if(b0)pickOn(b0,false);
   upd();
   $('#ci-go').onclick=function(){
     if(S.session){closeSheet();return}
@@ -2982,6 +3120,7 @@ function load(done){
   google.script.run.withSuccessHandler(function(b){
     S.boot=b;dayCache={};S._wl=null;S.queue.forEach(function(it){if(it.op==='saveSet')mergeLog(it.p);else if(it.op==='deleteSet')unmergeLog(it.p)});lsSet(LS.boot,b);
     if(done)done(true);
+    if(wbToday())nbPost({type:'wellbeing',date:todayISO()}); // marked earlier or elsewhere: no reminder today
     setTimeout(function(){aiEnsure();aiReviewMaybe();weightsSync()},0);
     if(S.view==='workout'&&$('#pager'))return; // never redraw under the fingers mid-workout
     if(S.view==='home'&&document.activeElement&&document.activeElement.tagName==='INPUT')return;
@@ -3093,6 +3232,8 @@ if(NB){
       nbPost({type:'ack',ids:ids,known:known,errors:errors});nbTick(true);
     },
     post:function(force){nbTick(!!force)},
+    // the 10:00 reminder was tapped: show «Сегодня» with the check-in, unless a workout is on screen
+    wellbeing:function(){if(S.view==='workout'&&S.session)return;S.tab='today';S.view='home';render();var c=$('#wb-card');if(c&&c.scrollIntoView)c.scrollIntoView({behavior:'smooth',block:'center'})},
     recovery:function(x){
       if(!x||x.date!==todayISO())return;
       var num=function(v,lo,hi){return typeof v==='number'&&v>=lo&&v<=hi?v:null};
