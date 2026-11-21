@@ -778,7 +778,7 @@ var BODY={"front": {"chest": ["M272.91 422.84c-18.95-17.19-22-57-12.64-78.79 5.5
    The access key comes from the link (#k=...) once and is kept in this page's own storage. */
 (function () {
   var API = 'https://script.google.com/macros/s/AKfycbzcbmUZZP3RrPeqQHUzEDnt28Gj98l1pHzzgB9dKVgNqT05DQZvrfOsPBgcLOKQ7TXt5A/exec';
-  var FNS = ['getBootstrap', 'saveSet', 'deleteSet', 'finishSession', 'applyOps', 'getCoachPlan', 'getCoachDay', 'reviewSession', 'weeklyReview', 'saveWeights', 'saveHabits', 'saveWellbeing', 'setKcalGoal', 'suggestMeal'];
+  var FNS = ['getBootstrap', 'saveSet', 'deleteSet', 'finishSession', 'applyOps', 'getCoachPlan', 'getCoachDay', 'reviewSession', 'weeklyReview', 'saveWeights', 'saveSteps', 'saveHabits', 'saveWellbeing', 'setKcalGoal', 'suggestMeal'];
   var SLOW = { getCoachPlan: 1, getCoachDay: 1, reviewSession: 1, weeklyReview: 1 }; // the coach thinks for up to a couple of minutes
   var key = null;
   try {
@@ -1377,7 +1377,7 @@ function plRowsHtml(rows){
 }
 /* ================= daily tasks =================
    The coach's tasks for a date (from the last day advice or workout plan written that day) and how each one stands,
-   checked from the data: steps from Health (today the app's reading, earlier days «Apple Health»), alcohol from the
+   checked from the data: steps from Health (today the app's reading, earlier days «Шаги», else «Apple Health»), alcohol from the
    evening marks, protein and calories from «Питание», sleep from the next morning, the workout from the log.
    Custom tasks are ticked by hand and kept on this phone. */
 var LS_TK='wf1.tk';
@@ -1391,7 +1391,8 @@ function tkState(t,date,i){
   switch(t.kind){
     case 'steps':{var v=null,n=S.hn;
       if(!past){if(n&&n.date===date&&n.steps!=null)v=n.steps}
-      else{var r=(S.boot.health||[]).filter(function(x){return x.date===date})[0];if(r&&r.steps!=null)v=r.steps}
+      else{var a=(S.hs||[]).filter(function(x){return x.date===date})[0],r=(S.boot.health||[]).filter(function(x){return x.date===date})[0];
+        if(a)v=a.steps;else if(r&&r.steps!=null)v=r.steps} // the app's total first: it may not be in «Шаги» yet
       if(v==null)return wait(past?'нет данных':'шаги придут из Здоровья');
       if(v>=t.target)return {st:'ok',p:1,note:fmtK(v)+' шагов'};
       return {st:past?'fail':'wait',p:v/t.target,note:fmtK(v)+' из '+fmtK(t.target)+(!past&&n.at?' · на '+hhmm(n.at):'')}}
@@ -2743,6 +2744,19 @@ function weightsSync(){
     body.sort(function(a,c){return a.date<c.date?-1:1});lsSet(LS.boot,S.boot);
   }).withFailureHandler(function(){hwSent=''}).saveWeights(todo);
 }
+/* Health's daily steps go to «Шаги» once per page, only new or changed days; the coach and the tasks read them there. */
+var hsSent='';
+function stepsSync(){
+  if(!S.hs||!S.boot)return;
+  var have=S.boot.steps||{},todo=S.hs.filter(function(x){return have[x.date]!==x.steps});
+  var sig=JSON.stringify(todo);if(!todo.length||sig===hsSent)return;hsSent=sig;
+  google.script.run.withSuccessHandler(function(){
+    var st=S.boot.steps=Object.assign({},S.boot.steps||{});
+    todo.forEach(function(x){st[x.date]=x.steps});
+    (S.boot.health||[]).forEach(function(r){if(st[r.date]!=null)r.steps=st[r.date]});
+    lsSet(LS.boot,S.boot);tkRefresh();
+  }).withFailureHandler(function(){hsSent=''}).saveSteps(todo);
+}
 function homeCta(){
   if(!S.session&&restDay())return '<div class="rest-cap">Сегодня отдых · следующая — Full Body '+esc(nextDay())+', '+whenText(nextTrainDate(todayISO()))+'</div><button class="cta ghost" data-act="start">Всё равно начать Full Body '+S.day+'</button>';
   if(!S.session){var pv=modePreview();if(pv)return '<div class="rest-cap">'+pv+'</div><button class="cta" data-act="start">Начать Full Body '+S.day+'</button>'}
@@ -3318,7 +3332,7 @@ function load(done){
     S.boot=b;dayCache={};S._wl=null;S.queue.forEach(function(it){if(it.op==='saveSet')mergeLog(it.p);else if(it.op==='deleteSet')unmergeLog(it.p)});lsSet(LS.boot,b);
     if(done)done(true);
     if(wbToday())nbPost({type:'wellbeing',date:todayISO()}); // marked earlier or elsewhere: no reminder today
-    setTimeout(function(){aiEnsure();aiReviewMaybe();weightsSync()},0);
+    setTimeout(function(){aiEnsure();aiReviewMaybe();weightsSync();stepsSync()},0);
     if(S.view==='workout'&&$('#pager'))return; // never redraw under the fingers mid-workout
     if(S.view==='home'&&document.activeElement&&document.activeElement.tagName==='INPUT')return;
     render();
@@ -3445,6 +3459,12 @@ if(NB){
       var wc=S.view==='home'&&$('#wt-card');if(wc)wc.innerHTML=weightCardHtml();
       var tl=S.view==='home'&&$('#tiles');if(tl)tl.innerHTML=todayTilesHtml();
       weightsSync();
+    },
+    // each whole day's steps as Health shows them: «Apple Health» has iPhone and Watch added together
+    steps:function(list){
+      if(!Array.isArray(list))return;
+      S.hs=list.filter(function(x){return x&&/^\d{4}-\d{2}-\d{2}$/.test(x.date)&&x.date<todayISO()&&typeof x.steps==='number'&&x.steps>=0&&x.steps<=150000}).slice(-400);
+      stepsSync();
     }
   };
   nbPost({type:'ready'});
