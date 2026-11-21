@@ -31,9 +31,11 @@ html,body{height:100%;height:100dvh;height:var(--app-h,100dvh);margin:0;overflow
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
 button:disabled{opacity:.35}
 input,textarea{font:inherit;color:inherit}
+/* normal digit widths everywhere: equal-width digits leave a gap around every «1» */
+html,body,input,textarea,button{font-variant-numeric:proportional-nums}
 svg{display:block}
 .hide{display:none!important}
-.tnum{font-variant-numeric:tabular-nums}
+.tnum{font-variant-numeric:proportional-nums}
 #app{height:100%;padding-top:var(--st)}
 .screen{height:100%;display:flex;flex-direction:column;max-width:560px;margin:0 auto;position:relative}
 .scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:none}
@@ -102,7 +104,7 @@ svg{display:block}
 .metrics{display:grid;grid-template-columns:repeat(3,1fr);margin-top:18px}
 .metric{min-width:0}
 .metric + .metric{border-left:1px solid var(--line);padding-left:16px}
-.metric .v{font-size:32px;font-weight:700;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.metric .v{font-size:32px;font-weight:700;letter-spacing:-.04em;line-height:1;font-variant-numeric:proportional-nums}
 .metric .v small{font-size:15px;color:var(--mu);font-weight:500;margin-left:3px;letter-spacing:0}
 .metric .l{font-size:14px;color:var(--mu);margin-top:8px}
 .metric .d{font-size:13px;font-weight:600;margin-top:2px}
@@ -148,7 +150,7 @@ svg{display:block}
 .w-row{display:flex;align-items:center;gap:12px}
 .w-title{flex:1;min-width:0}
 .w-title b{display:block;font-size:18px;font-weight:700;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.w-title span{display:block;font-size:14px;color:var(--mu);font-variant-numeric:tabular-nums}
+.w-title span{display:block;font-size:14px;color:var(--mu);font-variant-numeric:proportional-nums}
 .segs{display:flex;gap:4px;margin-top:10px}
 .segs button{flex:1;height:22px;display:flex;align-items:center;min-width:0}
 .segs button.fin{flex:0 0 22px;justify-content:center;color:var(--mu2)}
@@ -176,9 +178,9 @@ svg{display:block}
 .ex-meta .tg{color:var(--blue);font-weight:500}
 .last{background:var(--s1);border-radius:18px;padding:14px 16px;margin-top:16px}
 .last .k{font-size:14px;color:var(--mu)}
-.last .v{font-size:18px;font-weight:600;margin-top:3px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.last .v{font-size:18px;font-weight:600;margin-top:3px;font-variant-numeric:proportional-nums;letter-spacing:-.01em}
 .last .s{font-size:15px;color:var(--tx2);margin-top:8px;line-height:1.4}
-.last .tgt{font-size:15px;font-weight:700;color:var(--volt);margin-top:10px;font-variant-numeric:tabular-nums}
+.last .tgt{font-size:15px;font-weight:700;color:var(--volt);margin-top:10px;font-variant-numeric:proportional-nums}
 .mode{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding:10px 12px 10px 14px;border-radius:14px;background:var(--volt-dim);font-size:14px;line-height:1.35;color:var(--tx2)}
 .mode b{color:var(--volt)}
 .mode.light{background:rgba(255,179,92,.13)}
@@ -200,7 +202,7 @@ svg{display:block}
 .nb-cap{font-size:12px;color:var(--mu2)}
 .nb-list{display:flex;flex-direction:column;gap:14px;margin-top:16px}
 .nb-h{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:var(--mu)}
-.nb-h b{font-weight:600;color:var(--tx);font-variant-numeric:tabular-nums}
+.nb-h b{font-weight:600;color:var(--tx);font-variant-numeric:proportional-nums}
 .nb-tr{position:relative;height:8px;border-radius:4px;background:var(--s3);margin-top:7px}
 .nb-in{position:absolute;left:0;top:0;bottom:0;border-radius:4px}
 .nb-ov{position:absolute;top:0;bottom:0;border-radius:0 4px 4px 0;background:repeating-linear-gradient(135deg,#FF5A5F 0 4px,rgba(255,90,95,.55) 4px 8px)}
@@ -211,16 +213,16 @@ svg{display:block}
 .rest-cap{font-size:13px;color:var(--mu);text-align:center;margin-bottom:10px}
 .wt{margin-top:12px}
 .wt-main{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:12px}
-.wt-v{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+.wt-v{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1;font-variant-numeric:proportional-nums}
 .wt-v small{font-size:15px;font-weight:500;color:var(--mu);margin-left:4px;letter-spacing:0}
 .wt-d{display:flex;gap:16px;text-align:right}
 .wt-d div{font-size:12px;color:var(--mu2)}
-.wt-d b{display:block;font-size:15px;font-weight:600;color:var(--tx);font-variant-numeric:tabular-nums;margin-bottom:2px}
+.wt-d b{display:block;font-size:15px;font-weight:600;color:var(--tx);font-variant-numeric:proportional-nums;margin-bottom:2px}
 .wt-sp{display:block;width:100%;height:56px;margin-top:14px;overflow:visible}
 .wt-ax{display:flex;justify-content:space-between;font-size:11px;color:var(--mu2);margin-top:4px}
 .tdee{border-top:1px solid var(--line);margin-top:16px;padding-top:14px}
 .tdee-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:14px;color:var(--mu)}
-.tdee-h b{font-size:20px;font-weight:700;color:var(--tx);font-variant-numeric:tabular-nums}
+.tdee-h b{font-size:20px;font-weight:700;color:var(--tx);font-variant-numeric:proportional-nums}
 .tdee-t{font-size:14px;line-height:1.45;color:var(--tx2);margin-top:6px}
 .tdee-t b{color:var(--volt);font-weight:600}
 .ai .pl-row{display:flex;gap:12px;align-items:flex-start}
@@ -252,7 +254,7 @@ svg{display:block}
 .ctitle{font-size:19px;font-weight:800;letter-spacing:-.025em;margin:4px 0 0}
 .chd{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px}
 .chd .side{font-size:13px;color:var(--mu);text-align:right}
-.big{font-family:var(--d);font-weight:700;letter-spacing:-.04em;line-height:.95;font-variant-numeric:tabular-nums}
+.big{font-family:var(--d);font-weight:700;letter-spacing:-.04em;line-height:.95;font-variant-numeric:proportional-nums}
 .chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:999px;font-size:13px;font-weight:700;white-space:nowrap;background:rgba(255,255,255,.07);color:var(--tx2)}
 .chip.up{background:var(--volt-dim);color:var(--volt)}
 .chip.down{background:var(--org-dim);color:var(--org)}
@@ -288,7 +290,7 @@ svg{display:block}
 .lg{flex:1;min-width:0;display:flex;flex-direction:column;gap:9px}
 .lg div{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--tx2)}
 .lg i{width:10px;height:10px;border-radius:3px;flex:none}
-.lg b{margin-left:auto;font-weight:700;color:var(--tx);font-variant-numeric:tabular-nums;white-space:nowrap}
+.lg b{margin-left:auto;font-weight:700;color:var(--tx);font-variant-numeric:proportional-nums;white-space:nowrap}
 /* history list */
 .hrow{display:flex;align-items:center;gap:14px;width:100%;padding:14px 0;text-align:left;color:inherit}
 .hrow + .hrow{border-top:1px solid var(--line)}
@@ -330,7 +332,7 @@ svg{display:block}
 .setbars .col{position:relative;width:100%;max-width:56px;flex:none}
 .setbars .bar{position:absolute;left:0;right:0;bottom:0;border-radius:10px 10px 4px 4px}
 .setbars .tick{position:absolute;left:-3px;right:-3px;height:0;border-top:2px dashed rgba(255,255,255,.55)}
-.setbars .lb{font-size:12px;font-weight:700;color:var(--tx2);margin-top:7px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.setbars .lb{font-size:12px;font-weight:700;color:var(--tx2);margin-top:7px;white-space:nowrap;font-variant-numeric:proportional-nums}
 .setbars .lb.f{color:var(--org)}
 .keyline{display:flex;gap:14px;font-size:12px;color:var(--mu);margin:-4px 0 12px}
 .keyline span{display:inline-flex;align-items:center;gap:6px}
@@ -342,7 +344,7 @@ svg{display:block}
 /* bars (tonnage, kcal) */
 .vbars{display:flex;align-items:flex-end;gap:8px;height:170px}
 .vbars .vb{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;color:var(--mu);font-size:11px;text-align:center}
-.vbars .vb em{font-style:normal;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:6px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.vbars .vb em{font-style:normal;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:6px;font-variant-numeric:proportional-nums;white-space:nowrap}
 .vbars .vb i{display:block;flex:none;width:100%;max-width:38px;border-radius:12px 12px 5px 5px;background:linear-gradient(180deg,#36363C,#26262B)}
 .vbars .vb.on i{background:var(--heat);box-shadow:0 10px 30px -6px rgba(255,122,51,.55)}
 .vbars .vb.on em{color:var(--tx)}
@@ -368,14 +370,14 @@ svg{display:block}
 .day .cap.today{outline:1.5px solid rgba(255,255,255,.35);outline-offset:2px}
 .day .slp{position:relative;width:12px;height:64px;border-radius:6px;background:rgba(255,255,255,.05);overflow:hidden}
 .day .slp i{position:absolute;left:0;right:0;bottom:0;border-radius:6px}
-.day b{font-size:12px;color:var(--tx2);font-weight:700;font-variant-numeric:tabular-nums}
+.day b{font-size:12px;color:var(--tx2);font-weight:700;font-variant-numeric:proportional-nums}
 .hbars{display:flex;flex-direction:column;gap:12px}
 .hb{display:grid;grid-template-columns:96px 1fr 34px;align-items:center;gap:10px;font-size:13px}
 .hb span{color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hb .tr{position:relative;height:12px;border-radius:6px;background:rgba(255,255,255,.05)}
 .hb .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--heat)}
 .hb .tr u{position:absolute;top:-4px;bottom:-4px;width:2px;background:rgba(255,255,255,.6);border-radius:1px}
-.hb b{text-align:right;font-variant-numeric:tabular-nums}
+.hb b{text-align:right;font-variant-numeric:proportional-nums}
 .movers div{display:flex;align-items:center;gap:10px;padding:10px 0;font-size:14px}
 .movers div + div{border-top:1px solid var(--line)}
 .movers .mn{flex:1;min-width:0;color:var(--tx2);line-height:1.3;overflow-wrap:anywhere}
@@ -393,7 +395,7 @@ svg{display:block}
 .mr .tr{position:relative;height:6px;border-radius:3px;background:rgba(255,255,255,.07)}
 .mr .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:3px}
 .mr .tr .zone{position:absolute;top:-4px;bottom:-4px;left:33.33%;width:33.33%;border-left:1px dashed rgba(255,255,255,.35);border-right:1px dashed rgba(255,255,255,.35)}
-.mr b{text-align:right;font-size:15px;color:var(--tx);font-variant-numeric:tabular-nums}
+.mr b{text-align:right;font-size:15px;color:var(--tx);font-variant-numeric:proportional-nums}
 .mr b.o{color:var(--org)}
 .cor-sp{display:block;width:100%;height:auto;margin-top:14px;overflow:visible}
 .mm-card{margin-top:12px}
@@ -417,7 +419,7 @@ svg{display:block}
 .set-n .rm{width:34px;height:44px;display:grid;place-items:center;color:var(--mu)}
 .set-n .rm svg{width:18px;height:18px}
 .set-row.next .set-n{color:var(--tx)}
-.num{width:100%;height:56px;border-radius:15px;border:2px solid transparent;background:var(--s1);text-align:center;font-size:23px;font-weight:700;letter-spacing:-.02em;outline:none;font-variant-numeric:tabular-nums;padding:0 4px;-webkit-appearance:none;appearance:none}
+.num{width:100%;height:56px;border-radius:15px;border:2px solid transparent;background:var(--s1);text-align:center;font-size:23px;font-weight:700;letter-spacing:-.02em;outline:none;font-variant-numeric:proportional-nums;padding:0 4px;-webkit-appearance:none;appearance:none}
 .num::placeholder{color:#4A4A50;font-weight:500;font-size:18px}
 .num:focus{border-color:var(--volt);background:var(--s2)}
 .set-row.next .num{background:var(--s2)}
@@ -457,18 +459,62 @@ svg{display:block}
 .wnav .nx.hot{background:var(--volt);color:var(--ink)}
 .wnav .cta{flex:1}
 body.resting .w-bottom .wnav{visibility:hidden}
+/* warm-up: the screen before the first exercise and the «Р» rows above the working sets */
+.wu-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:none;padding:8px var(--pad) 24px}
+.wu-hero{display:flex;align-items:center;gap:16px}
+.wu-hero .tx{flex:1;min-width:0}
+.wu-hero h2{font-family:var(--d);font-size:28px;font-weight:700;letter-spacing:-.03em;margin:6px 0 4px;line-height:1.05}
+.wu-hero p{margin:0;font-size:14px;color:var(--mu)}
+.wu-ring{position:relative;width:84px;height:84px;flex:none}
+.wu-ring svg{width:84px;height:84px;transform:rotate(-90deg)}
+.wu-ring circle{transition:stroke-dashoffset .5s cubic-bezier(.2,.8,.2,1)}
+.wu-ring .v{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--d);font-size:20px;font-weight:700;font-variant-numeric:proportional-nums}
+.wu-ring .v small{font-size:12px;color:var(--mu);font-weight:600}
+.wu-list{margin-top:12px;padding:6px 16px}
+.wu-it{display:flex;align-items:center;gap:14px;width:100%;padding:13px 0;border-top:1px solid var(--line);text-align:left}
+.wu-it:first-child{border-top:0}
+.wu-it .ck{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--s3);display:grid;place-items:center;color:transparent;transition:all .2s}
+.wu-it .ck svg{width:16px;height:16px}
+.wu-it.on .ck{background:var(--org);border-color:var(--org);color:var(--ink);box-shadow:0 0 16px rgba(255,122,51,.5)}
+.wu-it .nm{flex:1;min-width:0}
+.wu-it .nm b{display:block;font-size:16px;font-weight:600;letter-spacing:-.01em}
+.wu-it .nm span{display:block;font-size:13px;color:var(--mu);margin-top:1px}
+.wu-it.on .nm b{color:var(--tx2)}
+.wu-tm{flex:none;height:40px;padding:0 14px;border-radius:12px;background:var(--org-dim);color:var(--org);font-weight:700;font-size:15px;display:flex;align-items:center;gap:6px;font-variant-numeric:proportional-nums}
+.wu-tm svg{width:14px;height:14px}
+.wu-tm.run{background:var(--org);color:var(--ink)}
+.wu-next{margin-top:14px;font-size:13px;color:var(--mu);text-align:center}
+.wu-next b{color:var(--tx2);font-weight:600}
+.wu-bottom .linkbtn{padding:12px 0 2px}
+body.resting .wu-bottom{padding-bottom:calc(var(--sb) + 92px)}
+.set-row.warm .set-n{font-family:var(--d);font-size:15px;color:var(--org);opacity:.75}
+.set-row.warm .set-n sub{font-family:var(--f);font-size:10px;vertical-align:baseline;margin-left:1px}
+.set-row.warm .num{height:48px;font-size:19px;color:var(--tx2)}
+.set-row.warm .check{height:48px}
+.set-row.warm .check svg{width:22px;height:22px}
+.set-row.warm.next .set-n{opacity:1}
+.set-row.warm.done .set-n{opacity:1}
+.set-row.warm.done .num{background:var(--org-dim);color:var(--org)}
+.set-row.warm.done .check{background:var(--org);box-shadow:0 0 18px rgba(255,122,51,.4)}
+.set-row.warm.done .check svg{color:var(--ink)}
+.wu-line{display:flex;align-items:center;gap:10px;margin:4px 0 8px;font-size:13px;color:var(--mu2)}
+.wu-line:after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+.wu-line button{color:var(--org);font-weight:600;font-size:13px;padding:6px 0}
+.wu-line .rmw{color:var(--mu)}
+.rest.warm .t b{color:var(--org)}
+.rest.warm.end .t b{color:var(--ink)}
 
 /* finish page */
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .stat{background:var(--s1);border-radius:18px;padding:16px}
-.stat .v{font-size:28px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat .v{font-size:28px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:proportional-nums;line-height:1.1}
 .stat .v small{font-size:16px;color:var(--mu);font-weight:500}
 .stat .l{font-size:14px;color:var(--mu);margin-top:4px}
 .fin-list{margin-top:12px;padding:2px 16px}
 .fin-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;width:100%;text-align:left;font-size:15px}
 .fin-item + .fin-item{border-top:1px solid var(--line)}
 .fin-item span:first-child{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.fin-item b{font-weight:600;flex:none;font-variant-numeric:tabular-nums}
+.fin-item b{font-weight:600;flex:none;font-variant-numeric:proportional-nums}
 .fin-item b.ok{color:var(--volt)}
 .fin-item b.part{color:var(--warn)}
 .field{margin-top:22px}
@@ -493,10 +539,10 @@ body.resting .w-bottom .wnav{visibility:hidden}
 .rest.end{background:var(--volt);color:var(--ink);border-color:var(--volt)}
 .ring{position:relative;width:60px;height:60px;flex:none}
 .ring svg{width:60px;height:60px;transform:rotate(-90deg)}
-.ring .tm{position:absolute;inset:0;display:grid;place-items:center;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+.ring .tm{position:absolute;inset:0;display:grid;place-items:center;font-size:16px;font-weight:700;font-variant-numeric:proportional-nums}
 .rest .t{flex:1;min-width:0}
 .rest .t b{display:block;font-size:16px;font-weight:700}
-.rest .t span{display:block;font-size:13px;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rest .t span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:13px;line-height:1.25;color:var(--mu);overflow:hidden}
 .rest.end .t span{color:rgba(11,11,12,.7)}
 .rest .rb{height:46px;min-width:44px;padding:0 8px;border-radius:13px;background:var(--s3);font-weight:700;font-size:15px;display:grid;place-items:center}
 .rest.end .rb{background:rgba(11,11,12,.12)}
@@ -533,7 +579,7 @@ body.resting .w-bottom .wnav{visibility:hidden}
 .h-sub{font-size:15px;font-weight:600;margin:6px 0 4px}
 .hist-row{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:15px}
 .hist-row span:first-child{color:var(--mu);white-space:nowrap}
-.hist-row span:last-child{text-align:right;font-weight:500;font-variant-numeric:tabular-nums}
+.hist-row span:last-child{text-align:right;font-weight:500;font-variant-numeric:proportional-nums}
 
 /* done */
 .done-hero{text-align:center;padding:48px 0 20px}
@@ -577,7 +623,7 @@ body.resting .w-bottom .wnav{visibility:hidden}
 .tile{display:flex;flex-direction:column;gap:10px;text-align:left;color:inherit;padding:16px;min-width:0}
 .tile-row{display:flex;align-items:center;gap:10px}
 .tile-ring{width:52px;height:52px;flex:none;overflow:visible}
-.tile-v{display:block;font-family:var(--d);font-size:20px;font-weight:700;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.tile-v{display:block;font-family:var(--d);font-size:20px;font-weight:700;letter-spacing:-.04em;line-height:1;font-variant-numeric:proportional-nums}
 .tile-v small{font-family:var(--f);font-size:12px;color:var(--mu);font-weight:600;letter-spacing:0;margin-left:3px}
 .tile-s{display:block;font-size:12px;color:var(--mu2);margin-top:5px}
 .tile-sp{width:100%;height:30px;overflow:visible}
@@ -598,10 +644,10 @@ body.resting .w-bottom .wnav{visibility:hidden}
 .goal{margin-top:12px;overflow:hidden}
 .goal::before{content:'';position:absolute;right:-60px;top:-70px;width:200px;height:200px;border-radius:50%;background:radial-gradient(closest-side,rgba(212,255,58,.16),transparent);pointer-events:none}
 .goal-row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:12px 0 4px}
-.goal-v{font-family:var(--d);font-size:30px;font-weight:600;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums;margin-top:12px}
+.goal-v{font-family:var(--d);font-size:30px;font-weight:600;letter-spacing:-.03em;line-height:1;font-variant-numeric:proportional-nums;margin-top:12px}
 .goal-row .goal-v{margin-top:0}
 .goal-v small{font-family:var(--f);font-size:13px;font-weight:500;color:var(--mu);letter-spacing:0;margin-left:6px}
-.goal-was{text-align:right;font-size:13px;color:var(--mu2);font-variant-numeric:tabular-nums}
+.goal-was{text-align:right;font-size:13px;color:var(--mu2);font-variant-numeric:proportional-nums}
 .goal-was s{display:block;margin-bottom:3px}
 .goal-was span{font-weight:700;font-size:15px}
 .goal-was .dn{color:var(--volt)}.goal-was .up{color:var(--org)}
@@ -618,7 +664,7 @@ body.resting .w-bottom .wnav{visibility:hidden}
 .ml-g .ml-r:last-child{border-bottom:0}
 .ml-n{font-size:15px;line-height:1.3;color:var(--tx2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ml-n i,.ma-d i{font-style:normal;color:var(--mu2)}
-.ml-k,.ma-k{flex:none;text-align:right;font-variant-numeric:tabular-nums}
+.ml-k,.ma-k{flex:none;text-align:right;font-variant-numeric:proportional-nums}
 .ml-k b,.ma-k b{display:block;font-size:15px;font-weight:600;color:var(--tx)}
 .ml-k small,.ma-k small{font-size:12px;color:var(--volt)}
 .meal-ai{margin-top:12px}
@@ -680,10 +726,10 @@ body.resting .w-bottom .wnav{visibility:hidden}
 .alc-ang .pips{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;max-width:64px}
 .alc-ang .pips i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.12)}
 .alc-ang .pips i.y{background:var(--bad)}
-.alc-ang b{font-size:13px;font-weight:700;color:var(--tx2);font-variant-numeric:tabular-nums}
+.alc-ang b{font-size:13px;font-weight:700;color:var(--tx2);font-variant-numeric:proportional-nums}
 .alc-ang span{font-size:10px;color:var(--mu2)}
 .alc-streak{display:flex;align-items:baseline;gap:10px;margin-top:18px}
-.alc-streak b{font-size:36px;font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--volt);font-variant-numeric:tabular-nums}
+.alc-streak b{font-size:36px;font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--volt);font-variant-numeric:proportional-nums}
 .alc-streak span{font-size:14px;color:var(--tx2);line-height:1.3}
 .alc-streak small{display:block;color:var(--mu2);font-size:13px}
 .alc-strip{display:grid;grid-template-columns:repeat(30,1fr);gap:2px;margin-top:16px;align-items:end}
@@ -708,7 +754,7 @@ body.resting .w-bottom .wnav{visibility:hidden}
 .wb-rt span{display:block;font-size:14px;color:var(--mu);margin-top:4px}
 .wb-sc{display:flex;gap:6px;flex:none}
 .wb-sc div{width:46px;padding:6px 0 5px;border-radius:12px;background:rgba(255,255,255,.05);text-align:center}
-.wb-sc b{display:block;font-family:var(--d);font-size:18px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.wb-sc b{display:block;font-family:var(--d);font-size:18px;font-weight:700;line-height:1;font-variant-numeric:proportional-nums}
 .wb-sc span{font-size:10px;color:var(--mu2)}
 .wb-pad{--m:42px;--px:calc(var(--m) + var(--x) * (100% - 2 * var(--m)));--py:calc(var(--m) + var(--y) * (100% - 2 * var(--m)));
   position:relative;margin-top:12px;height:268px;border-radius:20px;touch-action:none;user-select:none;-webkit-user-select:none;overflow:hidden;
@@ -729,7 +775,7 @@ body.resting .w-bottom .wnav{visibility:hidden}
 .wb-done-t{display:flex;align-items:center;gap:12px;font-size:15px;color:var(--tx2)}
 .wb-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px}
 .wb-day{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:var(--mu2)}
-.wb-day i{width:30px;height:30px;border-radius:50%;background:var(--c,transparent);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.wb-day i{width:30px;height:30px;border-radius:50%;background:var(--c,transparent);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:700;color:var(--ink);font-variant-numeric:proportional-nums}
 .wb-day.now{color:var(--tx)}.wb-day.now i{animation:wbPop .5s cubic-bezier(.3,1.6,.5,1)}
 @keyframes wbPop{0%{transform:scale(0)}100%{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.wb-orb,.wb-orb.snap,.wb-day.now i{animation:none;transition:none}}
@@ -1840,7 +1886,8 @@ function syncPill(){
 function newSession(day,date,opts){
   opts=opts||{};
   S.session={id:Date.now().toString(36),date:date,day:day,workout:opts.workout||workoutName(day),startedAt:Date.now(),energy:'',
-    plan:JSON.parse(JSON.stringify(S.boot.program.days[day]||[])),sets:{},rir:{},notes:{},extra:{},rest:null,page:0,backfill:date!==todayISO(),watchMin:opts.watchMin||null};
+    plan:JSON.parse(JSON.stringify(S.boot.program.days[day]||[])),sets:{},rir:{},notes:{},extra:{},rest:null,page:0,backfill:date!==todayISO(),watchMin:opts.watchMin||null,wu:{}};
+  if(!S.session.backfill&&!opts.noWarmup)S.session.wup={st:'open',items:{},at:Date.now(),min:null};
   if(opts.coach&&!S.session.backfill){S.session.coach=opts.coach;if(opts.aiPlan)S.session.aiPlan=JSON.parse(JSON.stringify(opts.aiPlan));S.session.energy=CI_ENERGY[opts.coach.feel]||'';if(opts.coach.mode==='light')cutPlan(true)}
   prefill();
   saveSession();
@@ -2790,6 +2837,7 @@ function curPage(){return S.session.page||0}
 function headSub(){var s=S.session,t=totals();return (s.backfill?'за '+fmtDay(s.date):clock((Date.now()-s.startedAt)/1000))+' · '+t.done+' из '+t.planned}
 function renderWorkout(){
   var s=S.session,exs=exList();
+  if(wuOpen())return renderWarmup();
   if(curPage()>exs.length)s.page=0;
   var h='<div class="screen"><div class="w-head"><div class="w-row"><button class="icon-btn" data-act="home" aria-label="На главную">'+I.back+'</button><div class="w-title"><b>Full Body '+esc(s.day)+'</b><span id="elapsed">'+headSub()+'</span></div><span class="sync-host">'+syncPill()+'</span></div><div class="segs" id="segs">'+segsHtml()+'</div></div>';
   h+='<div class="pager" id="pager">';
@@ -2844,9 +2892,12 @@ function exPage(ex,i,total){
   h+=modeBar();
   h+='<div class="last"><div class="k">'+(prev?'Прошлый раз, '+fmtShort(prev.date):'Прошлый раз')+'</div><div class="v">'+(prev?esc(setsStr(prev.sets)):'Нет записей')+'</div>'+(tg&&tg.goal&&s.coach?'<div class="tgt">Сегодня'+(tg.ai?' · тренер':'')+': '+esc(tg.goal)+'</div>':'')+(tg?'<div class="s">'+esc(tg.text)+'</div>':'')+'</div>';
   h+='<div class="sets'+(ex.unilateral?' uni':'')+'"><div class="sets-h"><div>#</div><div>кг</div>'+(ex.unilateral?'<div>Левая</div><div>Правая</div>':'<div>Повторы</div>')+'<div></div></div>';
+  var wc=wuCount(ex),wn=wuNext(ex);
+  for(var k=1;k<=wc;k++)h+=warmRow(ex,k,k===wn,wc);
+  if(!s.backfill)h+=wc?'<div class="wu-line"><span>'+(wc>1?'разминочные — не идут':'разминочный — не идёт')+' в таблицу</span><button data-act="wu-add">+ ещё</button><button class="rmw" data-act="wu-rm">убрать</button></div>':'<div class="wu-line"><button data-act="wu-add">+ разминочный подход</button></div>';
   for(var n=1;n<=cnt;n++){
     var o=setObj(ex,n),isPr=o.done&&best>0&&e1rm(num(o.kg),repsOf(ex,o))>best,ph=ex.repLo?(ex.repLo===ex.repHi?String(ex.repLo):ex.repLo+'–'+ex.repHi):'';
-    h+='<div class="set-row'+(o.done?' done':'')+(n===fo?' next':'')+'" data-ex="'+ex.id+'" data-n="'+n+'"><div class="set-n">'+(n>ex.sets&&!o.done&&n===setCount(ex)?'<button class="rm" data-act="rmset" aria-label="Убрать подход">'+I.x+'</button>':n+(isPr?'<i class="prb">PR</i>':''))+'</div>';
+    h+='<div class="set-row'+(o.done?' done':'')+(n===fo&&!wn?' next':'')+'" data-ex="'+ex.id+'" data-n="'+n+'"><div class="set-n">'+(n>ex.sets&&!o.done&&n===setCount(ex)?'<button class="rm" data-act="rmset" aria-label="Убрать подход">'+I.x+'</button>':n+(isPr?'<i class="prb">PR</i>':''))+'</div>';
     h+='<input class="num" data-f="kg" inputmode="decimal" enterkeyhint="next" autocomplete="off" placeholder="кг" value="'+esc(o.kg||'')+'" aria-label="Вес, подход '+n+'">';
     if(ex.unilateral){
       h+='<input class="num" data-f="left" inputmode="numeric" enterkeyhint="next" autocomplete="off" placeholder="'+esc(ph)+'" value="'+esc(o.left||'')+'" aria-label="Повторы левой, подход '+n+'">';
@@ -2909,7 +2960,13 @@ document.addEventListener('click',function(e){
     case 'prev':goTo(curPage()-1);break;
     case 'next':goTo(curPage()+1);break;
     case 'rmset':rmSet(exId);break;
-    case 'check':toggleSet(exId,+row.dataset.n);break;
+    case 'check':if(row.dataset.w)toggleWarm(exId,+row.dataset.w);else toggleSet(exId,+row.dataset.n);break;
+    case 'wu-add':wuSetCount(exId,+1);break;
+    case 'wu-rm':wuSetCount(exId,-1);break;
+    case 'wu-item':wuItem(+a.dataset.i);break;
+    case 'wu-tread':wuTread(+a.dataset.i);break;
+    case 'wu-done':wuFinish('done');break;
+    case 'wu-skip':wuFinish('skip');break;
     case 'rir':{var ex2=exById(exId),v=+a.dataset.v;S.session.rir[exId]=S.session.rir[exId]===v?null:v;saveSession();var ln=doneSets(ex2).slice(-1)[0];if(ln)enqueue('saveSet',payloadFor(ex2,ln));$$('.chips5 button',a.parentNode).forEach(function(b){b.classList.toggle('on',S.session.rir[exId]===+b.dataset.v)});break}
     case 'addset':addSet(exId);break;
     case 'swap':openSwap(exId);break;
@@ -2969,6 +3026,7 @@ document.addEventListener('input',function(e){
   var page=el.closest('.page'),exId=page&&page.id.slice(3);
   if(el.dataset.f==='exnote'){S.session.notes[exId]=el.value;saveSessionSoon();var nsid=S.session.id;debounce('note'+exId,function(){if(S.session&&S.session.id===nsid)resaveExercise(exById(exId))},900);return}
   var row=el.closest('.set-row');if(!row)return;
+  if(row.dataset.w){var wv=el.value.replace(',','.').replace(/[^\d.]/g,'');if(wv!==el.value.replace(',','.'))el.value=wv;var wo=wuObj(exById(row.dataset.ex),+row.dataset.w);wo[el.dataset.f==='kg'?'kg':'reps']=wv;wo['t_'+(el.dataset.f==='kg'?'kg':'reps')]=1;saveSession();return}
   var ex=exById(row.dataset.ex),n=+row.dataset.n,o=setObj(ex,n),f=el.dataset.f,val=el.value.replace(',','.').replace(/[^\d.]/g,'');
   if(val!==el.value.replace(',','.'))el.value=val;
   o[f]=val;o['a_'+f]=0;
@@ -2987,7 +3045,7 @@ document.addEventListener('keydown',function(e){
   if(el.id==='swap-in'){e.preventDefault();var sb=$('[data-act="swap-own"]');if(sb)sb.click();return}
   if(!el.classList||!el.classList.contains('num'))return;
   e.preventDefault();var row=el.closest('.set-row'),ins=$$('.num',row),i=ins.indexOf(el);
-  if(i<ins.length-1)ins[i+1].focus();else{el.blur();toggleSet(row.dataset.ex,+row.dataset.n)}
+  if(i<ins.length-1)ins[i+1].focus();else{el.blur();if(row.dataset.w)toggleWarm(row.dataset.ex,+row.dataset.w);else toggleSet(row.dataset.ex,+row.dataset.n)}
 });
 var timers={},timerFns={};
 function debounce(k,f,ms){clearTimeout(timers[k]);timerFns[k]=f;timers[k]=setTimeout(function(){delete timers[k];delete timerFns[k];f()},ms)}
@@ -3045,7 +3103,7 @@ function userNote(note){
 function wasOf(note){var m=/(?:^|; )вместо «([^»]+)»/.exec(String(note||''));return m?m[1]:''}
 function restoreDraft(){
   var d=sheetDraft();if(!d)return render();
-  newSession(d.day,todayISO(),{workout:d.workout});
+  newSession(d.day,todayISO(),{workout:d.workout,noWarmup:true}); // a workout already under way: no warm-up screen
   // rows of a swapped exercise carry «вместо «planned»»: put the swap back into the plan first
   d.rows.forEach(function(r){var w=wasOf(r.note),it=w&&S.session.plan.filter(function(x){return x.name===w})[0];if(it){it.was=w;it.name=r.exercise}});
   delete dayCache['s:'+S.session.id];
@@ -3079,6 +3137,7 @@ function toggleSet(exId,n){
     toast(!okKg?'Введи вес (0 — если без веса)':'Введи число повторов');return;
   }
   var prevLast=doneSets(ex).slice(-1)[0]||0;
+  if(wuOpen())wuFinish(Object.keys(S.session.wup.items).length?'done':'skip',true); // a set ticked (maybe from the watch): the warm-up is over
   o.done=true;o.doneAt=Date.now();saveSession();
   var best=bestE1(ex,S.session.date);
   enqueue('saveSet',payloadFor(ex,n));
@@ -3091,7 +3150,13 @@ function toggleSet(exId,n){
     return;
   }
   var nx=nextTarget(ex);
-  if(!S.session.backfill){startRest(ex.restSec,nx?nx.label:'Последний подход позади');S.session.rest.src=exId+'#'+n;saveSession()}
+  if(!nx){ // the last working set of the day: no rest, straight to saving
+    stopRest();toast('Все подходы сделаны — сохраняй','volt');
+    setTimeout(function(){if(S.session&&!nextTarget(ex))goTo(exList().length)},420);
+    return;
+  }
+  var lbl=nx.ex.id!==ex.id&&nx.n===1&&wuNext(nx.ex)?'Дальше: разминочный · '+short(nx.ex.name):nx.label;
+  if(!S.session.backfill){startRest(ex.restSec,lbl);S.session.rest.src=exId+'#'+n;saveSession()}
   if(nx&&nx.ex.id!==ex.id&&remaining)setTimeout(function(){goToEx(nx.ex.id)},380); // back to the first exercise of the superset
   else if(nx&&nx.ex.id===ex.id)revealRow(ex.id,nx.n);
 }
@@ -3118,23 +3183,118 @@ function revealRow(exId,n){
   });
 }
 
+/* ================= warm-up =================
+   The screen before the first exercise (the «Разминка» sheet: what to do, a timer for the treadmill) and «Р» rows
+   above each exercise's working sets. Warm-up sets never go to «Тренировки»: only their count and the warm-up minutes
+   reach the «Сессии» note. How many warm-up sets an exercise gets is remembered by its name. */
+var WU_DEFAULT=[{name:'Дорожка в горку',detail:'уклон 10 · 5 км/ч',min:5},{name:'Суставы',detail:'шея, плечи, локти, кисти, повороты корпуса',min:null},{name:'Плечи с гантелями',detail:'лёгкие гантели, круги и подъёмы',min:null},{name:'Плечи с резинкой',detail:'разведения и вращения',min:null},{name:'Ноги',detail:'10–15 приседаний без веса, выпады',min:null}];
+var LS_WUN='wf1.wuN';
+function wuItems(){var l=S.boot&&S.boot.warmup;return l&&l.length?l:WU_DEFAULT}
+function wuOpen(){var w=S.session&&S.session.wup;return !!(w&&w.st==='open')}
+function renderWarmup(){
+  var s=S.session,w=s.wup,its=wuItems(),on=its.filter(function(x,i){return w.items[i]}).length,C=2*Math.PI*36,first=exList()[0];
+  var mins=its.reduce(function(a,x){return a+(x.min||0)},0)+Math.max(0,its.filter(function(x){return !x.min}).length)*1.5;
+  var tr=s.rest&&s.rest.kind==='tread'&&s.rest.endAt>Date.now()?s.rest:null;
+  var h='<div class="screen" id="wu"><div class="w-head"><div class="w-row"><button class="icon-btn" data-act="home" aria-label="На главную">'+I.back+'</button><div class="w-title"><b>Full Body '+esc(s.day)+'</b><span id="elapsed">'+headSub()+'</span></div><span class="sync-host">'+syncPill()+'</span></div></div>';
+  h+='<div class="wu-scroll"><div class="lux wu-hero"><div class="tx"><div class="eyebrow hot">Перед тренировкой</div><h2>Разминка</h2><p>'+plural(its.length,'пункт','пункта','пунктов')+' · около '+Math.round(mins)+' мин</p></div>';
+  h+='<div class="wu-ring"><svg viewBox="0 0 84 84"><defs><linearGradient id="wu-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF5E2B"/><stop offset=".5" stop-color="#FF9A3C"/><stop offset="1" stop-color="#D4FF3A"/></linearGradient></defs><circle cx="42" cy="42" r="36" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="7"/><circle id="wu-c" cx="42" cy="42" r="36" fill="none" stroke="url(#wu-g)" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+C+'" stroke-dashoffset="'+C*(1-on/its.length)+'"/></svg><div class="v" id="wu-v"><span>'+on+'<small>/'+its.length+'</small></span></div></div></div>';
+  h+='<div class="glass wu-list">'+its.map(function(x,i){
+    var tm=x.min?'<button class="wu-tm'+(tr&&tr.item===i?' run':'')+'" data-act="wu-tread" data-i="'+i+'" aria-label="Таймер '+x.min+' мин">'+(tr&&tr.item===i?'идёт':I.play+x.min+':00')+'</button>':'';
+    return '<div class="wu-it'+(w.items[i]?' on':'')+'"><button class="ck" data-act="wu-item" data-i="'+i+'" aria-label="'+esc(x.name)+(w.items[i]?' — сделано':'')+'">'+I.check+'</button><button class="nm" data-act="wu-item" data-i="'+i+'" style="text-align:left"><b>'+esc(x.name)+'</b>'+(x.detail?'<span>'+esc(x.detail)+'</span>':'')+'</button>'+tm+'</div>';
+  }).join('')+'</div>';
+  if(first)h+='<div class="wu-next">Дальше: <b>'+esc(short(first.name))+'</b>'+(wuCount(first)?' · начнёшь с разминочного подхода':'')+'</div>';
+  h+='</div><div class="bottom wu-bottom"><button class="cta" data-act="wu-done">Разминка сделана</button><button class="linkbtn" data-act="wu-skip">Пропустить разминку</button></div></div>';
+  $('#app').innerHTML=h;
+}
+function wuItem(i){var w=S.session.wup;if(!w)return;if(w.items[i])delete w.items[i];else w.items[i]=1;saveSession();if(w.items[i])nbPost({type:'haptic',kind:'set'});renderWarmup()}
+function wuTread(i){
+  var it=wuItems()[i],r=S.session.rest;if(!it||!it.min)return;
+  if(r&&r.kind==='tread'&&r.item===i&&r.endAt>Date.now()){stopRest();renderWarmup();return} // tapped again: stop
+  startRest(it.min*60,it.detail||it.name,'tread');S.session.rest.item=i;saveSession();renderWarmup();
+}
+function wuTreadEnd(){var r=S.session&&S.session.rest,w=S.session&&S.session.wup;if(!r||!w||r.item==null)return;w.items[r.item]=1;saveSession();if(wuOpen()&&$('#wu')){var keep=$('.wu-scroll'),top=keep?keep.scrollTop:0;renderWarmup();var sc=$('.wu-scroll');if(sc)sc.scrollTop=top}}
+function wuFinish(st,quiet){
+  var s=S.session,w=s.wup;if(!w)return;
+  w.st=st;w.min=st==='done'?Math.max(1,Math.round((Date.now()-w.at)/60000)):null;
+  if(s.rest&&s.rest.kind==='tread')stopRest();
+  saveSession();
+  if(quiet)return;
+  render();if(st==='done')toast('Разминка — '+w.min+' мин. Поехали','volt');
+}
+function wuLine(s){
+  var w=s.wup,n=0;Object.keys(s.wu||{}).forEach(function(id){var e=s.wu[id];Object.keys(e.s||{}).forEach(function(k){if(e.s[k].done&&+k<=e.n)n++})});
+  var a=w?(w.st==='done'?'разминка '+w.min+' мин':w.st==='skip'?'без разминки':''):'';
+  return [a,n?'разминочных подходов: '+n:''].filter(String).join(', ');
+}
+function wuRemembered(){return lsGet(LS_WUN,{})}
+function wuCount(ex){
+  var s=S.session;if(s.backfill)return 0;var e=s.wu&&s.wu[ex.id];if(e&&e.n!=null)return e.n;
+  var m=wuRemembered();return m[ex.name]!=null?m[ex.name]:(ex.counter?0:1);
+}
+function wuEntry(ex){var s=S.session;s.wu=s.wu||{};var e=s.wu[ex.id];if(!e){e=s.wu[ex.id]={n:wuCount(ex),s:{}}}return e}
+function wuObj(ex,k){var e=wuEntry(ex);return e.s[k]||(e.s[k]={})}
+function wuNext(ex){ // the first open warm-up set, while no working set of this exercise is done
+  if(doneSets(ex).length)return 0;var c=wuCount(ex),e=S.session.wu&&S.session.wu[ex.id];
+  for(var k=1;k<=c;k++){var o=e&&e.s[k];if(!o||!o.done)return k}return 0;
+}
+/* suggested load: a share of the first working set, down to the machine's step */
+var WU_PLAN={1:[[.5,10]],2:[[.5,10],[.75,5]],3:[[.4,10],[.6,6],[.8,3]]};
+function wuSuggest(ex,k,c){
+  var o=setObj(ex,1),base=num(o.kg),pl=(WU_PLAN[Math.min(c,3)]||WU_PLAN[3])[Math.min(k,3)-1]||[.5,10];
+  if(c>3)pl=[.4+.4*(k-1)/(c-1),Math.max(3,Math.round(10-7*(k-1)/(c-1)))];
+  var st=stepOf(ex)||2.5,kg=base==null?'':String(Math.max(0,Math.floor(base*pl[0]/st+1e-9)*st)).replace(/\.0+$/,'');
+  return {kg:kg,reps:String(pl[1])};
+}
+function wuVals(ex,k){var o=wuObj(ex,k),sg=wuSuggest(ex,k,wuCount(ex));return {kg:o.t_kg?(o.kg||''):(o.done?o.kg:sg.kg),reps:o.t_reps?(o.reps||''):(o.done?o.reps:sg.reps)}}
+function warmRow(ex,k,isNext,c){
+  var o=wuObj(ex,k),v=wuVals(ex,k),uni=ex.unilateral;
+  var h='<div class="set-row warm'+(o.done?' done':'')+(isNext?' next':'')+'" data-ex="'+ex.id+'" data-w="'+k+'"><div class="set-n">Р'+(c>1?'<sub>'+k+'</sub>':'')+'</div>';
+  h+='<input class="num" data-f="kg" inputmode="decimal" enterkeyhint="next" autocomplete="off" placeholder="кг" value="'+esc(v.kg)+'" aria-label="Вес, разминочный '+k+'">';
+  h+='<input class="num" data-f="reps" inputmode="numeric" enterkeyhint="done" autocomplete="off" placeholder="10" value="'+esc(v.reps)+'" aria-label="Повторы, разминочный '+k+'"'+(uni?' style="grid-column:span 2"':'')+'>';
+  return h+'<button class="check" data-act="check" aria-label="Разминочный '+k+(o.done?' выполнен — отменить':' — отметить')+'">'+I.check+'</button></div>';
+}
+function toggleWarm(exId,k){
+  var ex=exById(exId),o=wuObj(ex,k),row=$('.set-row[data-ex="'+exId+'"][data-w="'+k+'"]');
+  if(o.done){o.done=false;saveSession();if(S.session.rest&&S.session.rest.src==='w:'+exId+'#'+k)stopRest();rerenderEx(exId);return}
+  var v=wuVals(ex,k);
+  if(num(v.kg)==null||num(v.reps)==null){
+    if(row){row.classList.remove('shake');void row.offsetWidth;row.classList.add('shake');var f=$$('.num',row).filter(function(i){return !i.value})[0];if(f)f.focus()}
+    toast(num(v.kg)==null?'Введи вес (0 — если без веса)':'Введи число повторов');return;
+  }
+  if(wuOpen())wuFinish(Object.keys(S.session.wup.items).length?'done':'skip',true);
+  o.kg=v.kg;o.reps=v.reps;o.done=true;o.doneAt=Date.now();saveSession();
+  rerenderEx(exId);
+  var nk=wuNext(ex),lbl;
+  if(nk){var nv=wuVals(ex,nk);lbl='Дальше: разминочный · '+fmtN(num(nv.kg))+' кг × '+nv.reps}
+  else{var n1=firstOpen(ex)||1,w1=setObj(ex,n1),r1=ex.unilateral?w1.left:w1.reps;lbl='Дальше: подход '+n1+(num(w1.kg)!=null?' · '+fmtN(num(w1.kg))+' кг'+(r1?' × '+r1:''):'')}
+  if(!S.session.backfill){startRest(60,lbl,'warm');S.session.rest.src='w:'+exId+'#'+k;saveSession()}
+  if(!nk)revealRow(exId,firstOpen(ex)||1);
+}
+function wuSetCount(exId,d){
+  var ex=exById(exId),e=wuEntry(ex),n=e.n;
+  if(d<0){if(!n)return;var last=e.s[n];if(last&&last.done){toast('Сначала сними отметку с этого подхода');return}delete e.s[n]}
+  e.n=Math.max(0,Math.min(5,n+d));
+  var m=wuRemembered();m[ex.name]=e.n;lsSet(LS_WUN,m);
+  saveSession();rerenderEx(exId);
+}
+
 /* ================= rest timer ================= */
 var restTick=null,audioCtx=null;
 function unlockAudio(){if(audioCtx)return;try{var C=window.AudioContext||window.webkitAudioContext;if(C){audioCtx=new C();var o=audioCtx.createOscillator(),g=audioCtx.createGain();g.gain.value=0;o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+.01)}}catch(e){}}
 function beep(){if(!audioCtx)return;try{if(audioCtx.state==='suspended')audioCtx.resume();[0,.22,.44].forEach(function(t,i){var o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=i===2?1320:880;o.type='sine';g.gain.setValueAtTime(.0001,audioCtx.currentTime+t);g.gain.exponentialRampToValueAtTime(.35,audioCtx.currentTime+t+.02);g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+t+.18);o.connect(g);g.connect(audioCtx.destination);o.start(audioCtx.currentTime+t);o.stop(audioCtx.currentTime+t+.2)})}catch(e){}if(navigator.vibrate)navigator.vibrate([200,100,200])}
-function startRest(sec,label){S.session.rest={endAt:Date.now()+sec*1000,total:sec,label:label};saveSession();runRest()}
+function startRest(sec,label,kind){S.session.rest={endAt:Date.now()+sec*1000,total:sec,label:label,kind:kind||''};saveSession();runRest()}
 function adjRest(d){var r=S.session&&S.session.rest;if(!r)return;r.endAt+=d*1000;r.total=Math.max(15,r.total+d);saveSession();runRest()}
 function stopRest(){if(S.session){S.session.rest=null;saveSession()}clearInterval(restTick);restTick=null;$('#rest').className='rest';document.body.classList.remove('resting')}
 function runRest(){
   clearInterval(restTick);var el=$('#rest'),r=S.session&&S.session.rest;if(!r||S.view!=='workout'){el.className='rest';document.body.classList.remove('resting');return}
   if(r.endAt<Date.now()-8000){stopRest();return}
   var C=2*Math.PI*26,ended=false;
-  el.innerHTML='<div class="ring"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="5"/><circle id="rest-c" cx="30" cy="30" r="26" fill="none" stroke="#D4FF3A" stroke-width="5" stroke-linecap="round" stroke-dasharray="'+C+'" stroke-dashoffset="0"/></svg><div class="tm" id="rest-tm"></div></div><div class="t"><b id="rest-h">Отдых</b><span>'+esc(r.label)+'</span></div><button class="rb" data-act="rest-minus">−15</button><button class="rb" data-act="rest-plus">+15</button><button class="rb" data-act="rest-skip" aria-label="Пропустить отдых">'+I.x.replace('<svg','<svg width="18" height="18"')+'</button>';
-  el.className='rest on';document.body.classList.add('resting');
+  el.innerHTML='<div class="ring"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="5"/><circle id="rest-c" cx="30" cy="30" r="26" fill="none" stroke="'+(r.kind?'#FF7A33':'#D4FF3A')+'" stroke-width="5" stroke-linecap="round" stroke-dasharray="'+C+'" stroke-dashoffset="0"/></svg><div class="tm" id="rest-tm"></div></div><div class="t"><b id="rest-h">'+(r.kind==='tread'?'Дорожка':'Отдых')+'</b><span>'+esc(r.label)+'</span></div><button class="rb" data-act="rest-minus">−15</button><button class="rb" data-act="rest-plus">+15</button><button class="rb" data-act="rest-skip" aria-label="Пропустить отдых">'+I.x.replace('<svg','<svg width="18" height="18"')+'</button>';
+  el.className='rest on'+(r.kind?' warm':'');document.body.classList.add('resting');
   function tick(){
     var left=(r.endAt-Date.now())/1000,c=$('#rest-c'),tm=$('#rest-tm');if(!c)return;
     if(left<=0){
-      if(!ended){ended=true;if(left>-2)beep();el.classList.add('end');$('#rest-h').textContent='Время! Следующий подход';tm.textContent='0:00';c.setAttribute('stroke','#0B0B0C');c.style.strokeDashoffset=0}
+      if(!ended){ended=true;if(left>-2)beep();el.classList.add('end');$('#rest-h').textContent=r.kind==='tread'?'Дорожка — готово':'Время! Следующий подход';if(r.kind==='tread')wuTreadEnd();tm.textContent='0:00';c.setAttribute('stroke','#0B0B0C');c.style.strokeDashoffset=0}
       if(left<-8)stopRest();return;
     }
     tm.textContent=clock(left);c.style.strokeDashoffset=C*(1-left/r.total);
@@ -3275,7 +3435,7 @@ function saveFinish(){
   if(t.done===0){toast('Нет ни одного выполненного подхода','bad');return}
   if(!s.feeling){toast('Выбери самочувствие после');var f=$('#pg-finish .choices');if(f){var pg=$('#pg-finish');pg.scrollTo({top:f.offsetTop-80,behavior:'smooth'})}return}
   var fm=$('#f-min');s.minutes=num(fm?fm.value:minutesNow());var fn=$('#f-notes');s.comment=(fn?fn.value:s.comment||'').trim();
-  enqueue('finishSession',{date:s.date,workout:s.workout,setsDone:t.done,setsPlanned:t.planned,minutes:s.minutes,energy:s.energy||'',feeling:s.feeling,notes:[coachLine(s),s.comment].filter(String).join('; ')});
+  enqueue('finishSession',{date:s.date,workout:s.workout,setsDone:t.done,setsPlanned:t.planned,minutes:s.minutes,energy:s.energy||'',feeling:s.feeling,notes:[coachLine(s),wuLine(s),s.comment].filter(String).join('; ')});
   flushNow();
   S.fin.push(s.date+'|'+s.workout);S.fin=S.fin.slice(-30);lsSet(LS.fin,S.fin);
   S.lastDone={report:report(),totals:t,minutes:s.minutes,date:s.date,workout:s.workout,prs:prList()};lsSet(LS.last,S.lastDone);
@@ -3293,7 +3453,7 @@ function report(){
   exList().forEach(function(ex){var rows=[];for(var n=1;n<=setCount(ex);n++){var o=setObj(ex,n);if(!o.done)continue;rows.push(n+'. '+fmtN(num(o.kg))+' кг × '+(ex.unilateral?'Л '+o.left+', П '+o.right:o.reps)+' повт.')}
     lines.push(ex.name+' ('+ex.group+')\n'+(rows.length?rows.join('\n'):'не выполнялось/не записано')+(s.rir[ex.id]!=null?'\nRIR последнего подхода: '+s.rir[ex.id]:'')+(s.notes[ex.id]?'\nЗаметка: '+s.notes[ex.id]:''))});
   var t=totals();
-  lines.push('Всего: '+t.done+'/'+t.planned+' рабочих подходов','Продолжительность: '+(s.minutes||'не указана')+' мин','Энергия до: '+(s.energy||'не указана'),'План дня: '+(coachLine(s)||'не задан'),'После: '+(s.feeling||'не указано'),'Комментарии/замены: '+(s.comment||'нет'));
+  lines.push('Всего: '+t.done+'/'+t.planned+' рабочих подходов','Продолжительность: '+(s.minutes||'не указана')+' мин','Энергия до: '+(s.energy||'не указана'),'План дня: '+(coachLine(s)||'не задан'),'Разминка: '+(wuLine(s)||'не отмечена'),'После: '+(s.feeling||'не указано'),'Комментарии/замены: '+(s.comment||'нет'));
   return lines.join('\n\n');
 }
 
@@ -3333,7 +3493,7 @@ function load(done){
     if(done)done(true);
     if(wbToday())nbPost({type:'wellbeing',date:todayISO()}); // marked earlier or elsewhere: no reminder today
     setTimeout(function(){aiEnsure();aiReviewMaybe();weightsSync();stepsSync()},0);
-    if(S.view==='workout'&&$('#pager'))return; // never redraw under the fingers mid-workout
+    if(S.view==='workout'&&($('#pager')||$('#wu')))return; // never redraw under the fingers mid-workout
     if(S.view==='home'&&document.activeElement&&document.activeElement.tagName==='INPUT')return;
     render();
   }).withFailureHandler(function(err){
