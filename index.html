@@ -899,7 +899,7 @@ var LIB=[
   {re:/гиперэкстенз/i, img:'Hyperextensions_Back_Extensions', cues:['Движение от таза, спина прямая','Вверху — до прямой линии, без переразгибания']},
   {re:/горизонтальн.*тяг/i, img:'Seated_Cable_Rows', cues:['Тяни к животу, сводя лопатки','Корпус почти неподвижен, без рывка']},
   {re:/жим штанги лёжа/i, img:'Barbell_Bench_Press_-_Medium_Grip', hist:/^жим штанги лёжа/i, cues:['Лопатки сведены и опущены, стопы в пол','Гриф к низу груди, предплечья вертикальны']},
-  {re:/сгибание ног/i, img:'Seated_Leg_Curl', cues:['Таз прижат, не отрывай его','Сгибай полностью, обратно медленно']},
+  {re:/сгибание ног/i, img:'Seated_Leg_Curl', hist:/сгибание ног(?!.*лёж)/i, cues:['Таз прижат, не отрывай его','Сгибай полностью, обратно медленно']},
   {re:/face pull|к лицу/i, img:'Face_Pull', hist:/face pull|к лицу/i, cues:['Тяни канат к лицу, разводя руки','Локти выше кистей, в конце сожми лопатки']},
   {re:/сгибани.*наклонн/i, img:'Incline_Dumbbell_Curl', hist:/сгибани[яе]\s.*наклонн/i, cues:['Плечи неподвижны, руки висят вертикально','Полная амплитуда, без рывка корпусом']},
   {re:/из-за головы/i, img:'Cable_Rope_Overhead_Triceps_Extension', cues:['Локти смотрят вперёд и не расходятся','Полное растяжение за головой, вверху выпрямляй']},
@@ -3362,7 +3362,12 @@ function swapEx(exId,name){
   for(var n=1;n<=setCount(ex);n++)if(done.indexOf(n)<0)delete s.sets[exId+'#'+n];
   it.name=name;if(name===orig)delete it.was;else it.was=orig;
   delete dayCache['s:'+s.id];saveSession();
-  var nx=exById(exId);done.forEach(function(n){var p=payloadFor(nx,n);enqueue('saveSet',p);mergeLog(p)});
+  var nx=exById(exId);
+  // one-arm ↔ two-arm: carry the reps over to the fields the new exercise reads, or they are saved as 0
+  if(nx.unilateral!==ex.unilateral){done.forEach(function(n){var o=s.sets[exId+'#'+n];if(!o)return;
+    if(nx.unilateral){if(o.left==null||o.left==='')o.left=o.reps;if(o.right==null||o.right==='')o.right=o.reps}
+    else if(o.reps==null||o.reps===''){var r=repsOf(ex,o);if(r)o.reps=str(r)}});saveSession()}
+  done.forEach(function(n){var p=payloadFor(nx,n);enqueue('saveSet',p);mergeLog(p)});
   rerenderEx(exId);toast(name===orig?'Вернул «'+short(name)+'»':'Записываю как «'+short(name)+'»','volt');
 }
 
