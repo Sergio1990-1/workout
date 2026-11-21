@@ -600,6 +600,29 @@ body.resting .wu-bottom{padding-bottom:calc(var(--sb) + 92px)}
 .bar-load{width:120px;height:3px;background:var(--s2);border-radius:99px;margin:18px auto 0;overflow:hidden}
 .bar-load:after{content:"";display:block;width:40%;height:100%;background:var(--volt);animation:ld 1s infinite ease-in-out}
 @keyframes ld{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
+/* launch: the bar slides in, plates load from the middle out, then it is lifted again and again while data loads */
+.boot{position:relative;display:flex;flex-direction:column;align-items:center}
+.boot:before{content:'';position:absolute;left:50%;top:44px;width:260px;height:260px;margin:-130px 0 0 -130px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(212,255,58,.16),rgba(212,255,58,0));animation:bglow 1.6s .9s infinite ease-in-out;opacity:.5}
+.boot svg{width:176px;height:88px;overflow:visible;position:relative}
+.boot .bar{fill:#3A3A3F;transform-box:fill-box;transform-origin:center;animation:bbar .45s cubic-bezier(.2,.8,.2,1) both}
+.boot .pl{fill:var(--volt);transform-box:fill-box;transform-origin:center;animation:bplate .42s cubic-bezier(.3,1.6,.5,1) both}
+.boot .pl.in{animation-delay:.32s;fill:#B4DA2E}.boot .pl.out{animation-delay:.46s}
+.boot .lift{animation:blift 1.6s .9s infinite cubic-bezier(.45,0,.3,1);filter:drop-shadow(0 0 10px rgba(212,255,58,.35))}
+.boot .sh{fill:rgba(212,255,58,.22);transform-box:fill-box;transform-origin:center;animation:bsh 1.6s .9s infinite cubic-bezier(.45,0,.3,1)}
+.boot .logo{margin-top:22px;animation:bword .6s .5s cubic-bezier(.2,.8,.2,1) both}
+.boot .logo i{background:linear-gradient(100deg,var(--volt) 40%,#F6FFD6 50%,var(--volt) 60%);background-size:250% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:bshine 1.6s 1.1s infinite linear}
+@keyframes bbar{from{transform:scaleX(0);opacity:0}}
+@keyframes bplate{from{transform:scaleY(0);opacity:0}}
+@keyframes blift{0%,12%{transform:translateY(0)}45%,58%{transform:translateY(-16px)}90%,100%{transform:translateY(0)}}
+@keyframes bsh{0%,12%{transform:scaleX(1);opacity:1}45%,58%{transform:scaleX(.55);opacity:.35}90%,100%{transform:scaleX(1);opacity:1}}
+@keyframes bglow{0%,12%,90%,100%{opacity:.45;transform:scale(.92)}45%,58%{opacity:1;transform:scale(1.06)}}
+@keyframes bword{from{opacity:0;transform:translateY(10px);filter:blur(6px)}}
+@keyframes bshine{from{background-position:100% 0}to{background-position:-150% 0}}
+#app.reveal>.screen{animation:breveal .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes breveal{from{opacity:0;transform:translateY(12px) scale(.985)}}
+@media (prefers-reduced-motion:reduce){.boot *,.boot:before,#app.reveal>.screen{animation:none!important}}
 #nosleep{position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none}
 
 /* ===== tabs: «Сегодня», Тренировки, Питание, Сон, Тренер ===== */
@@ -810,7 +833,7 @@ body.resting .wu-bottom{padding-bottom:calc(var(--sb) + 92px)}
 </style>
 </head>
 <body>
-<div id="app"><div class="loading"><div><div class="logo">Трени<i>ровка</i></div><div class="bar-load"></div></div></div></div>
+<div id="app"><div class="loading"><div class="boot"><svg viewBox="0 0 176 88" aria-hidden="true"><ellipse class="sh" cx="88" cy="82" rx="54" ry="3.5"/><g class="lift"><rect class="bar" x="6" y="38" width="164" height="7" rx="3.5"/><rect class="pl out" x="22" y="12" width="13" height="59" rx="4"/><rect class="pl in" x="38" y="21" width="10" height="41" rx="3.5"/><rect class="pl in" x="128" y="21" width="10" height="41" rx="3.5"/><rect class="pl out" x="141" y="12" width="13" height="59" rx="4"/></g></svg><div class="logo">Трени<i>ровка</i></div></div></div></div>
 <div id="rest" class="rest" aria-live="polite"></div>
 <div id="toast" class="toast" role="status"></div>
 <div id="sheet-host"></div>
@@ -1954,6 +1977,12 @@ function minutesNow(){var s=S.session;if(s.minutes!=null&&s.minutesTouched)retur
 /* ================= render: root ================= */
 function render(){
   if(!S.boot)return;
+  if(bootHold&&S.view==='home')return; // launch: the logo stays until fresh data, so the home screen is drawn once
+  var app=$('#app'),first=!!$('.boot',app);
+  draw();
+  if(first){app.classList.add('reveal');setTimeout(function(){app.classList.remove('reveal')},500)} // the first screen eases in over the logo
+}
+function draw(){
   if(S.view==='workout'&&S.session)return renderWorkout();
   if(S.view==='done')return renderDone();
   if(S.view==='hist'&&S.hist)return renderHist();
@@ -3494,6 +3523,7 @@ var toastT;function toast(msg,kind){var t=$('#toast');t.textContent=msg;t.classN
 /* ================= boot ================= */
 function load(done){
   google.script.run.withSuccessHandler(function(b){
+    if(bootHold){clearTimeout(bootHold);bootHold=0}
     S.boot=b;dayCache={};S._wl=null;S.queue.forEach(function(it){if(it.op==='saveSet')mergeLog(it.p);else if(it.op==='deleteSet')unmergeLog(it.p)});lsSet(LS.boot,b);
     if(done)done(true);
     if(wbToday())nbPost({type:'wellbeing',date:todayISO()}); // marked earlier or elsewhere: no reminder today
@@ -3503,6 +3533,7 @@ function load(done){
     render();
   }).withFailureHandler(function(err){
     if(done)done(false);
+    releaseHold();
     if(!S.boot)$('#app').innerHTML='<div class="loading"><div><div class="logo">Трени<i>ровка</i></div><p class="muc">Не удалось загрузить данные: '+esc(err&&err.message||'нет связи')+'</p><button class="cta" onclick="location.reload()">Повторить</button></div></div>';
     else toast('Нет связи — работаю с сохранёнными данными');
   }).getBootstrap();
@@ -3666,7 +3697,12 @@ if(NB){
 
 if(S.lastDone&&S.queue.length)S.view='done';
 else if(S.session)S.view='workout';
-if(S.boot){render();if(S.session&&S.session.rest)runRest()}
+/* Saved data from the last visit would be drawn first and then redrawn when fresh data arrives a second later,
+   so the screen jumps. The home screen waits for fresh data instead; without network it shows the saved data
+   after a moment. A running workout opens at once: it does not depend on fresh data. */
+var bootHold=0;
+function releaseHold(){if(!bootHold)return;clearTimeout(bootHold);bootHold=0;render()}
+if(S.boot){if(S.view==='home')bootHold=setTimeout(releaseHold,2500);else render();if(S.session&&S.session.rest)runRest()}
 load();flush();
 })();
 </script>
