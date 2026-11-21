@@ -3527,14 +3527,27 @@ function nbQueue(){
     var j=firstUndone(ex,setCount(ex));if(j)return {ex:ex,n:j};
     return anyUndone();
   }
-  var cur=null,pg=exs[s.page];
+  var cur=null,pg=exs[s.page],wq={};
   if(pg){var n0=firstUndone(pg,setCount(pg));if(n0)cur={ex:pg,n:n0}}
   if(!cur)cur=anyUndone();
   while(cur&&out.length<30){
+    // open warm-up sets come before an exercise's first working set
+    if(!wq[cur.ex.id]){wq[cur.ex.id]=1;if(!doneSets(cur.ex).length)nbWarm(cur.ex).forEach(function(w){if(out.length<30)out.push(w)})}
+    if(out.length>=30)break;
     var o=nbSet(cur.ex,cur.n);
     out.push({exId:cur.ex.id,n:cur.n,name:short(cur.ex.name),target:nbTarget(cur.ex,o),canMark:nbFilled(cur.ex,o),
       setsTotal:setCount(cur.ex),rest:ssNext(cur.ex)?0:(cur.ex.restSec||0)});
     vd[cur.ex.id+'#'+cur.n]=1;cur=nextAfter(cur.ex);
+  }
+  return out;
+}
+/* open warm-up sets of an exercise, read-only (never creates entries in S.session.wu) */
+function nbWarm(ex){
+  var s=S.session,c=wuCount(ex),e=s.wu&&s.wu[ex.id],out=[];
+  for(var k=1;k<=c;k++){
+    var o=(e&&e.s[k])||{};if(o.done)continue;
+    var sg=wuSuggest(ex,k,c),kg=o.t_kg?(o.kg||''):sg.kg,reps=o.t_reps?(o.reps||''):sg.reps;
+    out.push({exId:ex.id,n:k,warm:true,name:short(ex.name),target:nbTarget({},{kg:kg,reps:reps}),canMark:num(kg)!=null&&num(reps)!=null,setsTotal:setCount(ex),rest:60});
   }
   return out;
 }
@@ -3560,7 +3573,20 @@ function nbApplied(){return lsGet('wf1.nbApplied',[])}
 function nbRun(a){
   var s=S.session;if(!s)throw new Error('тренировка уже закрыта');
   if(a.sid!==s.startedAt)throw new Error('отметка из другой тренировки — пропущена');
-  if(a.type==='done'){
+  if(a.type==='done'&&a.warm){ // a warm-up set marked on the lock screen or the watch
+    var exw=exById(a.exId);if(!exw)throw new Error('упражнение не найдено');
+    var we=s.wu&&s.wu[a.exId],ow=we&&we.s[a.n];
+    if(ow&&ow.done)return;
+    var wi=exList().findIndex(function(x){return x.id===a.exId});
+    if(wi>=0&&s.page!==wi){s.page=wi;goTo(wi,false)}
+    if(S.view!=='workout'){S.view='workout';render()}
+    toggleWarm(a.exId,a.n);
+    ow=s.wu&&s.wu[a.exId]&&s.wu[a.exId].s[a.n];
+    if(!ow||!ow.done)throw new Error(short(exw.name)+', разминочный: не отмечен — нет веса или повторов');
+    ow.doneAt=a.at;
+    if(s.rest&&s.rest.src==='w:'+a.exId+'#'+a.n)s.rest.endAt=a.at+s.rest.total*1000;
+    saveSession();
+  }else if(a.type==='done'){
     var ex=exById(a.exId);if(!ex)throw new Error('упражнение не найдено');
     var key=a.exId+'#'+a.n,o=s.sets[key];
     if(o&&o.done)return;
