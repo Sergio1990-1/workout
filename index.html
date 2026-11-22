@@ -737,16 +737,17 @@ body.resting .wu-bottom{padding-bottom:calc(var(--sb) + 92px)}
 .alc-big em{font-style:normal;color:#FF7A33}
 .alc-sub{font-size:14px;color:var(--mu);margin-top:6px}
 .alc-l2{display:flex;justify-content:space-between;font-size:12px;color:var(--mu2);margin:22px 2px 8px}
-.alc-row{display:grid;grid-template-columns:26px 76px 1fr 40px;align-items:center;gap:8px;padding:6px 0}
+.alc-row{display:grid;grid-template-columns:26px 86px 1fr 40px;align-items:center;gap:8px;padding:6px 0}
 .alc-row .gl{color:var(--tx2)}.alc-row .gl svg{width:20px;height:25px;display:block;margin:auto}
-.alc-row .nm{font-size:14px;font-weight:600;color:var(--tx2);line-height:1.2}
+.alc-row .nm{font-size:14px;font-weight:600;color:var(--tx2);line-height:1.2;white-space:nowrap}
 .alc-row .nm small{display:block;font-size:11px;font-weight:500;color:var(--mu2)}
 .alc-row .tr{position:relative;height:12px;border-radius:7px;background:rgba(255,255,255,.05)}
 .alc-row .fl{position:absolute;left:0;top:0;bottom:0;border-radius:7px;background:var(--c);box-shadow:0 0 12px var(--g);transform-origin:left;animation:alcGrow .8s cubic-bezier(.2,.8,.2,1) backwards}
 .alc-row .ref{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;border-radius:1px;background:var(--tx);opacity:.55}
 .alc-row b{font-size:17px;font-weight:800;text-align:right;color:var(--c)}
 .alc-row b.few{font-size:12px;font-weight:600;color:var(--mu2)}
-.alc-refn{font-size:11px;color:var(--mu2);margin:4px 0 0 110px}
+.alc-row.thin .fl{opacity:.4;box-shadow:none}.alc-row.thin b{opacity:.6}
+.alc-refn{font-size:11px;color:var(--mu2);margin:4px 0 0 120px}
 @keyframes alcGrow{from{transform:scaleX(0)}}
 .alc-cmp{display:grid;grid-template-columns:1fr auto auto auto;gap:9px 10px;align-items:center;font-size:14px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.035)}
 .alc-cmp .h{font-size:11px;color:var(--mu2);text-align:right}
@@ -760,11 +761,12 @@ body.resting .wu-bottom{padding-bottom:calc(var(--sb) + 92px)}
 .alc-ev .bar.hi{box-shadow:0 0 10px rgba(255,122,51,.6)}
 .alc-ev .bar.no{width:10px;background:rgba(255,255,255,.12)}
 .alc-ev .ln{width:1px;height:8px;background:rgba(255,255,255,.12)}
-.alc-ev .md{width:19px;height:19px;margin:2px 0;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:800;color:var(--ink);background:var(--c);outline:1.5px solid var(--e);outline-offset:1.5px}
+.alc-ev .md{width:19px;height:19px;margin:2px 0;border-radius:50%;display:grid;place-items:center;font-style:normal;line-height:1;font-size:10px;font-weight:800;color:var(--ink);background:var(--c);outline:1.5px solid var(--e);outline-offset:1.5px}
 .alc-ev .md.none{background:none;outline:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
 .alc-ev .dd{font-size:11px;color:var(--mu2)}.alc-ev.now .dd{color:var(--tx)}
 .alc-det{margin-top:10px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.035);font-size:13px;line-height:1.45;color:var(--mu)}
 .alc-det b{color:var(--tx);font-weight:600}
+.alc-fix{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:10px}.alc-fix span{flex-basis:100%;font-size:13px;color:var(--tx2)}.alc-fix .hab-c{height:32px;font-size:13px;padding:0 12px}
 .alc-streak{display:flex;align-items:center;gap:12px;margin-top:14px;padding:12px 14px;border-radius:16px;background:var(--volt-dim)}
 .alc-streak b{font-size:24px;font-weight:800;color:var(--volt);min-width:18px;text-align:center}
 .alc-streak span{font-size:14px;color:var(--tx2);line-height:1.35}
@@ -803,11 +805,11 @@ body.resting .wu-bottom{padding-bottom:calc(var(--sb) + 92px)}
 .wb-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px}
 .wb-day{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:var(--mu2)}
 .wb-dot{position:relative;width:38px;height:38px;display:grid;place-items:center}
-.wb-dot svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.wb-dot svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible;filter:drop-shadow(0 0 2.5px var(--e)) drop-shadow(0 0 7px var(--e))}
 .wb-dot circle{fill:none;stroke-width:2.6}
 .wb-dot .tr{stroke:var(--line)}
-.wb-dot .ar{stroke:var(--e);stroke-linecap:round;filter:drop-shadow(0 0 2.5px var(--e)) drop-shadow(0 0 6px var(--e))}
-.wb-day i{width:27px;height:27px;border-radius:50%;background:var(--c,transparent);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:700;color:var(--ink);font-variant-numeric:proportional-nums}
+.wb-dot .ar{stroke:var(--e);stroke-linecap:round}
+.wb-day i{width:27px;height:27px;border-radius:50%;background:var(--c,transparent);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center;font-style:normal;line-height:1;font-size:12px;font-weight:700;color:var(--ink);font-variant-numeric:proportional-nums}
 .wb-day.now{color:var(--tx)}.wb-day.now i{animation:wbPop .5s cubic-bezier(.3,1.6,.5,1)}.wb-day.now .ar{animation:wbArc .9s .25s cubic-bezier(.2,.8,.2,1) backwards}
 @keyframes wbPop{0%{transform:scale(0)}100%{transform:scale(1)}}
 @keyframes wbArc{from{stroke-dasharray:0 107}}
@@ -2069,12 +2071,13 @@ function homeToday(){
     h+='<button class="resume alt" data-act="restore"><span class="t"><b>Продолжить Full Body '+esc(draft.day)+'</b><span>В таблице уже '+plural(draft.rows.length,'подход','подхода','подходов')+' за сегодня</span></span>'+I.play+'</button>';
   }
   if(rec&&rec.ill)h+=illnessHtml(rec.ill);
-  h+='<div id="wb-card">'+wbCardHtml()+'</div>';
-  if(aiOn())h+='<div id="ai-card">'+aiCardHtml()+'</div><div id="tk-card">'+tasksCardHtml()+'</div>';
-  h+='<div id="hab-card">'+habitsCardHtml()+'</div>';
+  // The day first: the coach's verdict, the recovery summary, the morning mark, then today's tasks and the evening habits.
+  // Calories, weight and the next workout live on their own tabs.
+  if(aiOn())h+='<div id="ai-card">'+aiCardHtml()+'</div>';
   if(rec)h+='<button class="tap-card" data-act="tab" data-tab="sleep">'+recoveryCardHtml(rec,false)+'</button>';
-  h+='<button class="tap-card" data-act="tab" data-tab="train">'+heroCard(S.day,nd).replace('class="hero"','class="hero solo"')+'</button>';
-  h+='<div id="tiles">'+todayTilesHtml()+'</div>';
+  h+='<div id="wb-card">'+wbCardHtml()+'</div>';
+  if(aiOn())h+='<div id="tk-card">'+tasksCardHtml()+'</div>';
+  h+='<div id="hab-card">'+habitsCardHtml()+'</div>';
   unloggedWatch().forEach(function(w){h+=watchNotice(w)});
   return h;
 }
@@ -2261,7 +2264,7 @@ function cardioHtml(){
 function homeFood(){
   var n=nutriCardHtml(),m=mealsCardHtml(),w=weightCardHtml(),h=tabTitle('Питание и вес');
   if(!n&&!m&&!w)return h+emptyNote('Здесь будут еда за день из листа «Питание», вес из Здоровья и реальный расход калорий.');
-  return h+'<div id="goal-card">'+goalCardHtml()+'</div>'+n+'<div id="meal-ai">'+mealAiHtml()+'</div>'+m+'<div id="wt-card">'+w+'</div>';
+  return h+'<div id="tiles">'+todayTilesHtml()+'</div><div id="goal-card">'+goalCardHtml()+'</div>'+n+'<div id="meal-ai">'+mealAiHtml()+'</div>'+m+'<div id="wt-card">'+w+'</div>';
 }
 function homeSleep(){
   var rec=recovery(),h=tabTitle('Сон и восстановление');
@@ -2754,7 +2757,7 @@ function alcMorningHtml(){
   }
   var st=alcStreak(D,y);if(st<2)return '';
   var sob=D.filter(function(x){return x.g===0&&x.energy!=null&&x.ev<y}),m=sob.length>=3?alcMean(sob,'energy'):null;
-  return '<div class="alc-why calm"><b class="alc-n">'+st+'</b><span><b>'+st+'-й вечер без алкоголя подряд.</b>'+(m!=null?' Утра после трезвых вечеров: силы в среднем <b>'+fmtN(Math.round(m*10)/10)+'</b>.':'')+'</span></div>';
+  return '<div class="alc-why calm"><b class="alc-n">'+st+'</b><span><b>'+plural(st,'вечер','вечера','вечеров').replace(/^\d+ /,'')+' без алкоголя подряд.</b>'+(m!=null?' Утра после трезвых вечеров: силы в среднем <b>'+fmtN(Math.round(m*10)/10)+'</b>.':'')+'</span></div>';
 }
 /* «Алкоголь и следующий день»: evening → next morning, told as the day score (mood + energy, 2–10) the week strip shows */
 function alcScoreCol(v){return v<4.5?'#FF5A5F':v<5.8?'#FF8A4C':v<6.6?'#FFB35C':v<8.5?'#7ED957':'#D4FF3A'}
@@ -2770,15 +2773,17 @@ function alcLead(D,G){
     :de<=-0.5?'После '+w+' утро даже лучше: +'+alcF1(-de)+' к оценке дня':'После '+w+' утро почти как после трезвого вечера';
   return '<div class="alc-big">'+big+'</div><div class="alc-sub">После '+w+' утро в среднем на '+alcF1(mu)+' из 10, после трезвого вечера — на '+alcF1(base)+'. По '+plural(n,'отмеченному вечеру','отмеченным вечерам','отмеченным вечерам')+'.</div>';
 }
-function alcLadderHtml(G){
-  var base=G[0].length>=3?alcMean(G[0],'score'):null,h='';
-  G.forEach(function(l,g){
-    var ok=l.length>=3,mu=ok?alcMean(l,'score'):null,c=ok?alcScoreCol(mu):'';
-    h+='<div class="alc-row"><span class="gl">'+alcGlass(g)+'</span><span class="nm">'+ALC_GRP[g]+'<small>'+(l.length?plural(l.length,'утро','утра','утр'):'нет утр')+'</small></span>'+
-      '<span class="tr">'+(ok?'<i class="fl" style="width:'+(mu*10).toFixed(1)+'%;--c:'+c+';--g:'+c+'66"></i>':'')+(g&&base!=null?'<i class="ref" style="left:'+(base*10).toFixed(1)+'%"></i>':'')+'</span>'+
-      (ok?'<b style="--c:'+c+'">'+alcF1(mu)+'</b>':'<b class="few">'+(l.length?'мало':'—')+'</b>')+'</div>';
+function alcLadderHtml(G,unk){
+  // 1–2 mornings are shown faded (too few to trust); evenings marked as alcohol without an amount get their own row
+  var base=G[0].length>=3?alcMean(G[0],'score'):null,h='',rows=G.map(function(l,g){return [l,g,ALC_GRP[g]]});
+  if(unk.length)rows.push([unk,2,'Не указано']);
+  rows.forEach(function(r,k){
+    var l=r[0],ok=l.length>=3,mu=l.length?alcMean(l,'score'):null,c=mu!=null?alcScoreCol(mu):'';
+    h+='<div class="alc-row'+(l.length&&!ok?' thin':'')+'"><span class="gl"'+(k>3?' style="opacity:.5"':'')+'>'+alcGlass(r[1])+'</span><span class="nm">'+r[2]+'<small>'+(l.length?plural(l.length,'утро','утра','утр')+(ok?'':' · мало'):'нет утр')+'</small></span>'+
+      '<span class="tr">'+(mu!=null?'<i class="fl" style="width:'+(mu*10).toFixed(1)+'%;--c:'+c+';--g:'+c+'66"></i>':'')+(k&&base!=null?'<i class="ref" style="left:'+(base*10).toFixed(1)+'%"></i>':'')+'</span>'+
+      (mu!=null?'<b style="--c:'+c+'">'+alcF1(mu)+'</b>':'<b class="few">—</b>')+'</div>';
   });
-  return h+(base!=null&&G.slice(1).some(function(l){return l.length})?'<div class="alc-refn">белая риска — твоё трезвое утро</div>':'');
+  return h+(base!=null&&(unk.length||G.slice(1).some(function(l){return l.length}))?'<div class="alc-refn">белая риска — твоё трезвое утро</div>':'');
 }
 function alcCmpHtml(D){
   var s=D.filter(function(x){return x.g===0}),a=D.filter(function(x){return x.on}),rows='';
@@ -2804,11 +2809,20 @@ function alcCardHtml(){
   var det='Нажми на вечер — покажу, что было наутро.',se=S.alcEv&&by[S.alcEv];
   if(S.alcEv)det=se?'<b>'+esc(fmtDay(se.ev))+'</b> — '+esc(se.on?alcWhat(se):'без алкоголя')+'.<br>Наутро: '+[se.score!=null?'оценка <b style="color:'+alcScoreCol(se.score)+'">'+se.score+'</b>':'утро не отмечено',se.energy!=null?'силы '+WB_EN[se.energy-1].toLowerCase()+', настроение '+WB_MO[se.mood-1]+(se.angry?', злой':''):'',se.sleep!=null?'сон '+alcF1(se.sleep)+' ч':'',se.hrv!=null?'HRV '+Math.round(se.hrv):''].filter(String).join(' · ')+'.'
     :'<b>'+esc(fmtDay(S.alcEv))+'</b> — вечер не отмечен.';
+  // an evening marked before amounts existed (or without one) can still get its amount while the server accepts edits (7 days)
+  if(se&&se.on&&se.g===-1&&se.ev>=isoAdd(todayISO(),-7))det+='<div class="alc-fix"><span>Сколько выпил?</span>'+ALC_LV.map(function(x){return '<button class="hab-c" data-act="alc-fix" data-k="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>';
   var mon=todayISO().slice(0,7),mo=D.filter(function(x){return x.ev.slice(0,7)===mon}),mOn=mo.filter(function(x){return x.on}).length,mHi=mo.filter(function(x){return x.g===3}).length;
   return '<div class="glass alc-card"><div class="eyebrow">Алкоголь и следующий день</div>'+alcLead(D,G)+
-    '<div class="alc-l2"><span>Сколько выпил вечером → оценка дня наутро</span></div>'+alcLadderHtml(G)+alcCmpHtml(D)+
+    '<div class="alc-l2"><span>Сколько выпил вечером → оценка дня наутро</span></div>'+alcLadderHtml(G,D.filter(function(x){return x.g===-1&&x.score!=null}))+alcCmpHtml(D)+
     '<div class="alc-l2"><span>Последние 12 вечеров</span><span>вечер ↓ утро</span></div><div class="alc-tl">'+tl+'</div><div class="alc-det">'+det+'</div>'+
     '<div class="alc-streak">'+(st?'<b>'+st+'</b><span>'+plural(st,'вечер','вечера','вечеров').replace(/^\d+ /,'')+' без алкоголя подряд':'<span>Вчера вечером был алкоголь')+'<small>в этом месяце: '+mOn+' с алкоголем'+(mHi?', из них '+mHi+' — «много»':'')+'</small></span></div></div>';
+}
+function alcFix(k){
+  var d=S.alcEv,h=((S.boot&&S.boot.habits)||[]).filter(function(x){return x.date===d})[0];if(!h)return;
+  $$('[data-act="alc-fix"]').forEach(function(b){b.disabled=true});
+  google.script.run.withSuccessHandler(function(){h.alc=k;lsSet(LS.boot,S.boot);toast('Записал: '+ALC_WORD[alcIdx(k)]);alcRefresh()})
+    .withFailureHandler(function(e){toast('Не записалось: '+((e&&e.message)||'нет связи'),'bad');alcRefresh()})
+    .saveHabits({date:d,tags:h.tags,alc:k,drinks:h.drinks||[]});
 }
 function alcRefresh(){var c=$('#alc-card');if(c)c.innerHTML=alcCardHtml()}
 /* New or changed Health weighings go to «Тело» once per page; weights typed into the sheet are never replaced. */
@@ -3042,6 +3056,7 @@ document.addEventListener('click',function(e){
     case 'alc-lv':alcPickLv(a.dataset.k);break;
     case 'alc-dr':alcPickDr(a.dataset.k);break;
     case 'alc-ev':S.alcEv=S.alcEv===a.dataset.d?null:a.dataset.d;alcRefresh();break;
+    case 'alc-fix':alcFix(a.dataset.k);break;
   }
 });
 function pickOn(btn,off){$$('.choice',btn.parentNode).forEach(function(x){x.classList.toggle('on',!off&&x===btn)})}
