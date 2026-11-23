@@ -3673,6 +3673,8 @@ function nbRun(a){
 var nbMem=[]; // applied in this page's life, even if storing the list failed
 var nbBoot=nbApplied(); // read from storage when the page loaded: these taps are known to be on disk
 var NB=window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.wb||null;
+// A light tap on every button press, inside the app only (Safari gives a page no haptics).
+if(NB)document.addEventListener('click',function(e){var t=e.target;if(t&&t.closest&&t.closest('button,[role="button"],.choice,label,input[type="checkbox"],input[type="radio"]'))nbPost({type:'haptic',kind:'tap'})},true);
 if(NB)document.documentElement.classList.add('in-app');
 if(NB){
   window.wbNative={
