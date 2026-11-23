@@ -3480,12 +3480,12 @@ function cancelSession(){
   lsSet(LS.boot,S.boot); // the home screen must not offer to restore what was just cancelled
   flushNow();stopRest();S.session=null;saveSession();S.view='home';letSleep();render();toast('Тренировка отменена');
 }
-function saveFinish(){
+function saveFinish(endAt){
   drainEdits();
   var s=S.session,t=totals();
   if(t.done===0){toast('Нет ни одного выполненного подхода','bad');return}
   if(!s.feeling){toast('Выбери самочувствие после');var f=$('#pg-finish .choices');if(f){var pg=$('#pg-finish');pg.scrollTo({top:f.offsetTop-80,behavior:'smooth'})}return}
-  var fm=$('#f-min');s.minutes=num(fm?fm.value:minutesNow());var fn=$('#f-notes');s.comment=(fn?fn.value:s.comment||'').trim();
+  var fm=$('#f-min');s.minutes=num(endAt&&!s.minutesTouched&&!s.backfill?Math.max(1,Math.round((endAt-s.startedAt)/60000)):fm?fm.value:minutesNow());var fn=$('#f-notes');s.comment=(fn?fn.value:s.comment||'').trim();
   enqueue('finishSession',{date:s.date,workout:s.workout,setsDone:t.done,setsPlanned:t.planned,minutes:s.minutes,energy:s.energy||'',feeling:s.feeling,notes:[coachLine(s),wuLine(s),s.comment].filter(String).join('; ')});
   flushNow();
   S.fin.push(s.date+'|'+s.workout);S.fin=S.fin.slice(-30);lsSet(LS.fin,S.fin);
@@ -3658,6 +3658,13 @@ function nbRun(a){
     }
   }else if(a.type==='skip'){if(s.rest)stopRest()}
   else if(a.type==='add'){var r=s.rest;if(r){r.endAt+=(a.sec||15)*1000;r.total=Math.max(15,r.total+(a.sec||15))}} // timer redrawn after the batch
+  // «Сохранить» / «Удалить» on the watch: the same as the buttons here, with the feeling chosen on the watch
+  else if(a.type==='finish'){
+    if(FEELINGS.some(function(f){return f.v===a.feeling}))s.feeling=a.feeling;
+    saveFinish(a.at); // the phone may get it much later: the workout ended at the tap
+    if(S.session)throw new Error('Тренировка с часов не сохранилась — сохрани её в форме');
+  }
+  else if(a.type==='cancel')cancelSession();
 }
 var nbMem=[]; // applied in this page's life, even if storing the list failed
 var nbBoot=nbApplied(); // read from storage when the page loaded: these taps are known to be on disk
