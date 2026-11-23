@@ -1783,8 +1783,9 @@ function exGroup(name){
   if(!g){var c=catFor(name);g=c&&c.group||''}
   return capz(String(g||'Другое').split(/[,;(]/)[0].trim()||'Другое');
 }
-function weekData(ws){
-  var we=isoAdd(ws,6),list=workoutsList().filter(function(x){return x.date>=ws&&x.date<=we}).reverse();
+// upTo cuts the week short, so a week in progress is compared with the same days of the previous one
+function weekData(ws,upTo){
+  var we=isoAdd(ws,6),end=upTo&&upTo<we?upTo:we,list=workoutsList().filter(function(x){return x.date>=ws&&x.date<=end}).reverse();
   var o={ws:ws,we:we,list:list,ton:0,sets:0,prs:0,cnt:{up:0,same:0,down:0,'new':0},movers:[],groups:{}};
   list.forEach(function(w){var st=wkStats(w);o.ton+=st.ton;o.sets+=st.sets;o.prs+=st.prs;['up','same','down','new'].forEach(function(k){o.cnt[k]+=st.count[k]});
     st.list.forEach(function(x){if(x.st.k==='up')o.movers.push({name:x.name,t:x.st.t,pr:x.pr});var g=exGroup(x.name);o.groups[g]=(o.groups[g]||0)+x.rows.length})});
@@ -1810,7 +1811,7 @@ function weekCardHtml(){
 }
 function openWeek(ws){S.week={ws:ws||weekStart(todayISO())};S.view='week';render();var sc=$('#week-scroll');if(sc)sc.scrollTop=0}
 function renderWeek(){
-  var ws=S.week.ws,wd=weekData(ws),pw=weekData(isoAdd(ws,-7)),plan=planPerWeek(),today=todayISO(),isCur=ws>=weekStart(today);
+  var ws=S.week.ws,wd=weekData(ws),plan=planPerWeek(),today=todayISO(),isCur=ws>=weekStart(today),pw=weekData(isoAdd(ws,-7),isCur?isoAdd(today,-7):null);
   var h='<div class="screen"><div class="w-head"><div class="w-row"><button class="icon-btn" data-act="week-back" aria-label="Назад">'+I.back+'</button><div class="w-title"><b>Итоги недели</b><span>'+esc(weekRange(ws))+'</span></div><div class="wk-nav"><button class="icon-btn" data-act="week-nav" data-d="-7" aria-label="Прошлая неделя">'+I.back+'</button><button class="icon-btn" data-act="week-nav" data-d="7" aria-label="Следующая неделя"'+(isCur?' disabled style="opacity:.3"':'')+'>'+I.fwd+'</button></div></div></div><div class="scroll" id="week-scroll"><div class="pad">';
   // hero
   var dT=pw.ton&&wd.ton?Math.round((wd.ton-pw.ton)/pw.ton*100):null;
@@ -3259,9 +3260,9 @@ function wuTread(i){
   startRest(it.min*60,it.detail||it.name,'tread');S.session.rest.item=i;saveSession();renderWarmup();
 }
 function wuTreadEnd(){var r=S.session&&S.session.rest,w=S.session&&S.session.wup;if(!r||!w||r.item==null)return;w.items[r.item]=1;saveSession();if(wuOpen()&&$('#wu')){var keep=$('.wu-scroll'),top=keep?keep.scrollTop:0;renderWarmup();var sc=$('.wu-scroll');if(sc)sc.scrollTop=top}}
-function wuFinish(st,quiet){
+function wuFinish(st,quiet,at){ // at: when «Разминка сделана» was tapped on the watch (it may reach the form later)
   var s=S.session,w=s.wup;if(!w)return;
-  w.st=st;w.min=st==='done'?Math.max(1,Math.round((Date.now()-w.at)/60000)):null;
+  w.st=st;w.min=st==='done'?Math.max(1,Math.round(((at||Date.now())-w.at)/60000)):null;
   if(s.rest&&s.rest.kind==='tread')stopRest();
   saveSession();
   if(quiet)return;
@@ -3581,6 +3582,8 @@ function nbQueue(){
     return anyUndone();
   }
   var cur=null,pg=exs[s.page],wq={};
+  // the warm-up screen comes first: one step the watch can close with «Разминка сделана»
+  if(wuOpen())out.push({exId:'__wup',n:1,warm:true,name:'Разминка',target:'',canMark:true,setsTotal:1,rest:0});
   if(pg){var n0=firstUndone(pg,setCount(pg));if(n0)cur={ex:pg,n:n0}}
   if(!cur)cur=anyUndone();
   while(cur&&out.length<30){
@@ -3626,6 +3629,7 @@ function nbApplied(){return lsGet('wf1.nbApplied',[])}
 function nbRun(a){
   var s=S.session;if(!s)throw new Error('тренировка уже закрыта');
   if(a.sid!==s.startedAt)throw new Error('отметка из другой тренировки — пропущена');
+  if(a.type==='done'&&a.exId==='__wup'){if(wuOpen())wuFinish('done',false,a.at);return} // «Разминка сделана» on the watch
   if(a.type==='done'&&a.warm){ // a warm-up set marked on the lock screen or the watch
     var exw=exById(a.exId);if(!exw)throw new Error('упражнение не найдено');
     var we=s.wu&&s.wu[a.exId],ow=we&&we.s[a.n];
