@@ -1921,7 +1921,7 @@ function syncPill(){
 /* ================= session ops ================= */
 function newSession(day,date,opts){
   opts=opts||{};
-  S.session={id:Date.now().toString(36),date:date,day:day,workout:opts.workout||workoutName(day),startedAt:Date.now(),energy:'',
+  S.session={id:Date.now().toString(36),date:date,day:day,workout:opts.workout||workoutName(day),startedAt:opts.at||Date.now(),energy:'',
     plan:JSON.parse(JSON.stringify(S.boot.program.days[day]||[])),sets:{},rir:{},notes:{},extra:{},rest:null,page:0,backfill:date!==todayISO(),watchMin:opts.watchMin||null,wu:{}};
   if(!S.session.backfill&&!opts.noWarmup)S.session.wup={st:'open',items:{},at:Date.now(),min:null};
   if(opts.coach&&!S.session.backfill){S.session.coach=opts.coach;if(opts.aiPlan)S.session.aiPlan=JSON.parse(JSON.stringify(opts.aiPlan));S.session.energy=CI_ENERGY[opts.coach.feel]||'';if(opts.coach.mode==='light')cutPlan(true)}
@@ -3106,25 +3106,34 @@ function startToday(){
   openCheckin();
 }
 /* pre-workout check-in: the watch has no data for last night before ~midnight, and only you know how you feel */
-function openCheckin(){
-  var wb=wbToday(),feel=wb?(wb.energy>=5?'great':wb.energy===4?'good':wb.energy===3?'ok':'bad'):'',rec=recovery(),day=S.day,today=todayISO(),ai=aiPlanFor(day,today);
-  var sl=rec&&rec.night!=null?'Сон этой ночью по часам: <b>'+fmtN(Math.round(rec.night*10)/10)+' ч</b>'+(rec.nightShort?' — меньше твоей нормы':''):'Сон за эту ночь ещё не пришёл с часов — учитываю самочувствие и тренд за 3 дня.';
-  var h='<h3>Как ты сегодня?</h3><p class="sub">'+sl+'</p>'+(wb?'<p class="sub">Утром отметил: силы '+wb.energy+' из 5, настроение '+wb.mood+' из 5'+(wb.mood<=2&&wb.why?' ('+wbWhy(wb.why)+')':'')+'. Выбрал по этой отметке — поменяй, если стало иначе.</p>':'')+'<p class="sub ai-sum" id="ci-ai"></p>';
-  h+='<div class="field"><div class="choices c2" id="ci-feel">'+FEEL_ORDER.map(function(k){return '<button class="choice" data-v="'+k+'">'+CI_ENERGY[k]+'</button>'}).join('')+'</div></div>';
-  h+='<div class="ci-plan" id="ci-plan"></div><div style="height:18px"></div><button class="cta" id="ci-go">Начать Full Body '+esc(day)+'</button>';
-  openSheet(h);
-  /* with the coach's plan the mode comes from it (never «strong» when you feel broken); otherwise from the rules */
-  function pick(){var m=pick0();
-    // a bad mood in the morning: train, but no strong day
-    if(wb&&wb.mood<=2&&m.mode==='push')return {mode:'normal',why:['утром настроение на нуле — по плану, без рекордов']};
-    return m;
-  }
+/* the feeling the morning check-in suggests; the check-in and the watch offer it first */
+function ciFeelGuess(){var wb=wbToday();return wb?(wb.energy>=5?'great':wb.energy===4?'good':wb.energy===3?'ok':'bad'):''}
+/* the day's mode for a feeling: the coach's plan decides when there is one (never «strong» when you feel broken),
+   otherwise the rules; a bad morning mood takes away the strong day */
+function ciPick(feel,rec,ai,wb){
   function pick0(){
     if(ai&&feel&&ai.by_feel[feel]){var f=ai.by_feel[feel],m=f.mode;if(feel==='bad'&&m==='push')m='light';if(['normal','push','light'].indexOf(m)<0)m='normal';
       if(rec&&rec.ill&&m!=='light'){if(feel!=='great')return {mode:'light',why:[ILL_WHY]};if(m==='push')return {mode:'normal',why:['много сил, но пульс и HRV похожи на начало болезни — без форсирования']}}
       return {mode:m,why:f.why?[f.why]:[],ai:1}}
     return decideMode(feel,rec);
   }
+  var m=pick0();
+  if(wb&&wb.mood<=2&&m.mode==='push')return {mode:'normal',why:['утром настроение на нуле — по плану, без рекордов']};
+  return m;
+}
+/* starts the day's workout as «Начать» in the check-in does; `at` is when it began (the watch's tap) */
+function ciStart(day,feel,at){
+  var today=todayISO(),rec=recovery(),ai=aiPlanFor(day,today),d=ciPick(feel,rec,ai,wbToday());
+  newSession(day,today,{coach:{mode:d.mode,why:d.why,feel:feel,night:rec?rec.night:null,ai:ai?1:0},aiPlan:ai,at:at});
+}
+function openCheckin(){
+  var wb=wbToday(),feel=ciFeelGuess(),rec=recovery(),day=S.day,today=todayISO(),ai=aiPlanFor(day,today);
+  var sl=rec&&rec.night!=null?'Сон этой ночью по часам: <b>'+fmtN(Math.round(rec.night*10)/10)+' ч</b>'+(rec.nightShort?' — меньше твоей нормы':''):'Сон за эту ночь ещё не пришёл с часов — учитываю самочувствие и тренд за 3 дня.';
+  var h='<h3>Как ты сегодня?</h3><p class="sub">'+sl+'</p>'+(wb?'<p class="sub">Утром отметил: силы '+wb.energy+' из 5, настроение '+wb.mood+' из 5'+(wb.mood<=2&&wb.why?' ('+wbWhy(wb.why)+')':'')+'. Выбрал по этой отметке — поменяй, если стало иначе.</p>':'')+'<p class="sub ai-sum" id="ci-ai"></p>';
+  h+='<div class="field"><div class="choices c2" id="ci-feel">'+FEEL_ORDER.map(function(k){return '<button class="choice" data-v="'+k+'">'+CI_ENERGY[k]+'</button>'}).join('')+'</div></div>';
+  h+='<div class="ci-plan" id="ci-plan"></div><div style="height:18px"></div><button class="cta" id="ci-go">Начать Full Body '+esc(day)+'</button>';
+  openSheet(h);
+  function pick(){return ciPick(feel,rec,ai,wb)}
   function upd(){
     var a=$('#ci-ai');if(!a)return;
     a.innerHTML=ai?'<b style="color:var(--volt)">Тренер</b> подготовил цифры на каждое упражнение — режим зависит от того, как ты себя чувствуешь.':(S.aiBusy.plan?'Тренер ещё готовит план — можно подождать или начать: цели посчитаю по правилам.':'');
@@ -3607,8 +3616,14 @@ function nbWarm(ex){
   }
   return out;
 }
+/* the workout the start button would start, for «Начать» on the watch */
+function nbNext(){
+  if(!S.boot||!S.boot.program)return null;
+  var d=S.day||nextDay(),t=todayISO();
+  return {day:d,title:'Full Body '+d,date:t,note:doneToday()?'Сегодня уже была':isTrainDay(t)?'Сегодня по плану':'Сегодня отдых',feel:ciFeelGuess()||null};
+}
 function nbSnap(){
-  var s=S.session;if(!s||s.backfill)return {active:false};
+  var s=S.session;if(!s||s.backfill){var nx=null;try{nx=nbNext()}catch(e){}return {active:false,next:nx}}
   var t=totals();
   return {active:true,workout:s.workout||'',startedAt:s.startedAt,done:t.done,total:t.planned,
     rest:s.rest?{endAt:s.rest.endAt,total:s.rest.total}:null,queue:nbQueue()};
@@ -3696,6 +3711,29 @@ if(NB){
       nbPost({type:'ack',ids:ids,known:known,errors:errors});nbTick(true);
     },
     post:function(force){nbTick(!!force)},
+    // «Начать» on the watch: the same start as the check-in's button, with the feeling chosen on the watch.
+    // The answer «begun» says why nothing started; a start is made once (its id joins the applied list).
+    start:function(a){
+      var res={type:'begun',id:a&&a.id,ok:false};
+      try{
+        if(!a||!a.id){res.error='bad';return}
+        var done=nbApplied();
+        if(done.indexOf(a.id)>=0||nbMem.indexOf(a.id)>=0){res.error='known';return}
+        if(!S.boot||!S.boot.program){res.error='later';return} // nothing loaded yet: the app offers it again
+        if(S.session){res.error='busy'}
+        else if(!(a.at>0)||Date.now()-a.at>2*3600e3||a.at-Date.now()>600e3){res.error='old'}
+        else{
+          // always the form's own next workout: the watch may still show one saved since, and starting that
+          // again would write over its rows
+          var day=S.day||nextDay(),feel=FEEL_ORDER.indexOf(a.feel)>=0?a.feel:'';
+          S.day=day;ciStart(day,feel,Math.round(a.at));
+          if($('#ci-go'))closeSheet(); // the check-in was open here: the watch answered it
+          S.tab='train';S.view='workout';render();keepAwake();res.ok=true;
+        }
+        nbMem.push(a.id);done.push(a.id);lsSet('wf1.nbApplied',done.slice(-300));
+      }catch(e){res.error=String(e&&e.message||e)}
+      finally{nbPost(res);nbTick(true)}
+    },
     // the 10:00 reminder was tapped: show «Сегодня» with the check-in, unless a workout is on screen
     wellbeing:function(){if(S.view==='workout'&&S.session)return;S.tab='today';S.view='home';render();var c=$('#wb-card');if(c&&c.scrollIntoView)c.scrollIntoView({behavior:'smooth',block:'center'})},
     recovery:function(x){
