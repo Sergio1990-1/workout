@@ -183,12 +183,12 @@ svg{display:block}
 .last .tgt{font-size:15px;font-weight:700;color:var(--volt);margin-top:10px;font-variant-numeric:proportional-nums}
 .mode{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding:10px 12px 10px 14px;border-radius:14px;background:var(--volt-dim);font-size:14px;line-height:1.35;color:var(--tx2)}
 .mode b{color:var(--volt)}
-.mode.light{background:rgba(255,179,92,.13)}
-.mode.light b{color:var(--warn)}
+.mode.light,.mode.deload{background:rgba(255,179,92,.13)}
+.mode.light b,.mode.deload b{color:var(--warn)}
 .mode button{flex:none;height:34px;padding:0 12px;border-radius:10px;background:var(--s2);color:var(--tx);font-weight:600;font-size:14px}
 .ci-plan{margin-top:16px;padding:12px 14px;border-radius:14px;background:var(--s2);font-size:15px;line-height:1.4;color:var(--tx2);min-height:22px}
 .ci-plan b{color:var(--volt)}
-.ci-plan.light b{color:var(--warn)}
+.ci-plan.light b,.ci-plan.deload b{color:var(--warn)}
 .ai{margin-top:12px}
 .ai .hd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
 .ai .tag2{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--volt)}
@@ -212,6 +212,10 @@ svg{display:block}
 .nb-bad{color:var(--bad)}
 .rest-cap{font-size:13px;color:var(--mu);text-align:center;margin-bottom:10px}
 .wt{margin-top:12px}
+.wst-box{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}
+.wst-v{font-size:13px;color:var(--mu2)}.wst-v b{color:var(--tx);font-weight:600}
+.wst{display:flex;gap:8px;margin-top:10px}
+.wst input{flex:1;min-width:0;height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:var(--tx);font:inherit;font-size:16px;padding:0 12px}
 .wt-main{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:12px}
 .wt-v{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1;font-variant-numeric:proportional-nums}
 .wt-v small{font-size:15px;font-weight:500;color:var(--mu);margin-left:4px;letter-spacing:0}
@@ -640,6 +644,32 @@ body.resting .wu-bottom{padding-bottom:calc(var(--sb) + 92px)}
 .hero.solo{height:220px}
 .empty-tab{padding:18px}
 .sn{margin-top:12px}
+.sl{margin-top:12px}
+.sl-bw{display:flex;gap:18px;text-align:right}
+.sl-bw div{font-size:11px;color:var(--mu2)}
+.sl-bw b{display:block;font-size:20px;font-weight:600;color:var(--tx);letter-spacing:-.01em;margin-bottom:2px;font-variant-numeric:tabular-nums}
+.sl-hy{display:block;width:100%;height:auto;margin-top:16px}
+.sl-bar{display:flex;gap:3px;height:14px;margin-top:16px}
+.sl-bar i{border-radius:4px}
+.sl-st{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--mu2)}
+.sl-st span{display:flex;align-items:center;gap:6px;color:var(--mu)}
+.sl-st span i{width:9px;height:9px;border-radius:3px}
+.sl-st b{display:block;font-size:20px;font-weight:600;color:var(--tx);margin:3px 0 1px;letter-spacing:-.01em}
+.sl-st b small{font-size:12px;font-weight:500;color:var(--mu);margin:0 3px 0 2px}
+.sl-ex{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.sl-ex span{font-size:12px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);color:var(--mu)}
+.sl-ex b{color:var(--tx);font-weight:600}
+.sl-rt{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;font-size:12px;color:var(--mu2)}
+.sl-rt span{display:block;color:var(--mu)}
+.sl-rt b{display:inline-block;font-size:24px;font-weight:600;color:var(--tx);margin:2px 6px 0 0;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.sl-tg{display:flex;justify-content:space-between;margin-top:16px;padding:10px 12px;border-radius:14px;background:rgba(212,255,58,.07);font-size:13px;color:var(--mu)}
+.sl-tg b{color:var(--volt);font-weight:700;font-size:15px;margin-left:4px;font-variant-numeric:tabular-nums}
+.sl-fs{font-size:13px;color:var(--mu);margin-top:10px}
+.sl-fs b{color:var(--tx);font-weight:600}
+.sl-fri{margin-top:12px}
+.sl-fri-t{font-size:22px;font-weight:600;color:var(--tx);margin-top:8px}
+.sl-fri-t b{color:var(--volt);font-variant-numeric:tabular-nums}
+.sl-ch{display:block;width:100%;height:auto;margin-top:16px}
 .sn-ch{display:block;width:100%;height:auto;margin-top:12px;overflow:visible}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
 .tiles>:only-child{grid-column:1/-1}
@@ -827,7 +857,8 @@ body.resting .wu-bottom{padding-bottom:calc(var(--sb) + 92px)}
 .sd-ax span.on{color:var(--volt);font-weight:700}
 .sd-lg{display:flex;gap:14px;font-size:11px;color:var(--mu2);margin-top:8px}
 .sd-lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
-.sd-lg i.o{background:#FF7A33}.sd-lg i.g{background:#D4FF3A}
+.sd-lg i.o{background:#FF7A33}.sd-lg i.g{background:#D4FF3A}.sd-lg i.b{background:#7FA6EC}
+.sd-lg i.ln{width:14px;height:0;border-radius:0;border-top:2px dashed rgba(255,255,255,.7);vertical-align:3px}
 .badc{color:var(--bad)}
 .rc-debt{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--mu)}
 .rc-debt b{font-size:15px;color:var(--org)}
@@ -859,7 +890,7 @@ var BODY={"front": {"chest": ["M272.91 422.84c-18.95-17.19-22-57-12.64-78.79 5.5
    The access key comes from the link (#k=...) once and is kept in this page's own storage. */
 (function () {
   var API = 'https://script.google.com/macros/s/AKfycbzcbmUZZP3RrPeqQHUzEDnt28Gj98l1pHzzgB9dKVgNqT05DQZvrfOsPBgcLOKQ7TXt5A/exec';
-  var FNS = ['getBootstrap', 'saveSet', 'deleteSet', 'finishSession', 'applyOps', 'getCoachPlan', 'getCoachDay', 'reviewSession', 'weeklyReview', 'saveWeights', 'saveSteps', 'saveHabits', 'saveWellbeing', 'setKcalGoal', 'suggestMeal'];
+  var FNS = ['getBootstrap', 'saveSet', 'deleteSet', 'finishSession', 'applyOps', 'getCoachPlan', 'getCoachDay', 'reviewSession', 'weeklyReview', 'saveWeights', 'saveWaist', 'saveSteps', 'saveSleep', 'saveHabits', 'saveWellbeing', 'setKcalGoal', 'suggestMeal'];
   var SLOW = { getCoachPlan: 1, getCoachDay: 1, reviewSession: 1, weeklyReview: 1 }; // the coach thinks for up to a couple of minutes
   var key = null;
   try {
@@ -1164,7 +1195,8 @@ function fmtShort(iso){var d=dObj(iso);return ('0'+d.getDate()).slice(-2)+'.'+('
 function fmtWd(iso){var w=WD[dObj(iso).getDay()];return w.charAt(0).toUpperCase()+w.slice(1)}
 function clock(sec){sec=Math.max(0,Math.round(sec));var h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return (h?h+':'+('0'+m).slice(-2):m)+':'+('0'+s).slice(-2)}
 function parseRange(r){var m=String(r||'').match(/(\d+)\D+(\d+)/);if(m)return [+m[1],+m[2]];var one=String(r||'').match(/\d+/);return one?[+one[0],+one[0]]:[null,null]}
-function parseRest(r){var s=String(r||'');var m=s.match(/(\d+)/);if(!m)return 90;var n=+m[1];return /мин/.test(s)&&n<10?n*60:n}
+// a range like «2–3 мин» or «60–90 с после пары» gives its upper bound: the timer is the full planned rest
+function parseRest(r){var s=String(r||'');var m=s.match(/(\d+)(?:\s*[–—-]\s*(\d+))?/);if(!m)return 90;var n=+(m[2]||m[1]);return /мин/.test(s)&&n<10?n*60:n}
 function parseLR(note){var m=/левая\s*(\d+(?:[.,]\d+)?)\D+правая\s*(\d+(?:[.,]\d+)?)/i.exec(note||'');return m?[m[1].replace(',','.'),m[2].replace(',','.')]:null}
 function imgUrl(id,k){return IMG_BASE+id+'/'+k+'.jpg'}
 function e1rm(kg,reps){return kg>0&&reps>0?kg*(1+reps/30):0}
@@ -1172,7 +1204,7 @@ function short(n){return String(n).replace(/\s*\(.*\)/,'')}
 function plural(n,a,b,c){var m=n%10,h=n%100;return n+' '+(m===1&&h!==11?a:(m>=2&&m<=4&&(h<10||h>=20)?b:c))}
 
 /* ================= state ================= */
-var S={boot:lsGet(LS.boot,null),view:'home',day:null,session:lsGet(LS.session,null),queue:lsGet(LS.queue,[]),inflight:null,syncErr:null,retryT:null,lastDone:lsGet(LS.last,null),fin:lsGet(LS.fin,[]),aiBusy:{},aiErr:{},ciUpd:null,hw:lsGet('wf1.hw',null),hn:lsGet('wf1.hn',null)};
+var S={boot:lsGet(LS.boot,null),view:'home',day:null,session:lsGet(LS.session,null),queue:lsGet(LS.queue,[]),inflight:null,syncErr:null,retryT:null,lastDone:lsGet(LS.last,null),fin:lsGet(LS.fin,[]),aiBusy:{},aiErr:{},ciUpd:null,hw:lsGet('wf1.hw',null),hn:lsGet('wf1.hn',null),sn:lsGet('wf1.sn',null)};
 
 function saveSession(){if(S.session){if(!lsSet(LS.session,S.session))toast('Память телефона переполнена — данные могут не сохраниться','bad')}else lsDel(LS.session)}
 function saveQueue(){if(!lsSet(LS.queue,S.queue)&&S.queue.length)toast('Память телефона переполнена — не закрывай форму, пока не сохранится','bad')}
@@ -1240,13 +1272,23 @@ function setsStr(sets){return sets.map(function(s){return (s.kg!=null?fmtN(s.kg)
 function lastRir(prev){var r=null;prev.sets.forEach(function(s){var v=num(s.rir);if(v!=null)r=v});return r}
 function stepOf(ex){var m=/^\s*(\d+(?:[.,]\d+)?)/.exec(String((ex.cat&&ex.cat.step)||''));return m?Number(m[1].replace(',','.')):null}
 function topKg(sets){var k=sets.map(function(s){return s.kg}).filter(function(v){return v!=null});return k.length?Math.max.apply(null,k):null}
-function stalled(ex,beforeIso){ // neither of the last two sessions beat the one before them, by strength or by volume
-  var h=historyList(ex,beforeIso,3);if(h.length<3)return false;
+function stalled(ex,beforeIso){return stalledN(ex,beforeIso,2)}
+function stalledN(ex,beforeIso,n){ // none of the last n sessions beat the one before them, by strength or by volume
+  var h=historyList(ex,beforeIso,n+1);if(h.length<n+1)return false;
   var m=h.map(function(x){return exMetrics(x.sets,!!ex.counter)});
   // going lighter into the range with clearly more work (12,5×10 → 10×13×3) is a deliberate reset, not a stall
-  var moved=function(a){return exStatus(a,m[2],!!ex.counter).k==='up'||(m[2].vol>0&&a.vol>=m[2].vol*(1+VOL_DROP))};
-  return !moved(m[0])&&!moved(m[1]);
+  var b=m[n],moved=function(a){return exStatus(a,b,!!ex.counter).k==='up'||(b.vol>0&&a.vol>=b.vol*(1+VOL_DROP))};
+  for(var i=0;i<n;i++)if(moved(m[i]))return false;
+  return true;
 }
+/* Three sessions without progress: the coach's fix is a longer rest (+30 s) and 1–2 reps in reserve, not more effort.
+   A strong day keeps its own push, so it gets no extra rest. */
+var STALL_REST=30;
+function stall3(ex){var s=S.session;return !!(s&&!s.backfill&&!(s.coach&&(s.coach.mode==='push'||s.coach.mode==='deload'))&&stalledN(ex,s.date,3))}
+function restFor(ex){return (ex.restSec||0)+(stall3(ex)?STALL_REST:0)}
+/* every set at least 3 reps above the top of the range (both sides on one-arm work) */
+function overTop(ex,sets){return !!ex.repHi&&sets.length>0&&sets.every(function(x){
+  var r=ex.unilateral?Math.min.apply(null,[x.reps||0].concat((parseLR(x.note)||[]).map(Number))):(x.reps||0);return r>=ex.repHi+3})}
 function coachTarget(ex,prev,mode){
   if(!prev||!prev.sets.length)return {sets:null,text:'Первый раз — подбери вес так, чтобы в запасе оставалось 2–3 повтора.'};
   var src=[];
@@ -1271,8 +1313,12 @@ function coachTarget(ex,prev,mode){
       (low.length?'Сбавь вес до того, с которым диапазон получился.':'Сбавь вес на шаг тренажёра и работай от '+lo+' повторов.')+(mode==='light'?' Лёгкий день: запас 2–3 повтора.':'')}}
   var w=topKg(prev.sets),same=prev.sets.every(function(x){return x.kg===prev.sets[0].kg}),kgTxt=w!=null&&same?fmtN(w)+' кг':'веса как в прошлый раз';
   if(mode==='light')return {sets:src,goal:kgTxt+', повторы как в прошлый раз',text:'Лёгкий день: без попытки прогресса, запас 2–3 повтора.'};
+  if(mode==='deload'){if(ex.repLo)src.forEach(function(q){q.reps=ex.repLo;q.left=ex.repLo;q.right=ex.repLo});
+    return {sets:src,goal:kgTxt+(ex.repLo?' × '+ex.repLo:'')+', запас 3–4 повтора',text:'Разгрузка: веса как в прошлый раз, повторы от низа диапазона, запас 3–4 повтора. Так уходит накопленная усталость — на следующей неделе сила вернётся.'}}
   var reps=prev.sets.map(function(s){return ex.unilateral?Math.min.apply(null,[s.reps||0].concat((parseLR(s.note)||[]).map(Number))):(s.reps||0)});
   var top=ex.repHi&&reps.every(function(r){return r>=ex.repHi}),rir=lastRir(prev),t,goal;
+  if(!top&&mode!=='push'&&stall3(ex))return {sets:src,goal:kgTxt+', повторы как в прошлый раз',
+    text:'Три занятия без прогресса. Сегодня не дожимай: отдых на '+STALL_REST+' с дольше (таймер уже прибавил), запас 1–2 повтора во всех подходах, цифры как в прошлый раз. Если и это не сдвинет — разберём технику, сон и еду.'};
   if(top&&rir===0){t='Все подходы дошли до '+ex.repHi+', но на пределе (RIR 0). Сначала повтори те же цифры с запасом хотя бы 1 повтор.';goal=kgTxt+', как в прошлый раз'}
   else if(top){
     // the step is the catalog's, else the smallest jump between weights already used on this machine
@@ -1281,7 +1327,12 @@ function coachTarget(ex,prev,mode){
     // about 10% for 8–12, 12% for 10–15, 19% for 12–20. A bigger step (20 → 25 kg curls) drops the reps far below
     // the range, so the weight stays and the reps get harder.
     var room=ex.repLo&&ex.repHi?(1+ex.repHi/30)/(1+ex.repLo/30)-1:0.1;
-    if(st&&w>0&&st/w>room+0.005){goal=fmtN(w)+' кг, повторы как в прошлый раз, медленнее';
+    var h2=historyList(ex,S.session?S.session.date:todayISO(),2),outgrown=h2.length===2&&h2.every(function(x){return overTop(ex,x.sets)});
+    if(st&&w>0&&st/w>room+0.005&&outgrown){var nw2=Math.round((w+st)*100)/100,r2=Math.max(1,(ex.repLo||1)-2);
+      src.forEach(function(s){s.kg=nw2;s.reps=r2;s.left=r2;s.right=r2});
+      goal=fmtN(nw2)+' кг × от '+r2;
+      t='Две тренировки подряд все подходы на 3+ повтора выше '+ex.repHi+' — вес перерос диапазон. Бери +'+fmtN(st)+' кг, даже если шаг большой: сегодня нормально начать с '+r2+' повторов, дальше снова набирай до '+ex.repHi+'.'}
+    else if(st&&w>0&&st/w>room+0.005){goal=fmtN(w)+' кг, повторы как в прошлый раз, медленнее';
       t='Все подходы дошли до '+ex.repHi+', но следующий вес +'+fmtN(st)+' кг — это +'+Math.round(st/w*100)+'%, слишком много за раз. Оставь '+fmtN(w)+' кг и опускай за 3 секунды с паузой внизу; если есть маленькие блины или гантели с шагом 1–2 кг — возьми их.'}
     else if(st&&w!=null){var nw=Math.round((w+st)*100)/100;src.forEach(function(s){s.kg=nw;s.reps=ex.repLo;s.left=ex.repLo;s.right=ex.repLo});
       goal=fmtN(nw)+' кг × от '+ex.repLo;t='Все подходы дошли до '+ex.repHi+(rir!=null?' с запасом':'')+' — сегодня +'+fmtN(st)+' кг'+(stCat?'':' (наименьший шаг из твоей истории на этом тренажёре)')+', повторы снова от '+ex.repLo+'.'}
@@ -1313,6 +1364,15 @@ function healthRows(){
     if(!row){row={date:today,steps:null,kcal:null,rhr:null,hrv:null,sleep:null};H.push(row)}else{row=Object.assign({},row);H=H.map(function(x){return x.date===today?row:x})}
     ['sleep','hrv','rhr'].forEach(function(k){if(row[k]==null&&n[k]!=null){row[k]=n[k];row.app=1}});
   }
+  // nights the app just read: HRV and pulse of the night instead of the day's, hours where the sheet has none (as Code.js does)
+  (S.sn||[]).forEach(function(x){
+    if(x.date>today||(x.hrv==null&&x.hr==null&&x.asleep==null))return;
+    var i=-1;H.forEach(function(r,j){if(r.date===x.date)i=j});
+    var r=i<0?{date:x.date,steps:null,kcal:null,rhr:null,hrv:null,sleep:null}:Object.assign({},H[i]);
+    if(x.hrv!=null)r.hrv=x.hrv;if(x.hr!=null)r.rhr=x.hr;if(r.sleep==null&&x.asleep!=null){r.sleep=x.asleep;r.app=1}
+    if(i<0)H.push(r);else H[i]=r;
+  });
+  H.sort(function(a,b){return a.date<b.date?-1:1});
   return H;
 }
 function recovery(){
@@ -1344,11 +1404,27 @@ function decideMode(feel,rec){
   return {mode:'normal',why:feel==='great'?['много сил, но '+(ill?'пульс и HRV похожи на начало болезни':shortN?'ночь была короткой':'восстановление ниже нормы')+' — без форсирования']:[]};
 }
 var FEEL_ORDER=['great','good','ok','bad'],CI_FEEL={great:'много сил',good:'бодр',ok:'нормально',bad:'разбит'},CI_ENERGY={great:'Много сил',good:'Бодр',ok:'Нормально',bad:'Разбит'};
-function modeText(m){return m==='light'?'<b>Лёгкий день</b> — без попытки прогресса, на подход меньше в упражнениях с 3+ подходами, запас 2–3 повтора.':(m==='push'?'<b>Сильный день</b> — +1 повтор в каждом подходе ниже верха диапазона (или шаг веса), запас хотя бы 1 повтор.':'<b>Обычный день</b> — цель с прогрессией: +1 повтор или шаг веса, запас 1–2 повтора.')}
+/* Block calendar: the block starts on the last «с ДД.ММ.ГГГГ» in the program title (the date the current edition
+   took effect) and runs in 4-week cycles: 3 loading weeks, then a deload week. No date in the title, no calendar. */
+var BLOCK_WEEKS=4;
+function blockStart(){
+  var t=String((S.boot&&S.boot.program&&S.boot.program.title)||''),re=/с\s+(\d{1,2})\.(\d{1,2})\.(\d{4})/g,m,l=null;
+  while((m=re.exec(t)))l=m;
+  return l?l[3]+'-'+('0'+l[2]).slice(-2)+'-'+('0'+l[1]).slice(-2):null;
+}
+function blockWeek(iso){
+  var st=blockStart();if(!st||iso<st)return null;
+  var w=Math.floor(Math.round((dObj(iso)-dObj(st))/864e5)/7);
+  return {n:w%BLOCK_WEEKS+1,of:BLOCK_WEEKS,start:st};
+}
+function deloadWeek(iso){var b=blockWeek(iso);return !!b&&b.n===b.of}
+var DELOAD_WHY='неделя '+BLOCK_WEEKS+' из '+BLOCK_WEEKS+' — плановая разгрузка';
+function modeText(m){if(m==='deload')return '<b>Разгрузка</b> — подходов вдвое меньше, веса как в прошлый раз, повторы от низа диапазона, запас 3–4 повтора.';return m==='light'?'<b>Лёгкий день</b> — без попытки прогресса, на подход меньше в упражнениях с 3+ подходами, запас 2–3 повтора.':(m==='push'?'<b>Сильный день</b> — +1 повтор в каждом подходе ниже верха диапазона (или шаг веса), запас хотя бы 1 повтор.':'<b>Обычный день</b> — цель с прогрессией: +1 повтор или шаг веса, запас 1–2 повтора.')}
 
 /* Before the check-in: what sleep and recovery already say about today's training (feeling decides the rest). */
 function modePreview(){
   if(!isTrainDay(todayISO())||doneToday())return '';
+  if(deloadWeek(todayISO()))return 'Неделя разгрузки: подходов вдвое меньше, веса те же, запас 3–4 повтора';
   var rec=recovery();if(!rec)return '';
   var m=decideMode('ok',rec);
   if(m.mode==='light')return 'Похоже на лёгкий день: '+esc(m.why.join(', '))+'. Решим после вопроса о самочувствии';
@@ -1414,6 +1490,7 @@ function aiTarget(ex,prev,mode){
   return {sets:out,goal:goalStr(out),text:m.why||'',ai:1};
 }
 function target(ex,prev,mode){
+  if(mode==='deload')return coachTarget(ex,prev,mode);
   var a=aiTarget(ex,prev,mode);if(a&&!a.rej)return a;
   var t=coachTarget(ex,prev,mode);
   if(a&&a.rej)t.text+=' Цифры тренера не прошли проверку по твоей истории весов, поэтому здесь цель по правилам.';
@@ -1609,6 +1686,7 @@ function coachHead(sub){return '<div class="co-h"><span class="co-mark"><i>'+CO_
 function coachVerdict(nd){
   if(restDay())return 'День отдыха — <span>восстанавливаемся</span>';
   var t=todayISO();if(!isTrainDay(t)||doneToday())return 'Full Body '+esc(nd);
+  if(deloadWeek(t))return 'Full Body '+esc(nd)+' — <span class="lt">разгрузка</span>';
   var rec=recovery(),m=rec?decideMode('ok',rec):null;
   if(m&&m.mode==='light')return 'Full Body '+esc(nd)+' — <span class="lt">похоже на лёгкий день</span>';
   // the morning mark counts as much as the watch: «можно прибавлять» only when both say so
@@ -1981,17 +2059,19 @@ function newSession(day,date,opts){
   S.session={id:Date.now().toString(36),date:date,day:day,workout:opts.workout||workoutName(day),startedAt:opts.at||Date.now(),energy:'',
     plan:JSON.parse(JSON.stringify(S.boot.program.days[day]||[])),sets:{},rir:{},notes:{},extra:{},rest:null,page:0,backfill:date!==todayISO(),watchMin:opts.watchMin||null,wu:{}};
   if(!S.session.backfill&&!opts.noWarmup)S.session.wup={st:'open',items:{},at:Date.now(),min:null};
-  if(opts.coach&&!S.session.backfill){S.session.coach=opts.coach;if(opts.aiPlan)S.session.aiPlan=JSON.parse(JSON.stringify(opts.aiPlan));S.session.energy=CI_ENERGY[opts.coach.feel]||'';if(opts.coach.mode==='light')cutPlan(true)}
+  if(opts.coach&&!S.session.backfill){S.session.coach=opts.coach;if(opts.aiPlan)S.session.aiPlan=JSON.parse(JSON.stringify(opts.aiPlan));S.session.energy=CI_ENERGY[opts.coach.feel]||'';if(opts.coach.mode==='light'||opts.coach.mode==='deload')cutPlan(opts.coach.mode)}
   prefill();
   saveSession();
 }
 /* light day: one set fewer where the plan has 3+ sets (never below what is already done) */
-function cutPlan(on){
+function cutPlan(kind){ // kind: 'light' | 'deload' | anything else restores the full plan
   var s=S.session,c=s.coach;c.cut=c.cut||{};
   var done={};exList().forEach(function(ex){done[ex.name]=doneSets(ex).length});
   s.plan.forEach(function(it){
-    if(on&&!c.cut[it.order]&&it.sets>=3&&(done[it.name]||0)<it.sets){it.sets--;c.cut[it.order]=1}
-    else if(!on&&c.cut[it.order]){it.sets++;delete c.cut[it.order]}
+    var had=+c.cut[it.order]||0;if(had){it.sets+=had;delete c.cut[it.order]}
+    var want=kind==='light'?(it.sets>=3?1:0):kind==='deload'?Math.floor(it.sets/2):0;
+    want=Math.min(want,Math.max(0,it.sets-(done[it.name]||0)));
+    if(want){it.sets-=want;c.cut[it.order]=want}
   });
   delete dayCache['s:'+s.id];
 }
@@ -2014,8 +2094,8 @@ function prefill(){
 function putAuto(o,f,v){if(v==null||v==='')return;if(o[f]==null||o[f]===''||o['a_'+f]){o[f]=str(v);o['a_'+f]=1}}
 function setMode(m){
   var s=S.session;if(!s||!s.coach||s.coach.mode===m)return;
-  s.coach.mode=m;s.coach.manual=1;cutPlan(m==='light');prefill();saveSession();renderWorkout();
-  toast(m==='light'?'Лёгкий день: цели пересчитаны':'Обычный день: цели с прогрессией','volt');
+  s.coach.mode=m;s.coach.manual=1;cutPlan(m);prefill();saveSession();renderWorkout();
+  toast(m==='light'?'Лёгкий день: цели пересчитаны':m==='deload'?'Разгрузка: подходов вдвое меньше':'Обычный день: цели с прогрессией','volt');
 }
 function exList(){var s=S.session;return s.plan?buildDay(s.day,s.plan,'s:'+s.id):buildDay(s.day)} // a running workout keeps the program it started with
 function setCount(ex){return ex.sets+(S.session.extra[ex.id]||0)}
@@ -2133,6 +2213,7 @@ function homeToday(){
   // Calories, weight and the next workout live on their own tabs.
   if(aiOn())h+='<div id="ai-card">'+aiCardHtml()+'</div>';
   if(rec)h+='<button class="tap-card" data-act="tab" data-tab="sleep">'+recoveryCardHtml(rec,false)+'</button>';
+  h+=fridayBedHtml(rec);
   h+='<div id="wb-card">'+wbCardHtml()+'</div>';
   if(aiOn())h+='<div id="tk-card">'+tasksCardHtml()+'</div>';
   h+='<div id="hab-card">'+habitsCardHtml()+'</div>';
@@ -2334,7 +2415,7 @@ function homeSleep(){
   var rec=recovery(),h=tabTitle('Сон и восстановление');
   var alc='<div id="alc-card">'+alcCardHtml()+'</div>';
   if(!rec)return h+emptyNote('Сон, HRV и пульс покоя появятся после первой ночной выгрузки из Здоровья.')+alc;
-  return h+recoveryCardHtml(rec,true)+sleepDebtHtml(rec)+sleepNightsHtml(rec)+alc;
+  return h+recoveryCardHtml(rec,true)+sleepLastHtml(rec)+sleepRhythmHtml(rec)+sleepDebtHtml(rec)+sleepNightsHtml(rec)+alc;
 }
 function homeCoach(){
   var h=tabTitle('Тренер'),rv=aiOn()?aiReviewCardHtml():'',wk=weekCardHtml();
@@ -2440,6 +2521,133 @@ function sleepNightsHtml(rec){
     '<div class="wt-main"><div class="wt-v">'+fmtN(Math.round(avg*10)/10)+'<small>ч в среднем</small></div></div>'+
     '<svg class="sn-ch" viewBox="0 0 '+W+' '+Hh+'" aria-hidden="true">'+s+'</svg><div class="wt-ax"><span>'+esc(fmtDay(from))+'</span><span>эта ночь</span></div></div>';
 }
+/* Sleep detail per night (date = the morning): «Сон» rows from the sheet, replaced by the app's fresher copy
+   of the same night. Times are the phone's clock; minutes for stages; the newest night from the app also has
+   segs: [[from, to, stage]] in minutes from bedtime, stage d deep, c core, r REM, a awake. */
+var SLEEP_ST={d:['Глубокий','#7B5CFF'],c:['Базовый','#4C7DFF'],r:['REM','#8FD3FF'],a:['Бодрствование','#FF8A5B']};
+function sleepClean(x){
+  if(!x||!/^\d{4}-\d{2}-\d{2}$/.test(x.date))return null;
+  var n=function(v,lo,hi){return typeof v==='number'&&isFinite(v)&&v>=lo&&v<=hi?v:null},t=function(v){return typeof v==='string'&&/^\d{1,2}:\d{2}$/.test(v)?v:null};
+  var y={date:x.date,bed:t(x.bed),wake:t(x.wake),asleep:n(x.asleep,0,16),deep:n(x.deep,0,900),rem:n(x.rem,0,900),core:n(x.core,0,900),awake:n(x.awake,0,900),
+    wakes:n(x.wakes,0,99),resp:n(x.resp,4,40),spo2:n(x.spo2,70,100),temp:n(x.temp,30,42),dist:n(x.dist,0,100),hrv:n(x.hrv,1,300),hr:n(x.hr,25,150)};
+  if(Array.isArray(x.segs))y.segs=x.segs.filter(function(q){return Array.isArray(q)&&q[1]>q[0]&&SLEEP_ST[q[2]]}).slice(0,400);
+  return y.asleep==null?null:y;
+}
+function sleepNightsAll(){
+  var by={};((S.boot&&S.boot.sleep)||[]).forEach(function(x){by[x.date]=x});(S.sn||[]).forEach(function(x){by[x.date]=x});
+  return Object.keys(by).sort().map(function(d){return by[d]});
+}
+/* minutes from the evening's midnight: 23:40 → 1420, 00:50 → 1490 (times before 15:00 belong to the morning) */
+function clockMin(s){var m=/^(\d{1,2}):(\d{2})$/.exec(s||'');if(!m)return null;var t=+m[1]*60+(+m[2]);return t<900?t+1440:t}
+function minClock(t){t=((Math.round(t)%1440)+1440)%1440;return Math.floor(t/60)+':'+('0'+t%60).slice(-2)}
+function fmtMin(m){m=Math.round(m);return m>=60?Math.floor(m/60)+' ч'+(m%60?' '+(m%60)+' мин':''):m+' мин'}
+function unitsSmall(s){return s.replace(/ (ч|мин)/g,'<small>$1</small>')}
+function sleepAvg(N,k){var v=N.map(function(q){return q[k]}).filter(function(v){return v!=null});return v.length>=5?v.reduce(function(a,b){return a+b},0)/v.length:null}
+
+/* «Последняя ночь»: asleep, bedtime and wake-up, the stage timeline (or a stage bar from the sheet), minutes per stage
+   against the usual of the 14 nights before, awake time and awakenings, then breathing, SpO2 and wrist temperature. */
+function sleepLastHtml(rec){
+  var N=sleepNightsAll(),t=todayISO(),x=N.length?N[N.length-1]:null;
+  if(!x||x.date<isoAdd(t,-2))return '';
+  var P=N.filter(function(q){return q.date<x.date&&q.date>=isoAdd(x.date,-14)});
+  var wd=function(d){return WD2[dObj(d).getDay()].toLowerCase()};
+  var h='<div class="glass sl"><div class="row-b"><span class="eyebrow">'+(x.date===t?'Последняя ночь':'Ночь на '+esc(fmtDay(x.date)))+'</span><span class="nb-cap">'+wd(isoAdd(x.date,-1))+' → '+wd(x.date)+'</span></div>';
+  h+='<div class="wt-main"><div class="wt-v">'+unitsSmall(fmtHM(x.asleep))+'<small>сна</small></div>'+
+    (x.bed&&x.wake?'<div class="sl-bw"><div><b>'+x.bed+'</b>отбой</div><div><b>'+x.wake+'</b>подъём</div></div>':'')+'</div>';
+  var b=clockMin(x.bed),w=clockMin(x.wake);
+  if(x.segs&&x.segs.length&&b!=null)h+=hypnoHtml(x.segs,b);
+  else{var tot=['d','c','r','a'].reduce(function(a,k){return a+(x[{d:'deep',c:'core',r:'rem',a:'awake'}[k]]||0)},0);
+    if(tot>0)h+='<div class="sl-bar">'+['d','c','r','a'].map(function(k){var v=x[{d:'deep',c:'core',r:'rem',a:'awake'}[k]]||0;return v?'<i style="flex:'+v+';background:'+SLEEP_ST[k][1]+'"></i>':''}).join('')+'</div>'}
+  var asleepMin=(x.deep||0)+(x.core||0)+(x.rem||0);
+  var cell=function(k,f){var v=x[f];if(v==null)return '';var u=sleepAvg(P,f);
+    var sub=k==='a'?(x.wakes!=null?plural(x.wakes,'пробуждение','пробуждения','пробуждений'):''):(asleepMin?Math.round(v/asleepMin*100)+'%':'');
+    if(u!=null)sub+=(sub?' · ':'')+'обычно '+fmtMin(u);
+    return '<div><span><i style="background:'+SLEEP_ST[k][1]+'"></i>'+SLEEP_ST[k][0]+'</span><b>'+unitsSmall(fmtMin(v))+'</b>'+sub+'</div>'};
+  var cells=cell('d','deep')+cell('r','rem')+cell('c','core')+cell('a','awake');
+  if(cells)h+='<div class="sl-st">'+cells+'</div>';
+  var ex=[],tu=sleepAvg(P,'temp');
+  if(x.resp!=null)ex.push('Дыхание <b>'+fmtN(x.resp)+'</b> в мин');
+  if(x.spo2!=null)ex.push('SpO₂ <b>'+Math.round(x.spo2)+'%</b>');
+  if(x.temp!=null)ex.push(tu!=null?'Запястье <b>'+(x.temp-tu>=0.05?'+':x.temp-tu<=-0.05?'−':'±')+fmtN(Math.round(Math.abs(x.temp-tu)*10)/10)+'°</b> к норме':'Запястье <b>'+fmtN(Math.round(x.temp*10)/10)+'°</b>');
+  if(x.dist!=null)ex.push('Нарушения дыхания <b>'+fmtN(x.dist)+'</b> в час');
+  if(ex.length)h+='<div class="sl-ex">'+ex.map(function(e){return '<span>'+e+'</span>'}).join('')+'</div>';
+  return h+'</div>';
+}
+/* Stage timeline: four lanes (awake on top, deep at the bottom), thin risers between stages, clock under it. */
+function hypnoHtml(segs,bed){
+  var W=300,LB=62,PW=W-LB,lane=16,gap=6,H0=4*lane+3*gap,H=H0+20,row={a:0,r:1,c:2,d:3},nm=['Бодрств.','REM','Базовый','Глубокий'],
+    end=segs[segs.length-1][1],k=PW/end,s='',prev=null;
+  for(var i=0;i<4;i++){var ly=i*(lane+gap);
+    s+='<text x="0" y="'+(ly+lane/2+3.5)+'" font-size="10" style="fill:var(--mu)">'+nm[i]+'</text><rect x="'+LB+'" y="'+ly+'" width="'+PW+'" height="'+lane+'" rx="5" fill="rgba(255,255,255,.035)"/>'}
+  segs.forEach(function(q){var x=LB+q[0]*k,wd=Math.min(W-x,Math.max(1.5,(q[1]-q[0])*k)),y=row[q[2]]*(lane+gap);
+    if(prev&&prev[2]!==q[2]){var y0=row[prev[2]]*(lane+gap)+lane/2,y1=y+lane/2;s+='<line x1="'+x.toFixed(1)+'" x2="'+x.toFixed(1)+'" y1="'+y0+'" y2="'+y1+'" stroke="rgba(255,255,255,.22)" stroke-width="1"/>'}
+    s+='<rect x="'+x.toFixed(1)+'" y="'+y+'" width="'+wd.toFixed(1)+'" height="'+lane+'" rx="4" fill="'+SLEEP_ST[q[2]][1]+'"/>';prev=q});
+  // clock under the lanes: bedtime at the left edge, wake-up at the right, even hours between unless they would touch either end
+  var ty=H0+15,tx=function(x,t,a){return '<text x="'+x.toFixed(1)+'" y="'+ty+'" font-size="10" text-anchor="'+a+'" style="fill:var(--mu2)">'+t+'</text>'};
+  s+=tx(LB,minClock(bed),'start')+tx(W,minClock(bed+end),'end');
+  for(var m=Math.ceil(bed/120)*120;m<bed+end;m+=120){var px=LB+(m-bed)*k;if(px-LB<36||W-px<36)continue;s+=tx(px,minClock(m),'middle')}
+  return '<svg class="sl-hy" viewBox="0 0 '+W+' '+H+'" aria-label="Фазы сна за ночь">'+s+'</svg>';
+}
+/* «Режим · 14 ночей»: each night from bedtime to wake-up on a clock axis, with the average bedtime and wake-up
+   and how much they swing (standard deviation). Nights that reached the sleep goal glow. */
+function sleepRhythmHtml(rec){
+  var t=todayISO(),from=isoAdd(t,-13),N=sleepNightsAll().filter(function(x){return x.date>=from&&x.date<=t&&clockMin(x.bed)!=null&&clockMin(x.wake)!=null});
+  if(N.length<5)return '';
+  var B=N.map(function(x){return clockMin(x.bed)}),E=N.map(function(x){return clockMin(x.wake)});
+  var mean=function(a){return a.reduce(function(p,c){return p+c},0)/a.length},sd=function(a){var m=mean(a);return Math.sqrt(mean(a.map(function(v){return (v-m)*(v-m)})))};
+  var wt=wakeTarget(rec),fs=friShort(),need=sleepNeed(rec);
+  // the clock range covers every night and both goal lines, whole hours, so nothing is drawn outside the plot
+  var lo=Math.floor((Math.min.apply(null,wt?B.concat(wt.bed):B)-5)/60)*60,hi=Math.ceil((Math.max.apply(null,wt?E.concat(wt.wake):E)+5)/60)*60;
+  var W=300,AX=38,PW=W-AX,top=7,ph=150,bot=top+ph,Hh=bot+20,col=PW/14,bw=Math.min(10,col-6),step=hi-lo>480?120:60;
+  var y=function(m){return top+(m-lo)/(hi-lo)*ph},id='rh'+(++svgN),s='';
+  s+='<defs><linearGradient id="'+id+'b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9DC2FF"/><stop offset="1" stop-color="#4E6EA8"/></linearGradient><linearGradient id="'+id+'v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EFFFAE"/><stop offset="1" stop-color="#9DBF2A"/></linearGradient></defs>';
+  for(var m=lo;m<=hi;m+=60){var gy=y(m),lab=!((m-lo)%step);
+    s+='<line x1="'+AX+'" x2="'+W+'" y1="'+gy.toFixed(1)+'" y2="'+gy.toFixed(1)+'" stroke="rgba(255,255,255,'+(lab?'.08':'.035')+')"/>';
+    if(lab)s+='<text x="'+(AX-8)+'" y="'+(gy+3.5).toFixed(1)+'" font-size="10" text-anchor="end" style="fill:var(--mu2)">'+minClock(m)+'</text>'}
+  var by={};N.forEach(function(x){by[x.date]=x});
+  for(var i=0;i<14;i++){var d=isoAdd(from,i),x=by[d],cx=AX+(i+.5)*col;
+    s+='<text x="'+cx.toFixed(1)+'" y="'+(Hh-4)+'" font-size="9.5" text-anchor="middle" style="fill:'+(i===13?'var(--volt);font-weight:700':'var(--mu2)')+'">'+WD2[dObj(d).getDay()]+'</text>';
+    if(!x)continue;
+    var y0=y(clockMin(x.bed)),y1=y(clockMin(x.wake)),ok=need!=null&&x.asleep>=need-0.05;
+    s+='<rect x="'+(cx-bw/2).toFixed(1)+'" y="'+y0.toFixed(1)+'" width="'+bw+'" height="'+(y1-y0).toFixed(1)+'" rx="'+(bw/2)+'" fill="url(#'+id+(ok?'v':'b')+')"/>'}
+  if(wt)[wt.bed,wt.wake].forEach(function(m){s+='<line x1="'+AX+'" x2="'+W+'" y1="'+y(m).toFixed(1)+'" y2="'+y(m).toFixed(1)+'" stroke="rgba(255,255,255,.7)" stroke-dasharray="3 4"/>'});
+  var mb=mean(B),me=mean(E),sb=sd(B),se=sd(E);
+  var lg='<div class="sd-lg"><span><i class="g"></i>сон от '+fmtN(need)+' ч</span><span><i class="b"></i>меньше</span>'+(wt?'<span><i class="ln"></i>цель</span>':'')+'</div>';
+  var tg='';
+  if(wt)tg='<div class="sl-tg"><span>Цель подъёма <b>'+minClock(wt.wake)+'</b></span><span>отбой до <b>'+minClock(wt.bed)+'</b></span></div>';
+  if(fs)tg+='<div class="sl-fs">Пт → сб: в среднем <b>'+fmtN(Math.round(fs.fri*10)/10)+' ч</b> сна против <b>'+fmtN(Math.round(fs.wk*10)/10)+' ч</b> в будни'+(fs.n<4?' ('+plural(fs.n,'пятница','пятницы','пятниц')+')':'')+'.</div>';
+  var worst=sb>se?['отбоя',sb]:['подъёма',se];
+  var tip=worst[1]>=45?'Время '+worst[0]+' гуляет на ±'+fmtMin(worst[1])+'. Организму легче, когда подъём одинаковый все 7 дней, в выходные тоже.':'Режим ровный: отбой и подъём держатся в пределах ±'+fmtMin(Math.max(sb,se))+'.';
+  return '<div class="glass sl"><div class="row-b"><span class="eyebrow">Режим · 14 ночей</span><span class="nb-cap">от отбоя до подъёма</span></div>'+
+    '<div class="sl-rt"><div><span>Отбой</span><b>'+minClock(mb)+'</b>±'+fmtMin(sb)+'</div><div><span>Подъём</span><b>'+minClock(me)+'</b>±'+fmtMin(se)+'</div></div>'+
+    '<svg class="sl-ch" viewBox="0 0 '+W+' '+Hh+'" aria-label="Отбой и подъём по ночам">'+s+'</svg>'+lg+tg+
+    '<div class="tdee-t" style="margin-top:10px">'+tip+'</div></div>';
+}
+/* Wake-up goal: the median weekday wake-up (Monday to Friday mornings) of the last 28 nights, to 5 minutes; bedtime by it =
+   the goal minus the sleep goal minus 15 minutes to fall asleep, rounded down to 5 minutes. Needs 5 weekday mornings. */
+function wakeTarget(rec){
+  var t=todayISO(),W=sleepNightsAll().filter(function(x){var g=dObj(x.date).getDay();return x.date>isoAdd(t,-28)&&x.date<=t&&g>=1&&g<=5&&clockMin(x.wake)!=null})
+    .map(function(x){return clockMin(x.wake)}).sort(function(a,b){return a-b});
+  if(W.length<5)return null;
+  var med=W.length%2?W[(W.length-1)/2]:(W[W.length/2-1]+W[W.length/2])/2,wake=Math.round(med/5)*5,need=sleepNeed(rec||recovery());
+  return {wake:wake,bed:Math.floor((wake-need*60-15)/5)*5};
+}
+/* Friday-to-Saturday nights against weekday nights over the last 28: hours asleep. Needs 2 Saturday mornings. */
+function friShort(){
+  var t=todayISO(),F=[],K=[];
+  sleepNightsAll().forEach(function(x){if(x.date<=isoAdd(t,-28)||x.date>t||x.asleep==null)return;var g=dObj(x.date).getDay();if(g===6)F.push(x.asleep);else if(g>=1&&g<=5)K.push(x.asleep)});
+  if(F.length<2||K.length<5)return null;
+  var m=function(a){return a.reduce(function(p,c){return p+c},0)/a.length};
+  return {fri:m(F),wk:m(K),n:F.length};
+}
+/* Friday from 17:00 on «Сегодня»: the bedtime that keeps Saturday's wake-up on the goal. */
+function fridayBedHtml(rec){
+  var d=new Date();if(d.getDay()!==5||d.getHours()<17)return '';
+  var wt=wakeTarget(rec);if(!wt)return '';
+  var fs=friShort(),why=fs&&fs.fri<fs.wk-0.5?' С пятницы на субботу ты обычно спишь '+fmtN(Math.round(fs.fri*10)/10)+' ч против '+fmtN(Math.round(fs.wk*10)/10)+' ч в будни.':'';
+  return '<button class="tap-card" data-act="tab" data-tab="sleep"><div class="glass sl-fri"><span class="eyebrow">Завтра суббота</span>'+
+    '<div class="sl-fri-t">Отбой до <b>'+minClock(wt.bed)+'</b></div><div class="tdee-t">Чтобы встать в '+minClock(wt.wake)+', как в будни, и поспать '+fmtHM(sleepNeed(rec)).replace(/ /g,'\u00a0')+'.'+why+'</div></div></button>';
+}
 /* Two glanceable numbers under the workout: today's calories against the goal and the latest weight. */
 function todayTilesHtml(){
   var N=S.boot.nutrition||[],t=todayISO(),r=null,i;
@@ -2513,7 +2721,7 @@ function weightCardHtml(){
   var dl=function(days,lb){var b=back(days);if(!b)return '';var d=Math.round((te.kg-b.kg)*10)/10;
     return '<div><b>'+(d>0?'+':d<0?'−':'±')+f1(Math.abs(d))+'</b>'+lb+'</div>'};
   var age=Math.round((dObj(t)-dObj(last.date))/864e5);
-  var when=age===0?'сегодня':age===1?'вчера':fmtDay(last.date)+(age>=14?' · '+plural(age,'день','дня','дней')+' назад':'');
+  var when=age===0?'сегодня':age===1?'вчера':fmtDay(last.date)+(age>=3?' · '+plural(age,'день','дня','дней')+' назад':'');
   var h='<div class="glass wt"><div class="row-b"><span class="eyebrow">Вес · '+esc(when)+'</span><span class="nb-cap">'+(NB?'из Здоровья':'лист «Тело»')+'</span></div>';
   h+='<div class="wt-main"><div class="wt-v">'+f1(last.kg)+'<small>кг</small></div><div class="wt-d">'+(W.length>=3?'<div><b>'+f1(te.kg)+'</b>тренд</div>':'')+dl(7,'за неделю')+dl(30,'за 30 дней')+'</div></div>';
   var from=isoAdd(last.date,-30),P=W.filter(function(x){return x.date>=from}),TP=T.filter(function(x){return x.date>=from});
@@ -2527,7 +2735,37 @@ function weightCardHtml(){
     h+='<svg class="wt-sp" viewBox="0 0 300 56" preserveAspectRatio="none" aria-label="Вес и тренд за 30 дней">'+dots+line+'</svg>';
     h+='<div class="wt-ax"><span>'+esc(fmtDay(from))+'</span><span class="wt-lg"><i class="d"></i>взвешивания<i class="l"></i>тренд</span><span>'+esc(fmtDay(last.date))+'</span></div>';
   }else h+='<div class="note-s" style="margin-top:12px">Динамика появится после следующих взвешиваний.</div>';
-  return h+tdeeHtml(W)+'</div>';
+  // the trend and the calorie check need 2–3 weighings a week; one a month says nothing about fat
+  if(age>=3)h+='<div class="note-s" style="margin-top:10px">Взвешивайся 2–3 раза в неделю утром, после туалета и до еды — иначе тренд и пересчёт калорий не работают.</div>';
+  return h+waistHtml()+tdeeHtml(W)+'</div>';
+}
+/* Waist from «Тело»: the last measurement and its change over 3+ weeks. Asked for once a week: the field shows when
+   the last measurement is 7+ days old. Weight alone cannot tell fat from water and muscle. */
+var WAIST_DAYS=7;
+function waistHtml(){
+  var B=((S.boot&&S.boot.body)||[]).filter(function(x){return x.waist!=null}),t=todayISO(),last=B[B.length-1],h='';
+  var f1=function(v){return fmtN(Math.round(v*10)/10)};
+  if(last){
+    var lim=isoAdd(last.date,-21),base=null;B.forEach(function(x){if(x.date<=lim)base=x});
+    var ch='';if(base){var d=Math.round((last.waist-base.waist)*10)/10,wk=Math.round((dObj(last.date)-dObj(base.date))/(7*864e5));
+      ch=' · '+(d>0?'+':d<0?'−':'±')+f1(Math.abs(d))+' см за '+plural(wk,'неделю','недели','недель')}
+    h+='<div class="wst-v">Талия <b>'+f1(last.waist)+' см</b> · '+esc(fmtDay(last.date))+esc(ch)+'</div>';
+  }
+  var due=!last||Math.round((dObj(t)-dObj(last.date))/864e5)>=WAIST_DAYS;
+  if(due)h+='<div class="wst"><input id="waist-in" type="number" inputmode="decimal" step="0.5" min="50" max="200" placeholder="Талия, см" aria-label="Талия, см">'+
+    '<button class="btn2 volt" data-act="waist-save">Записать</button></div><div class="note-s" style="margin-top:6px">Раз в неделю утром: лента на уровне пупка, на выдохе, не втягивая живот.</div>';
+  return h?'<div class="wst-box">'+h+'</div>':'';
+}
+function waistSave(btn){
+  var inp=$('#waist-in'),cm=Number(String(inp&&inp.value||'').replace(',','.'));
+  if(!(cm>=50&&cm<=200)){toast('Талия — число от 50 до 200 см','bad');return}
+  var t=todayISO();btn.disabled=true;btn.textContent='Записываю…';
+  google.script.run.withSuccessHandler(function(r){
+    var v=r&&r.cm||Math.round(cm*10)/10,body=S.boot.body=(S.boot.body||[]).slice(),row=null;
+    body.forEach(function(x){if(x.date===t)row=x});
+    if(row)row.waist=v;else{body.push({date:t,kg:null,waist:v,hk:false});body.sort(function(a,c){return a.date<c.date?-1:1})}
+    lsSet(LS.boot,S.boot);goalRefresh();toast('Талия '+fmtN(v)+' см записана в «Тело»','volt');
+  }).withFailureHandler(function(e){btn.disabled=false;btn.textContent='Записать';toast('Не записалось: '+((e&&e.message)||'нет связи'),'bad')}).saveWaist({date:t,cm:cm});
 }
 /* Real daily burn from the person's own data: average logged intake minus the energy of the weight trend
    (7700 kcal per kg) over the last 28 days up to yesterday. A suggestion only: the goals in «Прогресс» stay. */
@@ -2915,6 +3153,19 @@ function stepsSync(){
     lsSet(LS.boot,S.boot);tkRefresh();
   }).withFailureHandler(function(){hsSent=''}).saveSteps(todo);
 }
+/* Health's nights go to «Сон» once per page, only new or changed ones (the timeline stays in the phone). */
+var snSent='';
+function sleepSync(){
+  if(!S.sn||!S.boot)return;
+  var key=function(x){return [x.bed,x.wake,x.asleep,x.deep,x.rem,x.core,x.awake,x.wakes,x.resp,x.spo2,x.temp,x.dist,x.hrv,x.hr].join('|')};
+  var have={};(S.boot.sleep||[]).forEach(function(x){have[x.date]=key(x)});
+  var todo=S.sn.filter(function(x){return have[x.date]!==key(x)}).map(function(x){var y=Object.assign({},x);delete y.segs;return y});
+  var sig=JSON.stringify(todo);if(!todo.length||sig===snSent)return;snSent=sig;
+  google.script.run.withSuccessHandler(function(){
+    var by={};(S.boot.sleep||[]).forEach(function(x){by[x.date]=x});todo.forEach(function(x){by[x.date]=x});
+    S.boot.sleep=Object.keys(by).sort().map(function(d){return by[d]}).slice(-90);lsSet(LS.boot,S.boot);
+  }).withFailureHandler(function(){snSent=''}).saveSleep(todo);
+}
 function homeCta(){
   if(!S.session&&restDay())return '<div class="rest-cap">Сегодня отдых · следующая — Full Body '+esc(nextDay())+', '+whenText(nextTrainDate(todayISO()))+'</div><button class="cta ghost" data-act="start">Всё равно начать Full Body '+S.day+'</button>';
   if(!S.session){var pv=modePreview();if(pv)return '<div class="rest-cap">'+pv+'</div><button class="cta" data-act="start">Начать Full Body '+S.day+'</button>'}
@@ -3026,7 +3277,7 @@ function exPage(ex,i,total){
 
 function modeBar(){
   var c=S.session.coach;if(!c||S.session.backfill)return '';
-  var lbl={light:'<b>Лёгкий день</b> · без прогресса, запас 2–3',push:'<b>Сильный день</b> · +1 повтор везде, где можно',normal:'<b>Обычный день</b> · цель с прогрессией'}[c.mode],to=c.mode==='normal'?'light':'normal';
+  var lbl={light:'<b>Лёгкий день</b> · без прогресса, запас 2–3',push:'<b>Сильный день</b> · +1 повтор везде, где можно',normal:'<b>Обычный день</b> · цель с прогрессией',deload:'<b>Разгрузка</b> · подходов вдвое меньше, запас 3–4'}[c.mode],to=c.mode==='normal'?'light':'normal';
   return '<div class="mode '+c.mode+'"><span>'+lbl+'</span><button data-act="mode" data-v="'+to+'">'+(to==='light'?'Лёгкий':'Обычный')+'</button></div>';
 }
 function finishPage(){
@@ -3112,6 +3363,7 @@ document.addEventListener('click',function(e){
     case 'cardio-all':S.cardioAll=!S.cardioAll;render();break;
     case 'tk-tap':tkToggle(+a.dataset.i);break;
     case 'goal-ok':goalAccept(+a.dataset.kcal,a);break;
+    case 'waist-save':waistSave(a);break;
     case 'goal-skip':lsSet(LS.goalSkip,todayISO());goalRefresh();break;
     case 'meal-ai':S.aiErr.meal=null;aiRequest('meal','suggestMeal',{date:todayISO()});break;
     case 'hab-t':habToggle(a.dataset.k);break;
@@ -3180,6 +3432,7 @@ function ciPick(feel,rec,ai,wb){
       return {mode:m,why:f.why?[f.why]:[],ai:1}}
     return decideMode(feel,rec);
   }
+  if(deloadWeek(todayISO()))return {mode:'deload',why:[DELOAD_WHY]};
   var m=pick0();
   if(wb&&wb.mood<=2&&m.mode==='push')return {mode:'normal',why:['утром настроение на нуле — по плану, без рекордов']};
   return m;
@@ -3275,7 +3528,7 @@ function toggleSet(exId,n){
     return;
   }
   var lbl=nx.ex.id!==ex.id&&nx.n===1&&wuNext(nx.ex)?'Дальше: разминочный · '+short(nx.ex.name):nx.label;
-  if(!S.session.backfill){startRest(ex.restSec,lbl);S.session.rest.src=exId+'#'+n;saveSession()}
+  if(!S.session.backfill){startRest(restFor(ex),lbl);S.session.rest.src=exId+'#'+n;saveSession()}
   if(nx&&nx.ex.id!==ex.id&&remaining)setTimeout(function(){goToEx(nx.ex.id)},380); // back to the first exercise of the superset
   else if(nx&&nx.ex.id===ex.id)revealRow(ex.id,nx.n);
 }
@@ -3617,7 +3870,7 @@ function load(done){
     S.boot=b;dayCache={};S._wl=null;S.queue.forEach(function(it){if(it.op==='saveSet')mergeLog(it.p);else if(it.op==='deleteSet')unmergeLog(it.p)});lsSet(LS.boot,b);
     if(done)done(true);
     if(wbToday())nbPost({type:'wellbeing',date:todayISO()}); // marked earlier or elsewhere: no reminder today
-    setTimeout(function(){aiEnsure();aiReviewMaybe();weightsSync();stepsSync()},0);
+    setTimeout(function(){aiEnsure();aiReviewMaybe();weightsSync();stepsSync();sleepSync()},0);
     if(S.view==='workout'&&($('#pager')||$('#wu')))return; // never redraw under the fingers mid-workout
     if(S.view==='home'&&document.activeElement&&document.activeElement.tagName==='INPUT')return;
     render();
@@ -3664,7 +3917,7 @@ function nbQueue(){
     if(out.length>=30)break;
     var o=nbSet(cur.ex,cur.n);
     out.push({exId:cur.ex.id,n:cur.n,name:short(cur.ex.name),target:nbTarget(cur.ex,o),canMark:nbFilled(cur.ex,o),
-      setsTotal:setCount(cur.ex),rest:ssNext(cur.ex)?0:(cur.ex.restSec||0)});
+      setsTotal:setCount(cur.ex),rest:ssNext(cur.ex)?0:restFor(cur.ex)});
     vd[cur.ex.id+'#'+cur.n]=1;cur=nextAfter(cur.ex);
   }
   return out;
@@ -3818,6 +4071,13 @@ if(NB){
       if(!Array.isArray(list))return;
       S.hs=list.filter(function(x){return x&&/^\d{4}-\d{2}-\d{2}$/.test(x.date)&&x.date<todayISO()&&typeof x.steps==='number'&&x.steps>=0&&x.steps<=150000}).slice(-400);
       stepsSync();
+    },
+    // the last nights from Health with stages; the newest may carry its stage timeline (segs)
+    sleep:function(list){
+      if(!Array.isArray(list))return;
+      S.sn=list.map(sleepClean).filter(Boolean).slice(-90);lsSet('wf1.sn',S.sn);
+      if(S.view==='home'&&S.tab==='sleep')render();
+      sleepSync();
     }
   };
   nbPost({type:'ready'});
