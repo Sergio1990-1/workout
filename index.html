@@ -664,6 +664,7 @@ body.resting .wu-bottom{padding-bottom:calc(var(--sb) + 92px)}
 .sl-rt b{display:inline-block;font-size:24px;font-weight:600;color:var(--tx);margin:2px 6px 0 0;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .sl-tg{display:flex;justify-content:space-between;margin-top:16px;padding:10px 12px;border-radius:14px;background:rgba(212,255,58,.07);font-size:13px;color:var(--mu)}
 .sl-tg b{color:var(--volt);font-weight:700;font-size:15px;margin-left:4px;font-variant-numeric:tabular-nums}
+.sl-tg small{font-size:12px;color:var(--mu2);margin-left:6px}
 .sl-fs{font-size:13px;color:var(--mu);margin-top:10px}
 .sl-fs b{color:var(--tx);font-weight:600}
 .sl-fri{margin-top:12px}
@@ -1623,6 +1624,10 @@ function tkState(t,date,i){
       var r2=healthRows().filter(function(x){return x.date===nx})[0];
       if(!r2||r2.sleep==null)return {st:'na',p:0,note:'сна нет в Здоровье'};
       return r2.sleep>=t.target-0.05?{st:'ok',p:1,note:'поспал '+fmtHM(r2.sleep)}:{st:'fail',p:r2.sleep/t.target,note:'поспал '+fmtHM(r2.sleep)}}
+    case 'bed':{var nb=isoAdd(date,1);if(nb>today)return {st:'wait',p:0,note:'проверю утром по часам'};
+      var sn=sleepNightsAll().filter(function(x){return x.date===nb})[0],bm=sn?clockMin(sn.bed):null;
+      if(bm==null)return {st:'na',p:0,note:'отбоя нет в данных сна'};
+      return bm<=t.target+10?{st:'ok',p:1,note:'лёг в '+sn.bed+(sn.wake?', встал в '+sn.wake:'')}:{st:'fail',p:0,note:'лёг в '+sn.bed+(sn.wake?', встал в '+sn.wake:'')}}
     case 'workout':{var did=workoutsList().some(function(w){return w.date===date})||(!past&&doneToday());
       return did?{st:'ok',p:1,note:'тренировка записана'}:{st:past?'fail':'wait',p:0,note:past?'тренировки не было':'по плану сегодня'}}
     default:{var m=((lsGet(LS_TK,{})||{})[date]||{})[t.text]; // by text: a rewritten advice keeps its ticks
@@ -2614,7 +2619,9 @@ function sleepRhythmHtml(rec){
   var mb=mean(B),me=mean(E),sb=sd(B),se=sd(E);
   var lg='<div class="sd-lg"><span><i class="g"></i>сон от '+fmtN(need)+' ч</span><span><i class="b"></i>меньше</span>'+(wt?'<span><i class="ln"></i>цель</span>':'')+'</div>';
   var tg='';
-  if(wt)tg='<div class="sl-tg"><span>Цель подъёма <b>'+minClock(wt.wake)+'</b></span><span>отбой до <b>'+minClock(wt.bed)+'</b></span></div>';
+  if(wt){var far=wt.ladder&&wt.final<wt.wake;
+    tg='<div class="sl-tg"><span>Подъём <b>'+minClock(wt.wake)+'</b>'+(far?'<small>→ '+minClock(wt.final)+'</small>':'')+'</span><span>отбой до <b>'+minClock(wt.bed)+'</b></span></div>';
+    if(wt.ladder)tg+='<div class="sl-fs">'+(far?'Идём к подъёму в '+minClock(wt.final)+' по 15 минут: цель сдвигается раньше, когда 3 утра из 4 встаёшь не позже цели.':'Цель достигнута: держи подъём в '+minClock(wt.final)+' все 7 дней.')+'</div>'}
   if(fs)tg+='<div class="sl-fs">Пт → сб: в среднем <b>'+fmtN(Math.round(fs.fri*10)/10)+' ч</b> сна против <b>'+fmtN(Math.round(fs.wk*10)/10)+' ч</b> в будни'+(fs.n<4?' ('+plural(fs.n,'пятница','пятницы','пятниц')+')':'')+'.</div>';
   var worst=sb>se?['отбоя',sb]:['подъёма',se];
   var tip=worst[1]>=45?'Время '+worst[0]+' гуляет на ±'+fmtMin(worst[1])+'. Организму легче, когда подъём одинаковый все 7 дней, в выходные тоже.':'Режим ровный: отбой и подъём держатся в пределах ±'+fmtMin(Math.max(sb,se))+'.';
@@ -2626,6 +2633,9 @@ function sleepRhythmHtml(rec){
 /* Wake-up goal: the median weekday wake-up (Monday to Friday mornings) of the last 28 nights, to 5 minutes; bedtime by it =
    the goal minus the sleep goal minus 15 minutes to fall asleep, rounded down to 5 minutes. Needs 5 weekday mornings. */
 function wakeTarget(rec){
+  // the server's wake-up ladder toward 7:00 (from «Сон»), when it has the nights for it
+  var g=S.boot&&S.boot.sleepGoal;
+  if(g&&clockMin(g.wake)!=null&&clockMin(g.bed)!=null)return {wake:clockMin(g.wake),bed:clockMin(g.bed),final:clockMin(g.final),ladder:true};
   var t=todayISO(),W=sleepNightsAll().filter(function(x){var g=dObj(x.date).getDay();return x.date>isoAdd(t,-28)&&x.date<=t&&g>=1&&g<=5&&clockMin(x.wake)!=null})
     .map(function(x){return clockMin(x.wake)}).sort(function(a,b){return a-b});
   if(W.length<5)return null;
@@ -2646,7 +2656,7 @@ function fridayBedHtml(rec){
   var wt=wakeTarget(rec);if(!wt)return '';
   var fs=friShort(),why=fs&&fs.fri<fs.wk-0.5?' С пятницы на субботу ты обычно спишь '+fmtN(Math.round(fs.fri*10)/10)+' ч против '+fmtN(Math.round(fs.wk*10)/10)+' ч в будни.':'';
   return '<button class="tap-card" data-act="tab" data-tab="sleep"><div class="glass sl-fri"><span class="eyebrow">Завтра суббота</span>'+
-    '<div class="sl-fri-t">Отбой до <b>'+minClock(wt.bed)+'</b></div><div class="tdee-t">Чтобы встать в '+minClock(wt.wake)+', как в будни, и поспать '+fmtHM(sleepNeed(rec)).replace(/ /g,'\u00a0')+'.'+why+'</div></div></button>';
+    '<div class="sl-fri-t">Отбой до <b>'+minClock(wt.bed)+'</b></div><div class="tdee-t">Чтобы встать в '+minClock(wt.wake)+(wt.ladder?' — подъём и в выходные тот же —':', как в будни,')+' и поспать '+fmtHM(sleepNeed(rec)).replace(/ /g,'\u00a0')+'.'+why+'</div></div></button>';
 }
 /* Two glanceable numbers under the workout: today's calories against the goal and the latest weight. */
 function todayTilesHtml(){
